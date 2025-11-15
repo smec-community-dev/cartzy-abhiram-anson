@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seller Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
+        
+        <h2 class="text-2xl font-bold text-center mb-6">Seller Registration</h2>
+
+        <!-- Display messages -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-3 text-white rounded 
+                        {% if message.tags == 'error' %}
+                            bg-red-500
+                        {% else %}
+                            bg-green-500
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Username</label>
+                <input type="text" name="username" class="w-full p-2 border rounded" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Email</label>
+                <input type="email" name="email" class="w-full p-2 border rounded" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Password</label>
+                <input type="password" name="password" class="w-full p-2 border rounded" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Shop Name</label>
+                <input type="text" name="shop_name" class="w-full p-2 border rounded" required>
+            </div>
+
+            <button class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
+                Register
+            </button>
+
+            <p class="text-center mt-4 text-gray-600">
+                Already have a seller account?  
+                <a href="{% url 'seller_login' %}" class="text-blue-600 font-semibold">Login</a>
+            </p>
+        </form>
+    </div>
+</body>
+</html>
