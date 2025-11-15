@@ -4,6 +4,12 @@ from .models import CustomerProfile
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 
+def home_view(request):
+    return render(request, 'user/home.html')
+
+def about_view(request):
+    return render(request, 'user/about.html')
+
 def user_reg_view(request):
     if request.method=='POST':
         firstname=request.POST['firstname']
