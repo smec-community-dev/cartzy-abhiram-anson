@@ -9,22 +9,29 @@ User = get_user_model()
 
 def seller_register(request):
     if request.method == "POST":
+        firstname = request.POST["firstname"]
+        lastname = request.POST["lastname"]
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
         shop_name = request.POST["shop_name"]
+        contact_number = request.POST["phone"]
+        gst_number = request.POST["gst_number"]
+        address = request.POST["address"]
 
     
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken.")
-            return redirect("seller_register")
+            return redirect("/seller/register/")
 
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already exists.")
-            return redirect("seller_register")
+            return redirect("/seller/register/")
 
         
         user = User.objects.create_user(
+            first_name = firstname,
+            last_name = lastname,
             username=username,
             email=email,
             password=password,
@@ -34,10 +41,13 @@ def seller_register(request):
         
         SellerProfile.objects.create(
             user=user,
-            shop_name=shop_name
+            shop_name = shop_name,
+            gst_number = gst_number,
+            address = address,
+            contact_number = contact_number
         )
 
-        return redirect("seller_login")
+        return redirect("/seller/login/")
 
     return render(request, "seller/seller_register.html")
 
@@ -52,22 +62,22 @@ def seller_login(request):
 
         if user is None:
             messages.error(request, "Invalid username or password")
-            return redirect("seller_login")
+            return redirect("/seller/login")
 
         
         if user.role != "seller":
             messages.error(request, "This login is only for sellers")
-            return redirect("seller_login")
+            return redirect("/seller/login")
 
         
         try:
             seller = user.seller_profile
         except SellerProfile.DoesNotExist:
             messages.error(request, "Please complete your seller profile.")
-            return redirect("seller_create_profile")
+            return redirect("/seller/register")
 
         login(request, user)
-        return redirect("seller_dashboard")
+        return redirect("/seller/dashboard")
 
     return render(request, "seller/seller_login.html")
 
@@ -77,7 +87,7 @@ def seller_login(request):
 def seller_dashboard(request):
     seller = request.user.seller_profile
     products = seller.products.all()
-    return render(request, "seller/dashboard.html", {"products": products})
+    return render(request, "seller/seller_dashboard.html", {"products": products})
 
 
 
