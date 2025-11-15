@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Minimal Store</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">CARTZY</div>
+
+  <input type="checkbox" id="menu-toggle" class="menu-toggle">
+  <label for="menu-toggle" class="hamburger">☰</label>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="wishlist.html">Wishlist</a>
+    <a href="account.html">Account</a>
+  </nav>
+
+  <a href="cart.html" class="cart-icon">🛒</a>
+</header>
+
+<section class="auth-page">
+  <div class="auth-container">
+    <h1>Create Account</h1>
+    <p class="auth-subtitle">Join MinimalStore today</p>
+
+    <form class="auth-form" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="fullname">First Name</label>
+        <input type="text" name="firstname" placeholder="John Doe" required>
+      </div>
+      <div class="form-group">
+        <label for="lastname">Last Name</label>
+        <input type="text" name="lastname" placeholder="John Doe" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" name="phone" placeholder="+91 98765 43210" required>
+      </div>
+
+       <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="At least 8 characters" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" name ="confirm-password" placeholder="Re-enter password" required>
+      </div>
+
+      <div class="form-options">
+        <label class="remember-me">
+          <input type="checkbox" id="terms" required>
+          <span>I agree to the Terms & Conditions</span>
+        </label>
+      </div>
+
+      <button type="submit" name='register_btn' class="btn auth-submit">Create Account</button>
+
+      <p class="auth-switch">
+        Already have an account? <a href="login.html">Sign In</a>
+      </p>
+    </form>
+
+    <div class="auth-divider">
+      <span>or sign up with</span>
+    </div>
+
+    <div class="social-auth">
+      <button type="button" class="social-btn">
+        <span>🔵</span> Google
+      </button>
+      <button type="button" class="social-btn">
+        <span>📘</span> Facebook
+      </button>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
