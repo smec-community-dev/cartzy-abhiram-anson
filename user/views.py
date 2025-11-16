@@ -60,4 +60,8 @@ def user_category_view(request):
     Categories=Category.objects.all()
     
     return render(request, 'user/user_view_category.html', {'categories':Categories})
+
+
+def user_products_view(request, id):
+    return render(request, 'user_view_prodcts.html')
         
