@@ -47,7 +47,9 @@ def login_view(request):
             return HttpResponse('<scripts>alert("Invalid!!!");</scripts>')
     return render(request, 'user/login.html')
 
-
+def logout_view(request):
+    logout(request)
+    return redirect('home')
     
 
 def user_home_view(request):
