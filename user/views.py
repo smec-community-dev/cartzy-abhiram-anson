@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from core.models import User
 from .models import CustomerProfile
+from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 
@@ -42,7 +43,7 @@ def login_view(request):
         user=authenticate(username=username, password=password)
         if user is not None and user.role == 'customer':
             login(request, user)
-            return redirect('/customerhome/')
+            return redirect('/userhome/')
         else:
             return HttpResponse('<scripts>alert("Invalid!!!");</scripts>')
     return render(request, 'user/login.html')
@@ -54,4 +55,9 @@ def logout_view(request):
 
 def user_home_view(request):
     return render(request, 'user/user_home.html')
+
+def user_category_view(request):
+    Categories=Category.objects.all()
+    
+    return render(request, 'user/user_view_category.html', {'categories':Categories})
         

@@ -6,7 +6,13 @@ urlpatterns=[
     path('About', views.about_view, name='about_us'),
     path('UserReg/', views.user_reg_view, name='/register/'),
     path('login/', views.login_view, name='/login/'),
-    path('logout/', views.logout_view, name='/loginout/'),
-    path('customerhome/', views.user_home_view),
+    path('logout/', views.logout_view, name='/logout/'),
+    path('userhome/', views.user_home_view),
+    
+    
+    path('categories/', views.user_category_view, name='user_view_category'),
+    
+    
+    
     
 ]
