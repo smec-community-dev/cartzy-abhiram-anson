@@ -180,15 +180,16 @@
         <div class="login-box">
             <h2>Login to Your Account</h2>
 
-            <form action="#">
+            <form method="post">
+                {% csrf_token %}
                 <div class="input-group">
                     <label>Email Address</label>
-                    <input type="email" placeholder="Enter your email" required>
+                    <input type="text" name = "username" placeholder="Enter your email" required>
                 </div>
 
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" placeholder="Enter password" required>
+                    <input type="password" name= 'password' placeholder="Enter password" required>
                 </div>
 
                 <button class="login-btn">Login</button>

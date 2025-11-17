@@ -11,7 +11,7 @@
             </div>
             <div class="col-lg-4 text-center d-flex align-items-center justify-content-center">
                 <small class="text-dark">Call Us:</small>
-                <a href="#" class="text-muted">(+012) 1234 567890</a>
+                <a href="#" class="text-muted">7736299405</a>
             </div>
 
             <div class="col-lg-4 text-center text-lg-end">
@@ -138,8 +138,9 @@
                     <div class="collapse navbar-collapse" id="navbarCollapse">
                         <div class="navbar-nav ms-auto py-0">
                             <a href="index.html" class="nav-item nav-link active">Home</a>
-                            <a href="shop.html" class="nav-item nav-link">Shop</a>
-                            <a href="single.html" class="nav-item nav-link">Single Page</a>
+                            <a href="{% url 'user_view_category' %}" class="nav-item nav-link">Category</a>
+                            <a href="{% url 'user_view_all_products' %}" class="nav-item nav-link">Products</a>
+                            
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0">
@@ -150,8 +151,8 @@
                                 </div>
                             </div>
                             <a href="contact.html" class="nav-item nav-link me-2">Contact</a>
-                            <a href="{% url '/login/' %}" class="nav-item nav-link me-2">Login </a>
-                            <a href="{%url '/register/' %}" class="nav-item nav-link me-2">Register </a>
+                            <a href="{% url '/logout/' %}" class="nav-item nav-link me-2">Logout </a>
+                            
                             <div class="nav-item dropdown d-block d-lg-none mb-3">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">All Category</a>
                                 <div class="dropdown-menu m-0">

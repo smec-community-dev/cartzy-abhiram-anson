@@ -11,6 +11,8 @@ urlpatterns=[
     
     
     path('categories/', views.user_category_view, name='user_view_category'),
+    path('allproducts/', views.user_view_all_products, name='user_view_all_products'),
+    path('products/<int:id>/', views.user_view_products, name='user_view_products'),
     
     
     

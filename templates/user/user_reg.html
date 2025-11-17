@@ -16,7 +16,6 @@
             background-color: #f5f5f5;
         }
 
-        /* Top Bar */
         .header-top {
             background-color: #800000;
             padding: 8px 0;
@@ -29,20 +28,15 @@
             display: flex;
             justify-content: space-between;
         }
-        .header-top a {
-            color: #fff;
-            text-decoration: none;
-        }
 
-        /* Logo Area */
         .header-mid {
             padding: 15px 0;
             width: 90%;
             margin: auto;
             display: flex;
-            justify-content: flex-start;
             align-items: center;
         }
+
         .logo {
             font-size: 32px;
             font-weight: 700;
@@ -50,16 +44,12 @@
             display: flex;
             align-items: center;
         }
-        .logo i {
-            font-size: 30px;
-            margin-right: 10px;
-        }
 
-        /* Navbar */
         .header-bottom {
             background-color: #5a1d16;
             padding: 12px 0;
         }
+
         .nav {
             width: 90%;
             margin: auto;
@@ -67,13 +57,13 @@
             gap: 28px;
             color: #fff;
         }
+
         .nav a {
             color: #fff;
             text-decoration: none;
             font-size: 15px;
         }
 
-        /* REGISTER WRAPPER */
         .register-wrapper {
             width: 100%;
             display: flex;
@@ -93,7 +83,6 @@
             text-align: center;
             font-size: 26px;
             font-weight: 600;
-            color: #333;
             margin-bottom: 25px;
         }
 
@@ -112,19 +101,17 @@
 
         .input-group label {
             display: block;
-            font-size: 14px;
-            color: #444;
             margin-bottom: 6px;
+            color: #444;
+            font-size: 14px;
         }
 
-        .input-group input,
-        .input-group select {
+        .input-group input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 15px;
-            outline: none;
         }
 
         .register-btn {
@@ -135,9 +122,8 @@
             border-radius: 6px;
             color: #fff;
             font-size: 17px;
-            font-weight: 500;
-            cursor: pointer;
             margin-top: 25px;
+            cursor: pointer;
         }
 
         .register-btn:hover {
@@ -155,11 +141,11 @@
             font-weight: 500;
         }
     </style>
+
 </head>
 
 <body>
 
-    <!-- ================= TOP HEADER ================= -->
     <div class="header-top">
         <div class="container">
             <div>Help / Support / Contact</div>
@@ -167,26 +153,20 @@
         </div>
     </div>
 
-    <!-- ================= LOGO ================= -->
     <div class="header-mid">
-        <div class="logo">
-            <i>🛒</i> Electro
-        </div>
+        <div class="logo">🛒 Electro</div>
     </div>
 
-    <!-- ================= NAVBAR ================= -->
     <div class="header-bottom">
         <div class="nav">
             <a href="#">Home</a>
             <a href="#">Shop</a>
-            <a href="#">Single Page</a>
             <a href="#">Contact</a>
             <a href="#">Login</a>
             <a href="#">Register</a>
         </div>
     </div>
 
-    <!-- ================= REGISTER BOX ================= -->
     <div class="register-wrapper">
         <div class="register-box">
             <h2>Create Your Account</h2>
@@ -199,11 +179,9 @@
                     <!-- LEFT COLUMN -->
                     <div class="column">
 
-                        <h3 style="color:#800000; margin-bottom:5px;">User Details</h3>
-
                         <div class="input-group">
-                            <label>Username</label>
-                            <input type="text" name="username" placeholder="Enter username" required>
+                            <label>First Name</label>
+                            <input type="text" name="firstname" placeholder="Enter first name" required>
                         </div>
 
                         <div class="input-group">
@@ -216,9 +194,19 @@
                             <input type="password" name="password" placeholder="Enter password" required>
                         </div>
 
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="column">
+
                         <div class="input-group">
-                            <label>Confirm Password</label>
-                            <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                            <label>Last Name</label>
+                            <input type="text" name="lastname" placeholder="Enter last name" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" name="username" placeholder="Enter username" required>
                         </div>
 
                         <div class="input-group">
@@ -226,46 +214,9 @@
                             <input type="text" name="phone" placeholder="Enter phone number" required>
                         </div>
 
-                    </div>
-
-                    <!-- RIGHT COLUMN -->
-                    <div class="column">
-
-                        <h3 style="color:#800000; margin-bottom:5px;">Address Details</h3>
-
                         <div class="input-group">
-                            <label>Full Name</label>
-                            <input type="text" name="full_name" placeholder="Enter full name" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Phone</label>
-                            <input type="text" name="address_phone" placeholder="Enter phone" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Street</label>
-                            <input type="text" name="street" placeholder="Street address" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>City</label>
-                            <input type="text" name="city" placeholder="City" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>State</label>
-                            <input type="text" name="state" placeholder="State" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Postal Code</label>
-                            <input type="text" name="postal_code" placeholder="Postal Code" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Country</label>
-                            <input type="text" name="country" value="India" required>
+                            <label>Confirm Password</label>
+                            <input type="password" name="confirm-password" placeholder="Confirm password" required>
                         </div>
 
                     </div>

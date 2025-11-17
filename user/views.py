@@ -4,6 +4,7 @@ from .models import CustomerProfile
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from seller.models import Product
 
 def home_view(request):
     return render(request, 'user/index.html')
@@ -61,3 +62,11 @@ def user_category_view(request):
     
     return render(request, 'user/user_view_category.html', {'categories':Categories})
         
+        
+def user_view_all_products(request):
+    products=Product.objects.all()
+    return render(request, 'user/user_view_products.html', {'products':products})
+
+def user_view_products(request, id):
+    products=Product.objects.filter(id = id)
+    return render(request, 'user/user_view_products.html', {'products':products})
