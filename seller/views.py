@@ -141,7 +141,7 @@ def add_product(request):
         )
 
     
-        images = request.FILES.getlist("images")
+        images = request.FILES.getlist("images[]")
         main_index = int(request.POST.get("main_image", 0))
 
         for i, img in enumerate(images):
@@ -150,6 +150,7 @@ def add_product(request):
                 image=img,
                 is_main=(i == main_index)
             )
+
 
         return redirect("/seller/dashboard")
 
