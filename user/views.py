@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from core.models import User
-from .models import CustomerProfile
+from .models import CustomerProfile, Cart, CartItem, Wishlist
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from seller.models import Product
+from seller.models import Product, ProductImage
 
 def home_view(request):
     return render(request, 'user/index.html')
@@ -58,8 +58,7 @@ def user_home_view(request):
     return render(request, 'user/user_home.html')
 
 def user_category_view(request):
-    Categories=Category.objects.all()
-    
+    Categories=Category.objects.all()    
     return render(request, 'user/user_view_category.html', {'categories':Categories})
         
         
@@ -68,5 +67,57 @@ def user_view_all_products(request):
     return render(request, 'user/user_view_products.html', {'products':products})
 
 def user_view_products(request, id):
-    products=Product.objects.filter(id = id)
-    return render(request, 'user/user_view_products.html', {'products':products})
+    products=Product.objects.filter(category_id = id)    
+    return render(request, 'user/user_view_products.html',{'products':products})
+
+def user_view_product_details(request, id):
+    product_details=Product.objects.get(id=id)
+    return render(request, 'user/user_view_single_products.html', {'product_details':product_details})
+
+def user_add_to_cart(request, id):
+    product_id=id
+    user_id=request.user.id
+    quantity=int(request.POST.get('quantity', 1))
+    
+    cart, creat=Cart.objects.get_or_create(customer_id=user_id)
+    cartitem, created=CartItem.objects.get_or_create(cart=cart, product_id=product_id,  defaults={"quantity": quantity})
+    if not created:
+        cartitem.quantity+=quantity
+        cartitem.save()
+    return redirect (request.META.get('HTTP_REFERER', '/'))
+
+def user_view_cart(request):
+    user_id=request.user.id
+    cart=Cart.objects.get(customer_id=user_id)
+    cartitems=CartItem.objects.filter(cart_id=cart)
+    subtotal=0
+    for item in cartitems:
+        subtotal+=item.subtotal()
+    shipping = 50 
+    grand_total = subtotal + shipping
+    context={
+        'cartitems':cartitems,
+        'subtotal':subtotal,
+        'shipping':shipping,
+        'grand_total':grand_total
+    }
+    return render(request, 'user/user_view_cart.html',{'context':context})
+
+def user_remove_cart_item(request, id):
+    cartitem=CartItem.objects.get(id=id)
+    cartitem.delete()
+    return redirect(request.META.get('HTTP_REFERER', '/'))  
+
+def user_add_to_wishlist(request, id):
+    user_id=request.user.id
+    product_id=id
+    if not Wishlist.objects.filter(product_id=product_id):
+        Wishlist.objects.create(customer_id=user_id, product_id=product_id)
+    return redirect (request.META.get('HTTP_REFERER', '/'))
+    
+def user_view_wishlist(request):
+    user_id=request.user.id
+    wish=Wishlist.objects.filter(customer_id=user_id)
+    print(wish)
+    return render(request, 'user/user_view_wishlist.html', {'wish':wish})
+    

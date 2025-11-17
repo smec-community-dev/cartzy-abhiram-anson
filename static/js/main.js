@@ -143,19 +143,21 @@
 
     // Product Quantity
     $('.quantity button').on('click', function () {
-        var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
-        if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
-            }
-        }
-        button.parent().parent().find('input').val(newVal);
-    });
+    let container = $(this).closest('.quantity');   // finds the right group
+    let input = container.find('input[name="quantity"]');  // finds the correct input
+
+    let oldVal = parseInt(input.val()) || 1;
+    let newVal = oldVal;
+
+    if ($(this).hasClass('btn-plus')) {
+        newVal = oldVal + 1;
+    } else {
+        newVal = oldVal > 1 ? oldVal - 1 : 1;
+    }
+
+    input.val(newVal);  // 🔥 finally sets new quantity
+});
+
 
 
     
