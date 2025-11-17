@@ -1,0 +1,82 @@
+
+<!-- Dashboard Header -->
+<div class="container-fluid bg-light py-5 mb-4">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold">Seller Dashboard</h1>
+        <p class="text-muted">Manage your products, edit listings, and add new items</p>
+    </div>
+</div>
+
+<!-- Dashboard Content -->
+<div class="container pb-5">
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Your Products</h4>
+            <a href="/seller/addproduct" class="btn btn-primary rounded-pill px-4 py-2">
+                <i class="fas fa-plus me-2"></i>Add Product
+            </a>
+        </div>
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for p in products %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <img src="{{ p.image.url }}" alt="{{ p.name }}" class="rounded border" 
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                            </td>
+
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.category }}</td>
+                            <td>₹{{ p.price }}</td>
+                            <td>{{ p.stock }}</td>
+
+                            <td>
+                                {% if p.stock > 0 %}
+                                    <span class="badge bg-success">In Stock</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                               
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3"></i><br>
+                                No products found. Add one using the button above.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
