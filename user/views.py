@@ -1,6 +1,8 @@
+import datetime
+import random
 from django.shortcuts import render, redirect
 from core.models import User
-from .models import CustomerProfile, Cart, CartItem, Wishlist, Address
+from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, OrderItem
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -101,6 +103,7 @@ def user_view_cart(request):
     shipping = 50 
     grand_total = subtotal + shipping
     context={
+        'cart':cart,
         'cartitems':cartitems,
         'subtotal':subtotal,
         'shipping':shipping,
@@ -130,7 +133,7 @@ def user_view_wishlist(request):
 def user_view_account(request):
     user_id=request.user.id
     user=User.objects.get(id=user_id)
-    cust=CustomerProfile.objects.get(user_id=user)
+    cust=CustomerProfile.objects.get(user_id=user_id)
     address=Address.objects.filter(customer_id=user_id).first()
     context={
         'username':user.username,
@@ -193,4 +196,38 @@ def user_update_account(request):
             Address.objects.create(customer_id=user_id,full_name=user.first_name, phone=phno, street=street, city=city, state=state, postal_code=postal, country=country)
         
     return render(request, 'user/user_update_account.html', {'context':context})
+
+def generate_order_number():
+    today = datetime.datetime.now().strftime("%Y%m%d")  
+    random_number = random.randint(1000, 9999)
+    return f"ORD{today}{random_number}"
+
+def user_proceed_to_checkout(request, id):
+    customer=request.user.id
+    cart=Cart.objects.get(id=id, customer_id=customer)
+    address=Address.objects.get(customer_id=request.user)
+    order_no=generate_order_number()
+    tot_amount=cart.total_amount()
+
+    
+    cartitems=CartItem.objects.filter(cart_id=cart.id)
+    order=Order.objects.create(customer_id = customer, 
+                               address=address,
+                               order_number=order_no, 
+                               status ='Pending', 
+                               total_amount=tot_amount)
+    for item in cartitems:
+        OrderItem.objects.create(order_id=order.id,
+                                 product_id=item.product.id,
+                                 product_name=item.product.name,
+                                 product_sku=item.product.sku,
+                                 quantity=item.quantity,
+                                 price=item.product.price
+                                 )
+    cart.delete()
+    return render(request, 'user/user_home.html')
+
+
+def user_view_order(request):
+    return render(request, 'user/user_view_orders.html')
     
