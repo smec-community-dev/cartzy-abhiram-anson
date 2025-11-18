@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Electro - Electronics Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="/static/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="/static/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+
+    {% if not request.user %}
+    {% include 'user/header_nologin.html' %}
+    {% else %}
+    {% include 'user/header_login.html' %}
+    {% endif %}
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Single Product</h1>
+        <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Pages</a></li>
+            <li class="breadcrumb-item active text-white">Single Product</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+
+
+    <!-- Single Products Start -->
+    <div class="container-fluid shop py-5">
+        <div class="container py-5">
+            <div class="row g-4">
+                <div class="col-lg-5 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="input-group w-100 mx-auto d-flex mb-4">
+                        <input type="search" class="form-control p-3" placeholder="keywords"
+                            aria-describedby="search-icon-1">
+                        <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                    </div>
+                    <div class="product-categories mb-4">
+                        <h4>Products Categories</h4>
+                        <ul class="list-unstyled">
+                            <li>
+                                <div class="categories-item">
+                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
+                                        Accessories</a>
+                                    <span>(3)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="categories-item">
+                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
+                                        Electronics & Computer</a>
+                                    <span>(5)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="categories-item">
+                                    <a href="#" class="text-dark"><i
+                                            class="fas fa-apple-alt text-secondary me-2"></i>Laptops & Desktops</a>
+                                    <span>(2)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="categories-item">
+                                    <a href="#" class="text-dark"><i
+                                            class="fas fa-apple-alt text-secondary me-2"></i>Mobiles & Tablets</a>
+                                    <span>(8)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="categories-item">
+                                    <a href="#" class="text-dark"><i
+                                            class="fas fa-apple-alt text-secondary me-2"></i>SmartPhone & Smart TV</a>
+                                    <span>(5)</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                   
+                    <!-- <div class="featured-product mb-4">
+                        <h4 class="mb-3">Featured products</h4>
+                        <div class="featured-product-item">
+                            <div class="rounded me-4" style="width: 100px; height: 100px;">
+                                <img src="/static/img/product-3.png" class="img-fluid rounded" alt="Image">
+                            </div>
+                            <div>
+                                <h6 class="mb-2">SmartPhone</h6>
+                                <div class="d-flex mb-2">
+                                    <i class="fa fa-star text-secondary"></i>
+                                    <i class="fa fa-star text-secondary"></i>
+                                    <i class="fa fa-star text-secondary"></i>
+                                    <i class="fa fa-star text-secondary"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <div class="d-flex mb-2">
+                                    <h5 class="fw-bold me-2">2.99 $</h5>
+                                    <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
+                                </div>
+                            </div>
+                        </div>
+                        
+                       
+                       
+                        
+                        
+                        <div class="d-flex justify-content-center my-4">
+                            <a href="#" class="btn btn-primary px-4 py-3 rounded-pill w-100">Vew More</a>
+                        </div>
+                    </div> -->
+                    
+                    
+                </div>
+                <div class="col-lg-7 col-xl-9 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="row g-4 single-product">
+                        <div class="col-xl-6">
+                            <div class="single-carousel owl-carousel">
+                                {% for img in images %}
+                                <div class="single-item"
+                                    data-dot="<img class='img-fluid' src='{{img.image.url}}' alt=''>">
+                                    <div class="single-inner bg-light rounded">
+                                        <img src="{{img.image.url}}" class="img-fluid rounded" alt="Imajhvuvugvge">
+                                    </div>
+                                </div>
+                                {% endfor %}                                                           
+                                
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6">
+                            <h4 class="fw-bold mb-3">{{product_details.name}}</h4>
+                            <p class="mb-3">Category: {{product_details.category.name}}</p>
+                            <h5 class="fw-bold mb-3">₹{{product_details.price}}</h5>
+                            <div class="d-flex mb-4">
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                                <i class="fa fa-star"></i>
+                            </div>
+                            <div class="mb-3">
+                                <div class="btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2"><i
+                                        class="fab fa-facebook-f me-1"></i> Share</div>
+                                <div class="btn btn-secondary d-inline-block rounded text-white py-1 px-4 ms-2"><i
+                                        class="fab fa-twitter ms-1"></i> Share</div>
+                            </div>
+                            <div class="d-flex flex-column mb-3">
+                                <small>Product SKU: {{product_details.sku}}</small>
+                                <small>Available: <strong class="text-primary">{{product_details.stock}} items in stock</strong></small>
+                            </div>
+                            <p class="mb-4">{{product_details.description}}</p>
+                            <form  method="POST">
+                                {% csrf_token %}
+                            <div class="input-group quantity mb-5" style="width: 100px;">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                    <input type="text" name="quantity" id="quantity-input"
+                                                class="form-control form-control-sm text-center border-0"
+                                                value="1">                              
+                                      <div class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                           
+                            <button type="submit"
+                                formaction="{% url 'user_add_to_cart' product_details.id %}"
+                                class="btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-white"></i> Add to cart
+                            </button>
+                            <button type="submit"
+                                formaction="{% url 'user_add_to_wishlist' product_details.id %}"
+                                class="btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-white"></i> Add to Wishlist
+                            </button>
+                                     </form>
+                        </div>
+                        <div class="col-lg-12">
+                            <nav>
+                                <div class="nav nav-tabs mb-3">
+                                    <button class="nav-link active border-white border-bottom-0" type="button"
+                                        role="tab" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about"
+                                        aria-controls="nav-about" aria-selected="true">Description</button>
+                                    <button class="nav-link border-white border-bottom-0" type="button" role="tab"
+                                        id="nav-mission-tab" data-bs-toggle="tab" data-bs-target="#nav-mission"
+                                        aria-controls="nav-mission" aria-selected="false">Reviews</button>
+                                </div>
+                            </nav>
+                            <div class="tab-content mb-5">
+                                <div class="tab-pane active" id="nav-about" role="tabpanel"
+                                    aria-labelledby="nav-about-tab">
+                                    <p>Our new <b class="fw-bold">HPB12 / A12 battery</b> is rated at 2000mAh and
+                                        designed to power up Black and Decker / FireStorm line of 12V tools allowing
+                                        users to run multiple devices off the same battery pack. The HPB12 is compatible
+                                        with the following Black and Decker power tool models:
+                                    </p>
+                                    <b class="fw-bold">Black & Decker Drills and Drivers:</b>
+                                    <p class="small">BD12PSK, BDG1200K, BDGL12K, BDID1202, CD1200SK, CD12SFK, CDC1200K,
+                                        CDC120AK, CDC120ASB, CP122K, CP122KB, CP12K, CP12KB, EPC12, EPC126, EPC126BK,
+                                        EPC12CA, EPC12CABK, HP122K, HP122KD, HP126F2B, HP126F2K, HP126F3B, HP126F3K,
+                                        HP126FBH, HP126FSC, HP126FSH, HP126K, HP128F3B, HP12K, HP12KD, HPD1200, HPD1202,
+                                        HPD1202KF, HPD12K-2, PS122K, PS122KB, PS12HAK, SS12, SX3000, SX3500, XD1200,
+                                        XD1200K, XTC121
+                                    </p>
+                                    <b class="fw-bold">lack & Decker Impact Wrenches:</b>
+                                    <p class="small">SX5000, XTC12IK, XTC12IKH</p>
+                                    <b class="fw-bold">Black & Decker Multi-Tools:</b>
+                                    <p class="small">KC2000FK</p>
+                                    <b class="fw-bold">Black & Decker Nailers:</b>
+                                    <p class="small">BDBN1202</p>
+                                    <b class="fw-bold">Black & Decker Screwdrivers:</b>
+                                    <p class="small">HP9019K</p>
+                                    <b class="fw-bold mb-0">Best replacement for the following Black and Decker OEM
+                                        battery part numbers:</b>
+                                    <p class="small">HPB12, A12, A12EX, A12-XJ, A1712, B-8315, BD1204L, BD-1204L,
+                                        BPT1047, FS120B, FS120BX, FSB12.</p>
+                                </div>
+                                <div class="tab-pane" id="nav-mission" role="tabpanel"
+                                    aria-labelledby="nav-mission-tab">
+                                    <div class="d-flex">
+                                        <img src="/static/img/avatar.jpg" class="img-fluid rounded-circle p-3"
+                                            style="width: 100px; height: 100px;" alt="">
+                                        <div class="">
+                                            <p class="mb-2" style="font-size: 14px;">April 12, 2024</p>
+                                            <div class="d-flex justify-content-between">
+                                                <h5>Jason Smith</h5>
+                                                <div class="d-flex mb-3">
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star"></i>
+                                                </div>
+                                            </div>
+                                            <p>The generated Lorem Ipsum is therefore always free from repetition
+                                                injected humour, or non-characteristic
+                                                words etc. Susp endisse ultricies nisi vel quam suscipit </p>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex">
+                                        <img src="/static/img/avatar.jpg" class="img-fluid rounded-circle p-3"
+                                            style="width: 100px; height: 100px;" alt="">
+                                        <div class="">
+                                            <p class="mb-2" style="font-size: 14px;">April 12, 2024</p>
+                                            <div class="d-flex justify-content-between">
+                                                <h5>Sam Peters</h5>
+                                                <div class="d-flex mb-3">
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                    <i class="fa fa-star"></i>
+                                                    <i class="fa fa-star"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-dark">The generated Lorem Ipsum is therefore always free from
+                                                repetition injected humour, or non-characteristic
+                                                words etc. Susp endisse ultricies nisi vel quam suscipit </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="nav-vision" role="tabpanel">
+                                    <p class="text-dark">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et
+                                        tempor sit. Aliqu diam
+                                        amet diam et eos labore. 3</p>
+                                    <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos
+                                        labore.
+                                        Clita erat ipsum et lorem et sit</p>
+                                </div>
+                            </div>
+                        </div>
+                                   
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Single Products End -->
+
+    
+
+   {% include 'user/footer.html' %}
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/lib/wow/wow.min.js"></script>
+    <script src="/static/lib/easing/easing.min.js"></script>
+    <script src="/static/lib/waypoints/waypoints.min.js"></script>
+    <script src="/static/lib/counterup/counterup.min.js"></script>
+    <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/static/lib/lightbox/js/lightbox.min.js"></script>
+
+
+    <!-- Template Javascript -->
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
