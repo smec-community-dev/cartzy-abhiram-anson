@@ -32,6 +32,7 @@ urlpatterns=[
     
     
     path('uservieworder', views.user_view_order, name='user_view_order'),
+    path('useraddaddres', views.user_add_addresses, name='user_add_addresses'),
     
     
     

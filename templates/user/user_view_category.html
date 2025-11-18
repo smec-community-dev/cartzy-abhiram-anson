@@ -45,10 +45,10 @@
     <!-- Spinner End -->
 
 
-{% if not request.user %}
-{% include 'user/header_nologin.html' %}
+{% if request.user.is_authenticated %}
+    {% include "user/header_login.html" %}
 {% else %}
-{% include 'user/header_login.html' %}
+    {% include "user/header_nologin.html" %}
 {% endif %}
 
 
