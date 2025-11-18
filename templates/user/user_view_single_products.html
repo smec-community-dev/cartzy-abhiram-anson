@@ -44,11 +44,11 @@
     <!-- Spinner End -->
 
 
-    {% if not request.user %}
-    {% include 'user/header_nologin.html' %}
-    {% else %}
-    {% include 'user/header_login.html' %}
-    {% endif %}
+{% if request.user.is_authenticated %}
+    {% include "user/header_login.html" %}
+{% else %}
+    {% include "user/header_nologin.html" %}
+{% endif %}
 
     <!-- Single Page Header start -->
     <div class="container-fluid page-header py-5">

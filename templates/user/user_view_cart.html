@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Electro - Electronics Website Template</title>
+    <title>Electro - Cart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -23,7 +23,6 @@
     <link href="/static/lib/animate/animate.min.css" rel="stylesheet">
     <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
-
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -31,26 +30,285 @@
     <link href="/static/css/style.css" rel="stylesheet">
 </head>
 <style>
-    table td p,
-    table th p,
-    table td,
-    table th {
-        color: #000 !important; 
-        opacity: 1 !important;   
+    .add_items {
+        color: #777;
+        text-decoration: none;
     }
-    .table-responsive {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
+    .add_items:hover{
+        color:maroon
+    }
 
-    /* BIG 4-DIRECTION SHADOW */
-    box-shadow:
-        0px 10px 25px rgba(0, 0, 0, 0.15),   /* bottom */
-        0px -10px 25px rgba(0, 0, 0, 0.10),  /* top */
-        15px 0px 25px rgba(0, 0, 0, 0.10),   /* right */
-        -15px 0px 25px rgba(0, 0, 0, 0.10);  /* left */
-}
+    /* Cart Card Styles */
+    .content-card {
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.04);
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
 
+    .card-header-custom {
+        padding: 32px 40px;
+        border-bottom: 1px solid #f5f5f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-title h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 4px;
+    }
+
+    .header-title p {
+        font-size: 0.9375rem;
+        color: #86868b;
+        margin: 0;
+    }
+
+    .btn-primary-custom {
+        background: #800000;
+        color: #ffffff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 980px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary-custom:hover {
+        background: #a10000;
+        transform: scale(1.02);
+        box-shadow: 0 4px 16px rgba(128, 0, 0, 0.3);
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table thead {
+        background: #fafafa;
+    }
+
+    .custom-table th {
+        padding: 16px 24px;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #86868b;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid #f5f5f7;
+    }
+
+    .custom-table td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f5f5f7;
+        font-size: 0.9375rem;
+        color: #1d1d1f;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr {
+        transition: background 0.2s;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .product-cell {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .product-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #f5f5f7;
+    }
+
+    .product-info h6 {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #1d1d1f;
+        margin-bottom: 4px;
+    }
+
+    .product-info small {
+        font-size: 0.875rem;
+        color: #86868b;
+    }
+
+    .price-text {
+        font-weight: 600;
+        color: #1d1d1f;
+        font-size: 1.125rem;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quantity-btn:hover {
+        background: #f5f5f7;
+        border-color: #800000;
+    }
+
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 6px;
+        font-size: 0.875rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-delete {
+        padding: 8px 20px;
+        border-radius: 980px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid;
+        background: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #dc3545;
+        border-color: #dc3545;
+        text-decoration: none;
+    }
+
+    .btn-delete:hover {
+        background: #dc3545;
+        color: #ffffff;
+    }
+
+    .card-footer-custom {
+        padding: 20px 40px;
+        background: #fafafa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #86868b;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .text-muted {
+        color: #86868b !important;
+    }
+
+    .me-3 {
+        margin-right: 1rem !important;
+    }
+
+    /* Cart Summary Styles */
+    .cart-summary {
+        background: #fafafa;
+        border-radius: 18px;
+        padding: 32px;
+        margin-top: 32px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e5e7;
+    }
+
+    .summary-total {
+        font-weight: 600;
+        font-size: 1.25rem;
+        color: #1d1d1f;
+        border-bottom: none;
+        padding-top: 20px;
+    }
+
+    /* Table alignment fixes */
+    .custom-table th:nth-child(1),
+    .custom-table td:nth-child(1) {
+        width: 35%;
+    }
+
+    .custom-table th:nth-child(2),
+    .custom-table td:nth-child(2) {
+        width: 15%;
+        text-align: left;
+    }
+
+    .custom-table th:nth-child(3),
+    .custom-table td:nth-child(3) {
+        width: 15%;
+        text-align: left;
+    }
+
+    .custom-table th:nth-child(4),
+    .custom-table td:nth-child(4) {
+        width: 15%;
+        text-align: left;
+    }
+
+    .custom-table th:nth-child(5),
+    .custom-table td:nth-child(5) {
+        width: 20%;
+        text-align: center;
+    }
+
+    /* Ensure content alignment */
+    .custom-table td {
+        vertical-align: middle;
+    }
+
+    .quantity-text {
+        font-weight: 500;
+        color: #1d1d1f;
+    }
 </style>
 <body>
 
@@ -63,125 +321,163 @@
     </div>
     <!-- Spinner End -->
 
-
-    {% include 'user/header_login.html' %}
+{% if request.user.is_authenticated %}
+    {% include "user/header_login.html" %}
+{% else %}
+    {% include "user/header_nologin.html" %}
+{% endif %}
 
     <!-- Single Page Header start -->
     <div class="container-fluid page-header py-5">
-        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Cart Page</h1>
+        <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Shopping Cart</h1>
         <ol class="breadcrumb justify-content-center mb-0 wow fadeInUp" data-wow-delay="0.3s">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Pages</a></li>
-            <li class="breadcrumb-item active text-white">Cart Page</li>
+            <li class="breadcrumb-item"><a href="{% url 'user_home' %}">Home</a></li>
+            <li class="breadcrumb-item active text-white">Cart</li>
         </ol>
     </div>
     <!-- Single Page Header End -->
 
-    <!-- Cart Page Start -->
+    <!-- Cart Card -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr >
-                            <strong>
-                            <th  scope="col">Name</th>
-                            <th scope="col">Brand</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Manage</th>
-                            </strong>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in context.cartitems %}
-                        <tr>
-                            <th scope="row">
-                                <p class="mb-0 py-4">{{item.product.name}}</p>
-                            </th>
-                            <td>
-                                <p class="mb-0 py-4">{{item.product.brand}}</p>
-                            </td>
-                            <td>
-                                <p class="mb-0 py-4">₹{{item.product.price}}</p>
-                            </td>
-                            <td>
-                                <div class="input-group quantity py-4" style="width: 100px;">
-                                   {{item.quantity}} NOS
-                                </div>
-                            </td>
-                            <td>
-                                <p class="mb-0 py-4">₹{{item.subtotal}}</p>
-                            </td>
-                            <td class="py-4">
-                                <a href="{% url 'user_remove_cart_item' item.id %}">
-                                    <button class="btn btn-md rounded-circle bg-light border">
-                                    <i class="fa fa-times text-danger"></i>
-                                </button>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <!-- <div class="mt-5">
-                <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-                <button class="btn btn-primary rounded-pill px-4 py-3" type="button">Apply Coupon</button>
-            </div> -->
-            <br><br>
-            <br>
-            <div class="row g-4 justify-content-end">
-                <div class="col-8"></div>
-                <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
-                    <div class="bg-light rounded">
-                        <div class="p-4">
-                            <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
-                            <div class="d-flex justify-content-between mb-4">
-                                <h5 class="mb-0 me-4">Subtotal:</h5>
-                                <p class="mb-0">{{context.grand_total}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <h5 class="mb-0 me-4">Shipping</h5>
-                                <div>
-                                    <p class="mb-0">Flat rate: ₹{{context.shipping}}</p>
-                                </div>
-                            </div>
-                            <p class="mb-0 text-end"></p>
-                        </div>
-                        <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
-                            <h5 class="mb-0 ps-4 me-4">Total</h5>
-                            <p class="mb-0 pe-4">₹{{context.grand_total}}</p>
-                        </div>
-                        <a href="{% url 'user_proceed_to_checkout' context.cart.id %}">
-                            <button class="btn btn-primary rounded-pill px-4 py-3 text-uppercase mb-4 ms-4"
-                            type="button">Proceed Checkout</button>
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Shopping Cart</h2>
+                        <p>Review and manage your cart items</p>
+                    </div>
+                    <div class="top-bar-actions">
+                        {% if not cart_empty %}
+                        <span class="text-muted me-3">{{ context.cartitems|length }} items</span>
+                        {% endif %}
+                        <a href="{% url 'user_view_all_products' %}" class="btn-primary-custom">
+                            <i class="fas fa-plus-circle"></i>
+                            Continue Shopping
                         </a>
                     </div>
                 </div>
+
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>View Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if not cart_empty %}
+                                {% for item in context.cartitems %}
+                                <!-- Cart Item -->
+                                <tr>
+                                    <td>
+                                        <div class="product-cell">
+                                            {% if item.product.images.first %}
+                                            <img src="{{ item.product.images.first.image.url }}" class="product-image" alt="{{ item.product.name }}">
+                                            {% else %}
+                                            <img src="https://via.placeholder.com/80" class="product-image" alt="{{ item.product.name }}">
+                                            {% endif %}
+                                            <div class="product-info">
+                                                <h6>{{ item.product.name }}</h6>
+                                                <small>{{ item.product.brand }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'user_view_product_details' item.product.id %}" class="btn-details">
+                                            <i class="fas fa-eye"></i>
+                                            View Details
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="price-text">₹{{ item.product.price }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="quantity-controls">
+                                            <span class="quantity-text">{{ item.quantity }} NOS</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="price-text">₹{{ item.subtotal }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                                Remove
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 60px 20px;">
+                                        <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
+                                            <strong>Your cart is empty</strong>
+                                        </div>
+                                        <a href="{% url 'user_view_all_products' %}" class="add_items">
+                                            <div>Add items to see them here.</div>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if not cart_empty %}
+                <div class="card-footer-custom">
+                    <div>
+                        <i class="fas fa-info-circle"></i>
+                        Items in your cart are reserved for you
+                    </div>
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span class="price-text">₹{{ context.subtotal }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span>₹{{ context.shipping }}</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>Total:</span>
+                            <span class="price-text">₹{{ context.grand_total }}</span>
+                        </div>
+                        
+                        <div class="mt-4">
+                            {% if context.cart and not cart_empty %}
+                            <a href="{% url 'user_proceed_to_checkout' context.cart.id %}" class="btn-primary-custom w-100 text-center justify-content-center">
+                                <i class="fas fa-lock me-2"></i>
+                                Proceed to Checkout
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    <!-- Cart Page End -->
+    <!-- Cart Card End -->
 
     {% include 'user/footer.html' %}
 
-
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
-
 
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/lib/wow/wow.min.js"></script>
     <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
-
-
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
 </body>
-
 </html>

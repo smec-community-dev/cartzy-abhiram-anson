@@ -95,20 +95,26 @@ def user_add_to_cart(request, id):
 
 def user_view_cart(request):
     user_id=request.user.id
-    cart=Cart.objects.get(customer_id=user_id)
-    cartitems=CartItem.objects.filter(cart_id=cart)
-    subtotal=0
-    for item in cartitems:
-        subtotal+=item.subtotal()
-    shipping = 50 
-    grand_total = subtotal + shipping
-    context={
-        'cart':cart,
-        'cartitems':cartitems,
-        'subtotal':subtotal,
-        'shipping':shipping,
-        'grand_total':grand_total
-    }
+    try:
+        cart=Cart.objects.get(customer_id=user_id)
+        cartitems=CartItem.objects.filter(cart_id=cart)
+        subtotal=0
+        for item in cartitems:
+            subtotal+=item.subtotal()
+        shipping = 50 
+        grand_total = subtotal + shipping
+        context={
+            'cart_empty': False, 
+            'cart':cart,
+            'cartitems':cartitems,
+            'subtotal':subtotal,
+            'shipping':shipping,
+            'grand_total':grand_total
+        }
+    except Cart.DoesNotExist:
+        context={
+            'cart_empty':True
+        }
     return render(request, 'user/user_view_cart.html',{'context':context})
 
 def user_remove_cart_item(request, id):
@@ -119,7 +125,7 @@ def user_remove_cart_item(request, id):
 def user_add_to_wishlist(request, id):
     user_id=request.user.id
     product_id=id
-    if not Wishlist.objects.filter(product_id=product_id):
+    if not Wishlist.objects.filter(product_id=product_id, customer_id=user_id):
         Wishlist.objects.create(customer_id=user_id, product_id=product_id)
     return redirect (request.META.get('HTTP_REFERER', '/'))
     
@@ -204,30 +210,51 @@ def generate_order_number():
 
 def user_proceed_to_checkout(request, id):
     customer=request.user.id
-    cart=Cart.objects.get(id=id, customer_id=customer)
-    address=Address.objects.get(customer_id=request.user)
-    order_no=generate_order_number()
-    tot_amount=cart.total_amount()
 
-    
-    cartitems=CartItem.objects.filter(cart_id=cart.id)
-    order=Order.objects.create(customer_id = customer, 
-                               address=address,
-                               order_number=order_no, 
-                               status ='Pending', 
-                               total_amount=tot_amount)
-    for item in cartitems:
-        OrderItem.objects.create(order_id=order.id,
-                                 product_id=item.product.id,
-                                 product_name=item.product.name,
-                                 product_sku=item.product.sku,
-                                 quantity=item.quantity,
-                                 price=item.product.price
-                                 )
-    cart.delete()
+    cart=Cart.objects.get(id=id, customer_id=customer)
+    try:
+        address=Address.objects.get(customer_id=request.user)
+        order_no=generate_order_number()
+        tot_amount=cart.total_amount()        
+        cartitems=CartItem.objects.filter(cart_id=cart.id)
+        order=Order.objects.create(customer_id = customer, 
+                                address=address,
+                                order_number=order_no, 
+                                status ='Pending', 
+                                total_amount=tot_amount)
+        for item in cartitems:
+            OrderItem.objects.create(order_id=order.id,
+                                    product_id=item.product.id,
+                                    product_name=item.product.name,
+                                    product_sku=item.product.sku,
+                                    quantity=item.quantity,
+                                    price=item.product.price
+                                    )
+        cart.delete()
+    except Address.DoesNotExist:
+        return redirect("/userupdateaccount")
     return render(request, 'user/user_home.html')
 
 
 def user_view_order(request):
-    return render(request, 'user/user_view_orders.html')
+    user_id=request.user.id
+    try:
+        order=Order.objects.filter(customer_id=user_id)
+        orderitems=OrderItem.objects.filter(order__in=order)
+        context={
+            'order':order,
+            'orderitems':orderitems,
+            'found':True
+        }
+    except Order.DoesNotExist:
+        context={
+            'found':False
+        }
+    return render(request, 'user/user_view_orders.html', context)
+
+
+def user_add_addresses(request):
+    user_id=request.user
+    addresses=Address.objects.filter(customer_id=user_id)
+    return render(request, 'user/user_add_addresses.html',{'addresses':addresses})
     

@@ -43,7 +43,11 @@
     <!-- Spinner End -->
 
 
-{% include 'user/header_nologin.html' %}
+{% if request.user.is_authenticated %}
+    {% include "user/header_login.html" %}
+{% else %}
+    {% include "user/header_nologin.html" %}
+{% endif %}
 
     <!-- Carousel Start -->
     <div class="container-fluid carousel bg-light px-0">
