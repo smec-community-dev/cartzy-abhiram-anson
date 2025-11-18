@@ -45,6 +45,14 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+# @property
+# def main_image_obj(self):
+#     main_img = self.images.filter(is_main=True).first()
+#     if main_img:
+#         return main_img
+#     return self.images.first()
+
 
     
 

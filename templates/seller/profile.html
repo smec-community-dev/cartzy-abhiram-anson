@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Seller Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e7;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px 24px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #86868b;
+        }
+
+        .sidebar-nav {
+            padding: 24px 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0 24px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #1d1d1f;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .nav-item.active {
+            background: rgba(249, 36, 0, 0.05);
+            color: #f92400;
+            border-left-color: #f92400;
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+
+        .nav-item span {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #f5f5f7;
+            background: #fafafa;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f92400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 2px;
+        }
+
+        .user-details p {
+            font-size: 0.8125rem;
+            color: #86868b;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e7;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .page-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: #86868b;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .notification-btn:hover {
+            color: #1d1d1f;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #f92400;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.625rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 32px;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .card-header-custom {
+            padding: 32px 40px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .header-title h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        /* Profile Content */
+        .profile-content {
+            padding: 40px;
+        }
+
+        .profile-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: #f92400;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: #f92400;
+            box-shadow: 0 0 0 4px rgba(249, 36, 0, 0.1);
+        }
+
+        .form-control-custom::placeholder {
+            color: #86868b;
+        }
+
+        .form-text {
+            font-size: 0.8125rem;
+            color: #86868b;
+            margin-top: 6px;
+            display: block;
+        }
+
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: #f92400;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #9e1d06;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(249, 36, 0, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #0071e3;
+            color: #ffffff;
+            transform: scale(1.02);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-start;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f5f5f7;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-color) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #86868b;
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            line-height: 1;
+        }
+
+        /* Messages */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid transparent;
+            font-size: 0.9375rem;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            border-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .alert-danger {
+            background-color: #ffebee;
+            border-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .card-header-custom,
+            .profile-content {
+                padding: 24px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-bar {
+                padding: 16px 20px;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Seller Dashboard</h2>
+            <p>Manage your business</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="{% url 'seller_dashboard' %}" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'seller_products' %}" class="nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="/seller/orders" class="nav-item">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="/seller/reviews" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Reviews</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analytics</div>
+                <a href="/seller/sales" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Sales Analytics</span>
+                </a>
+                <a href="/seller/customers" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="/seller/inventory" class="nav-item">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Inventory</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <a href="{% url 'seller_profile' %}" class="nav-item active">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="/seller/settings" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Store Settings</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+                </div>
+                <div class="user-details">
+                    <h4>{{ request.user.get_full_name }}</h4>
+                    <p>Seller Account</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Profile Settings</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+            <div class="top-bar-actions">
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Success/Error Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Quick Stats -->
+            <div class="stats-container">
+                <div class="stat-card" style="--card-color: #0071e3;">
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value">{{ request.user.seller_profile.products.count }}</div>
+                </div>
+
+                <div class="stat-card" style="--card-color: #34c759;">
+                    <div class="stat-label">Active Orders</div>
+                    <div class="stat-value">12</div>
+                </div>
+
+                <div class="stat-card" style="--card-color: #ff9500;">
+                    <div class="stat-label">Store Rating</div>
+                    <div class="stat-value">4.8</div>
+                </div>
+
+                <div class="stat-card" style="--card-color: #af52de;">
+                    <div class="stat-label">Member Since</div>
+                    <div class="stat-value" style="font-size: 1.5rem;">{{ request.user.date_joined|date:"M Y" }}</div>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Profile Information</h2>
+                        <p>Update your personal and business information</p>
+                    </div>
+                </div>
+
+                <div class="profile-content">
+                    <form method="POST" action="{% url 'seller_profile' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information Section -->
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-user"></i>
+                                Personal Information
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" class="form-control-custom" 
+                                           value="{{ request.user.first_name }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control-custom" 
+                                           value="{{ request.user.last_name }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" name="email" class="form-control-custom" 
+                                           value="{{ request.user.email }}" required>
+                                    <div class="form-text">This will be used for account notifications</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control-custom" 
+                                           value="{{ request.user.username }}" disabled>
+                                    <div class="form-text">Username cannot be changed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business Information Section -->
+                        <div class="profile-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-store"></i>
+                                Business Information
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Shop Name</label>
+                                    <input type="text" name="shop_name" class="form-control-custom" 
+                                           value="{{ seller.shop_name }}" required>
+                                    <div class="form-text">Your business/store name as shown to customers</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Contact Number</label>
+                                    <input type="tel" name="contact_number" class="form-control-custom" 
+                                           value="{{ seller.contact_number }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">GST Number</label>
+                                    <input type="text" name="gst_number" class="form-control-custom" 
+                                           value="{{ seller.gst_number }}" required>
+                                    <div class="form-text">Your business GST registration number</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Business Address</label>
+                                <textarea name="address" class="form-control-custom" rows="4" required>{{ seller.address }}</textarea>
+                                <div class="form-text">Your business physical address</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                            <a href="{% url 'seller_dashboard' %}" class="btn-secondary-custom">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Security Card -->
+            <div class="profile-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Account Security</h2>
+                        <p>Manage your password and security settings</p>
+                    </div>
+                </div>
+
+                <div class="profile-content">
+                    <div class="profile-section">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control-custom" placeholder="Enter current password" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control-custom" placeholder="Enter new password" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control-custom" placeholder="Confirm new password" disabled>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="button" class="btn-primary-custom" disabled>
+                                <i class="fas fa-key"></i>
+                                Change Password
+                            </button>
+                            <div class="form-text" style="margin-left: 16px;">
+                                Password change functionality coming soon
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading state for form submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after 5 seconds (in case of error)
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 5000);
+            });
+
+            // Auto-hide messages after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transition = 'opacity 0.5s';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

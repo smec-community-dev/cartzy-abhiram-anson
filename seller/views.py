@@ -5,6 +5,10 @@ from .models import Product, SellerProfile, Category, ProductImage
 from django.contrib import messages
 from django.utils.text import slugify
 from django.db.models import Count, Q
+from django.db.models import Q, Sum, Count
+from user.models import Order, OrderItem
+from django.core.paginator import Paginator
+
 import random
 import string
 from django.utils import timezone
@@ -266,3 +270,177 @@ def delete_product(request, product_id):
 
 def main_image(self):
     return self.images.filter(is_main=True).first()
+
+from django.core.paginator import Paginator
+from django.db.models import Q, Count, Case, When, IntegerField
+from django.contrib import messages
+
+@login_required
+def seller_products(request):
+    seller = request.user.seller_profile
+    
+    products = Product.objects.filter(seller=seller).select_related('category').prefetch_related('images')
+    
+    category_filter = request.GET.get('category', '')
+    status_filter = request.GET.get('status', '')
+    sort_by = request.GET.get('sort', 'name')
+    
+    if category_filter:
+        products = products.filter(category_id=category_filter)
+    
+    if status_filter:
+        if status_filter == 'in_stock':
+            products = products.filter(stock__gt=10)
+        elif status_filter == 'low_stock':
+            products = products.filter(stock__gt=0, stock__lte=10)
+        elif status_filter == 'out_of_stock':
+            products = products.filter(stock=0)
+    
+    if sort_by == 'price':
+        products = products.order_by('price')
+    elif sort_by == 'stock':
+        products = products.order_by('stock')
+    elif sort_by == 'date':
+        products = products.order_by('-created_at') 
+    else:  
+        products = products.order_by('name')
+    
+    total_products = products.count()
+    in_stock_products = products.filter(stock__gt=10).count()
+    low_stock_products = products.filter(stock__gt=0, stock__lte=10).count()
+    out_of_stock_products = products.filter(stock=0).count()
+    
+    categories = Category.objects.all()
+    
+    paginator = Paginator(products, 10)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # ✅ FIX — attach main image to each PRODUCT IN THE PAGE
+    for p in page_obj:
+        main_img = p.images.filter(is_main=True).first()
+        p.main_image_obj = main_img if main_img else p.images.first()
+
+    context = {
+        'products': page_obj,
+        'total_products': total_products,
+        'in_stock_products': in_stock_products,
+        'low_stock_products': low_stock_products,
+        'out_of_stock_products': out_of_stock_products,
+        'categories': categories,
+        'category_filter': category_filter,
+        'status_filter': status_filter,
+        'sort_by': sort_by,
+    }
+    
+    return render(request, 'seller/products.html', context)
+
+
+@login_required
+def product_detail(request, product_id):
+    seller = request.user.seller_profile
+    
+    
+    product = get_object_or_404(
+        Product.objects.select_related('category').prefetch_related('images'),
+        id=product_id,
+        seller=seller
+    )
+
+    related_products = Product.objects.filter(
+        seller=seller,
+        category=product.category
+    ).exclude(id=product.id).prefetch_related('images')[:4]
+    
+    context = {
+        'product': product,
+        'related_products': related_products,
+    }
+    
+    return render(request, 'seller/product_detail.html', context)
+
+
+@login_required
+def seller_orders(request):
+    seller = request.user.seller_profile
+    
+    # Get all orders that contain products from this seller
+    orders = Order.objects.filter(
+        items__product__seller=seller
+    ).distinct().select_related('customer', 'address').prefetch_related('items').order_by('-created_at')
+    
+    # Apply filters
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('search', '')
+    
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    
+    if search_query:
+        orders = orders.filter(
+            Q(order_number__icontains=search_query) |
+            Q(customer__first_name__icontains=search_query) |
+            Q(customer__last_name__icontains=search_query) |
+            Q(items__product_name__icontains=search_query)
+        ).distinct()
+    
+    # Calculate statistics
+    total_orders = orders.count()
+    pending_orders = orders.filter(status='Pending').count()
+    processing_orders = orders.filter(status='Processing').count()
+    shipped_orders = orders.filter(status='Shipped').count()
+    delivered_orders = orders.filter(status='Delivered').count()
+    
+    # Calculate total revenue from delivered orders
+    revenue = OrderItem.objects.filter(
+        product__seller=seller,
+        order__status='Delivered'
+    ).aggregate(total_revenue=Sum('price'))['total_revenue'] or 0
+    
+    # Pagination
+    paginator = Paginator(orders, 15)  # 15 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'orders': page_obj,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'processing_orders': processing_orders,
+        'shipped_orders': shipped_orders,
+        'delivered_orders': delivered_orders,
+        'total_revenue': revenue,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'status_choices': Order.STATUS_CHOICES,
+    }
+    
+    return render(request, 'seller/orders.html', context)
+
+
+
+@login_required
+def seller_profile(request):
+    seller = request.user.seller_profile
+    
+    if request.method == "POST":
+        # Update user information
+        request.user.first_name = request.POST.get("first_name", "")
+        request.user.last_name = request.POST.get("last_name", "")
+        request.user.email = request.POST.get("email", "")
+        request.user.save()
+        
+        # Update seller profile information
+        seller.shop_name = request.POST.get("shop_name", "")
+        seller.contact_number = request.POST.get("contact_number", "")
+        seller.gst_number = request.POST.get("gst_number", "")
+        seller.address = request.POST.get("address", "")
+        seller.save()
+        
+        messages.success(request, "Profile updated successfully!")
+        return redirect('seller_profile')
+    
+    context = {
+        'seller': seller,
+    }
+    return render(request, 'seller/profile.html', context)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Dashboard</title>
+    <title>Products - Seller Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -322,6 +322,59 @@
             box-shadow: 0 4px 16px rgba(249, 36, 0, 0.3);
         }
 
+        /* Filters */
+        .filters-container {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 48px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #f92400;
+            box-shadow: 0 0 0 4px rgba(249, 36, 0, 0.1);
+        }
+
         /* Table */
         .table-container {
             overflow-x: auto;
@@ -436,6 +489,11 @@
             color: #c62828;
         }
 
+        .stock-badge.low-stock {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
         .stock-badge i {
             font-size: 6px;
         }
@@ -447,7 +505,7 @@
             justify-content: flex-end;
         }
 
-        .btn-edit, .btn-delete {
+        .btn-edit, .btn-delete, .btn-view {
             padding: 8px 20px;
             border-radius: 980px;
             font-size: 0.8125rem;
@@ -478,6 +536,16 @@
 
         .btn-delete:hover {
             background: #dc3545;
+            color: #ffffff;
+        }
+
+        .btn-view {
+            color: #0071e3;
+            border-color: #0071e3;
+        }
+
+        .btn-view:hover {
+            background: #0071e3;
             color: #ffffff;
         }
 
@@ -518,6 +586,49 @@
             color: #86868b;
             flex-wrap: wrap;
             gap: 12px;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-item {
+            list-style: none;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #d2d2d7;
+            background: #ffffff;
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            background: #f5f5f7;
+            border-color: #86868b;
+        }
+
+        .page-item.active .page-link {
+            background: #f92400;
+            color: #ffffff;
+            border-color: #f92400;
         }
 
         /* Animations */
@@ -599,6 +710,14 @@
             .content-area {
                 padding: 20px;
             }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -613,11 +732,11 @@
         <div class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <a href="/seller/dashboard" class="nav-item active">
+                <a href="/seller/dashboard" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/seller/products" class="nav-item">
+                <a href="/seller/products" class="nav-item active">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
@@ -678,8 +797,8 @@
         <!-- Top Bar -->
         <div class="top-bar">
             <div class="page-title">
-                <h1>Dashboard Overview</h1>
-                <p>Welcome back! Here's what's happening with your store today.</p>
+                <h1>Products Management</h1>
+                <p>View, manage, and update all your product listings</p>
             </div>
             <div class="top-bar-actions">
                 <button class="notification-btn">
@@ -709,8 +828,41 @@
                 </div>
 
                 <div class="stat-card" style="--card-color: #af52de;">
-                    <div class="stat-label">Categories</div>
-                    <div class="stat-value">{{ categories_count }}</div>
+                    <div class="stat-label">Out of Stock</div>
+                    <div class="stat-value">{{ out_of_stock_products }}</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-container">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Category</label>
+                        <select class="filter-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Stock Status</label>
+                        <select class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="in_stock">In Stock</option>
+                            <option value="low_stock">Low Stock</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Sort By</label>
+                        <select class="filter-select">
+                            <option value="name">Product Name</option>
+                            <option value="price">Price</option>
+                            <option value="stock">Stock Level</option>
+                            <option value="date">Date Added</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -718,7 +870,7 @@
             <div class="content-card">
                 <div class="card-header-custom">
                     <div class="header-title">
-                        <h2>Your Products</h2>
+                        <h2>All Products</h2>
                         <p>Manage and update your product listings</p>
                     </div>
                     <a href="/seller/addproduct" class="btn-primary-custom">
@@ -741,80 +893,92 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for p in products %}
-                            <tr>
-                                <td><strong>{{ forloop.counter }}</strong></td>
-                                <td>
-                                    <div class="product-cell">
-                                        {% if p.main_image_obj %}
-                                            <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
-                                        {% else %}
-                                            <div class="product-placeholder">
-                                                <i class="fas fa-image"></i>
-                                            </div>
-                                        {% endif %}
-                                        <div class="product-info">
-                                            <h6>{{ p.name|truncatechars:30 }}</h6>
-                                            <small>ID: {{ p.id }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="category-badge">{{ p.category }}</span></td>
-                                <td><span class="price-text">₹{{ p.price }}</span></td>
-                                <td>
-                                    <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
-                                        {{ p.stock }}
-                                    </span>
-                                    {% if p.stock < 10 and p.stock > 0 %}
-                                        <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if p.stock > 0 %}
-                                        <span class="stock-badge in-stock">
-                                            <i class="fas fa-circle"></i>
-                                            In Stock
-                                        </span>
-                                    {% else %}
-                                        <span class="stock-badge out-stock">
-                                            <i class="fas fa-circle"></i>
-                                            Out of Stock
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-edit" onclick="window.location.href='/seller/update/{{ p.id }}'">
-                                            <i class="fas fa-edit"></i>
-                                            Edit
-                                        </button>
-                                        <form action="{% url 'delete_product' p.id %}" method="POST" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-delete" 
-                                                    onclick="return confirm('Are you sure you want to delete {{ p.name }}? This action cannot be undone.');">
-                                                <i class="fas fa-trash-alt"></i>
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state">
-                                        <i class="fas fa-box-open"></i>
-                                        <h4>No Products Found</h4>
-                                        <p>Start by adding your first product to showcase in your store.</p>
-                                        <a href="/seller/addproduct" class="btn-primary-custom">
-                                            <i class="fas fa-plus"></i>
-                                            Add Your First Product
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+    {% for p in products %}
+    <tr>
+        <td><strong>{{ forloop.counter }}</strong></td>
+        <td>
+            <div class="product-cell">
+    {% if p.main_image_obj %}
+        <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
+    {% else %}
+        <div class="product-placeholder">
+            <i class="fas fa-image"></i>
+        </div>
+    {% endif %}
+    
+    <div class="product-info">
+        <h6>{{ p.name|truncatechars:30 }}</h6>
+        <small>ID: {{ p.id }}</small>
+    </div>
+</div>
+
+            </div>
+        </td>
+        <td><span class="category-badge">{{ p.category }}</span></td>
+        <td><span class="price-text">₹{{ p.price }}</span></td>
+        <td>
+            <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
+                {{ p.stock }}
+            </span>
+            {% if p.stock < 10 and p.stock > 0 %}
+                <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
+            {% endif %}
+        </td>
+        <td>
+            {% if p.stock > 10 %}
+                <span class="stock-badge in-stock">
+                    <i class="fas fa-circle"></i>
+                    In Stock
+                </span>
+            {% elif p.stock > 0 and p.stock <= 10 %}
+                <span class="stock-badge low-stock">
+                    <i class="fas fa-circle"></i>
+                    Low Stock
+                </span>
+            {% else %}
+                <span class="stock-badge out-stock">
+                    <i class="fas fa-circle"></i>
+                    Out of Stock
+                </span>
+            {% endif %}
+        </td>
+        <td>
+            <div class="action-buttons">
+                <button class="btn-view" onclick="window.location.href='{% url 'product_detail' p.id %}'">
+                    <i class="fas fa-eye"></i>
+                    View
+                </button>
+                <button class="btn-edit" onclick="window.location.href='{% url 'update_product' p.id %}'">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </button>
+                <form action="{% url 'delete_product' p.id %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" 
+                            onclick="return confirm('Are you sure you want to delete {{ p.name }}? This action cannot be undone.');">
+                        <i class="fas fa-trash-alt"></i>
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h4>No Products Found</h4>
+                <p>Start by adding your first product to showcase in your store.</p>
+                <a href="/seller/addproduct" class="btn-primary-custom">
+                    <i class="fas fa-plus"></i>
+                    Add Your First Product
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
                     </table>
                 </div>
 
@@ -830,62 +994,67 @@
                 </div>
                 {% endif %}
             </div>
-            
-            <!-- Recent Orders Card -->
-            <div class="content-card">
-                <div class="card-header-custom">
-                    <div class="header-title">
-                        <h2>Recent Orders</h2>
-                        <p>Latest customer orders for your products</p>
-                    </div>
-                    <a href="/seller/orders" class="btn-primary-custom">
-                        <i class="fas fa-external-link-alt"></i>
-                        View All Orders
-                    </a>
-                </div>
-                
-                <div class="table-container">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Product</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>#ORD-7842</strong></td>
-                                <td>John Smith</td>
-                                <td>Wireless Earbuds Pro</td>
-                                <td>₹2,499</td>
-                                <td><span class="stock-badge in-stock">Delivered</span></td>
-                                <td>Nov 15, 2025</td>
-                            </tr>
-                            <tr>
-                                <td><strong>#ORD-7841</strong></td>
-                                <td>Sarah Johnson</td>
-                                <td>Smart Watch Series 5</td>
-                                <td>₹4,999</td>
-                                <td><span class="stock-badge out-stock">Pending</span></td>
-                                <td>Nov 14, 2025</td>
-                            </tr>
-                            <tr>
-                                <td><strong>#ORD-7840</strong></td>
-                                <td>Michael Brown</td>
-                                <td>Bluetooth Speaker</td>
-                                <td>₹1,799</td>
-                                <td><span class="stock-badge in-stock">Shipped</span></td>
-                                <td>Nov 13, 2025</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <div class="pagination-container">
+                <ul class="pagination">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in products.paginator.page_range %}
+                    {% if products.number == i %}
+                    <li class="page-item active">
+                        <a class="page-link" href="#">{{ i }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        // Simple filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryFilter = document.querySelector('select[class="filter-select"]:nth-child(1)');
+            const statusFilter = document.querySelector('select[class="filter-select"]:nth-child(2)');
+            const sortFilter = document.querySelector('select[class="filter-select"]:nth-child(3)');
+            
+            // In a real implementation, these would trigger AJAX requests to filter/sort products
+            categoryFilter.addEventListener('change', function() {
+                console.log('Category filter changed:', this.value);
+                // Implement filtering logic here
+            });
+            
+            statusFilter.addEventListener('change', function() {
+                console.log('Status filter changed:', this.value);
+                // Implement filtering logic here
+            });
+            
+            sortFilter.addEventListener('change', function() {
+                console.log('Sort filter changed:', this.value);
+                // Implement sorting logic here
+            });
+        });
+    </script>
 </body>
 </html>
