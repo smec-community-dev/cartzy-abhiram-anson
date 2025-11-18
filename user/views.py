@@ -94,21 +94,29 @@ def user_add_to_cart(request, id):
     return redirect (request.META.get('HTTP_REFERER', '/'))
 
 def user_view_cart(request):
+    
     user_id=request.user.id
-    cart=Cart.objects.get(customer_id=user_id)
-    cartitems=CartItem.objects.filter(cart_id=cart)
-    subtotal=0
-    for item in cartitems:
-        subtotal+=item.subtotal()
-    shipping = 50 
-    grand_total = subtotal + shipping
-    context={
-        'cart':cart,
-        'cartitems':cartitems,
-        'subtotal':subtotal,
-        'shipping':shipping,
-        'grand_total':grand_total
-    }
+    try:
+        cart=Cart.objects.get(customer_id=user_id)
+        
+        cartitems=CartItem.objects.filter(cart_id=cart)
+        subtotal=0
+        for item in cartitems:
+            subtotal+=item.subtotal()
+        shipping = 50 
+        grand_total = subtotal + shipping
+        context={
+            'cart_empty':False,
+            'cart':cart,
+            'cartitems':cartitems,
+            'subtotal':subtotal,
+            'shipping':shipping,
+            'grand_total':grand_total
+        }
+    except Cart.DoesNotExist:
+        context={
+            'cart_empty': True
+        }
     return render(request, 'user/user_view_cart.html',{'context':context})
 
 def user_remove_cart_item(request, id):
@@ -204,6 +212,10 @@ def generate_order_number():
 
 def user_proceed_to_checkout(request, id):
     customer=request.user.id
+    print(customer)
+    
+    if not Address.objects.filter(customer_id=customer).exists():
+        return redirect('user_update_account')
     cart=Cart.objects.get(id=id, customer_id=customer)
     address=Address.objects.get(customer_id=request.user)
     order_no=generate_order_number()
