@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from core.models import User
-from .models import CustomerProfile, Cart, CartItem, Wishlist
+from .models import CustomerProfile, Cart, CartItem, Wishlist, Address
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -72,7 +72,12 @@ def user_view_products(request, id):
 
 def user_view_product_details(request, id):
     product_details=Product.objects.get(id=id)
-    return render(request, 'user/user_view_single_products.html', {'product_details':product_details})
+    images=ProductImage.objects.filter(product_id=product_details.id)
+    context={
+        'product_details':product_details,
+        'images':images
+    }
+    return render(request, 'user/user_view_single_products.html', context)
 
 def user_add_to_cart(request, id):
     product_id=id
@@ -118,6 +123,74 @@ def user_add_to_wishlist(request, id):
 def user_view_wishlist(request):
     user_id=request.user.id
     wish=Wishlist.objects.filter(customer_id=user_id)
-    print(wish)
+
     return render(request, 'user/user_view_wishlist.html', {'wish':wish})
+
+
+def user_view_account(request):
+    user_id=request.user.id
+    user=User.objects.get(id=user_id)
+    cust=CustomerProfile.objects.get(user_id=user)
+    address=Address.objects.filter(customer_id=user_id).first()
+    context={
+        'username':user.username,
+        'phone':cust.phone,
+        'date_joined':user.date_joined,
+        'first_name':user.first_name,
+        'last_name':user.last_name,
+        'email':user.email,
+        'address_list': address
+    }
+    return render(request, 'user/user_view_account.html', {'context':context})
+
+def user_update_account(request):
+    user_id=request.user.id
+    
+    user=User.objects.get(id=user_id)
+    cust=CustomerProfile.objects.get(user_id=user)
+    address=Address.objects.filter(customer_id=user).first()
+    
+    context={
+        'username':user.username,
+        'phone':cust.phone,
+        'date_joined':user.date_joined,
+        'first_name':user.first_name,
+        'last_name':user.last_name,
+        'email':user.email,
+        'address_list': address
+    }
+    if request.method=='POST':
+        first_name=request.POST['firstname']
+        email=request.POST['email']
+        username=request.POST['username']
+        street=request.POST['street']
+        city=request.POST['city']
+        last_name=request.POST['lastname']
+        phno=request.POST['phone']
+        postal=request.POST['postal']
+        state=request.POST['state']
+        country=request.POST['country']
+        
+        if User.objects.filter(username=username).exclude(id=user.id).exists():
+            return HttpResponse("<script>alert('username already exists!!!');</script>")
+        
+        user.first_name=first_name
+        user.email=email
+        user.username=username
+        user.last_name=last_name
+        user.save()
+        
+        cust.phone=phno
+        cust.save()
+        if address:
+            address.street=street
+            address.postal_code=postal
+            address.city=city
+            address.state=state
+            address.country=country
+            address.save()
+        else:
+            Address.objects.create(customer_id=user_id,full_name=user.first_name, phone=phno, street=street, city=city, state=state, postal_code=postal, country=country)
+        
+    return render(request, 'user/user_update_account.html', {'context':context})
     

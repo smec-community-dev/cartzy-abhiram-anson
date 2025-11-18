@@ -24,6 +24,9 @@ urlpatterns=[
     path('wishlist/', views.user_view_wishlist, name='user_view_wishlist'),
     path('addtowishlist/<int:id>/', views.user_add_to_wishlist, name='user_add_to_wishlist'),
     
+    path('useraccount', views.user_view_account, name='user_view_account' ),
+    path('userupdateaccount', views.user_update_account, name='user_update_account' ),
+    
     
     
     

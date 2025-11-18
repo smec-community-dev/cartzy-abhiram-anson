@@ -21,13 +21,11 @@
                         <a href="#" class="dropdown-toggle text-muted ms-2" data-bs-toggle="dropdown"><small><i
                                     class="fa fa-home me-2"></i> My Dashboard</small></a>
                         <div class="dropdown-menu rounded">
-                            <a href="#" class="dropdown-item"> Login</a>
-                            <a href="#" class="dropdown-item"> Wishlist</a>
-                            <a href="#" class="dropdown-item"> My Card</a>
-                            <a href="#" class="dropdown-item"> Notifications</a>
+                            <a href="{% url 'user_view_account' %}" class="dropdown-item"> My Account</a>                            
+                            <a href="{% url 'user_view_wishlist' %}" class="dropdown-item"> Wishlist</a>
+                            <a href="#" class="dropdown-item"> Notifications</a>                            
                             <a href="#" class="dropdown-item"> Account Settings</a>
-                            <a href="#" class="dropdown-item"> My Account</a>
-                            <a href="#" class="dropdown-item"> Log Out</a>
+                            <a href="{% url '/logout/' %}" class="dropdown-item"> Log Out</a>
                         </div>
                     </div>
                 </div>
@@ -51,7 +49,7 @@
                         <input class="form-control border-0 rounded-pill w-100 py-3" type="text"
                             data-bs-target="#dropdownToggle123" placeholder="Search Looking For?">
                         <select class="form-select text-dark border-0 border-start rounded-0 p-3" style="width: 200px;">
-                            <option value="All Category">All Category</option>
+                            <option value="All Category" >All Category</option>
                             <option value="Pest Control-2">Category 1</option>
                             <option value="Pest Control-3">Category 2</option>
                             <option value="Pest Control-4">Category 3</option>
@@ -64,13 +62,12 @@
             </div>
             <div class="col-md-4 col-lg-3 text-center text-lg-end">
                 <div class="d-inline-flex align-items-center">
-                    <a href="#" class="text-muted d-flex align-items-center justify-content-center me-3"><span
-                            class="rounded-circle btn-md-square border"><i class="fas fa-random"></i></i></a>
+                    
                     <a href="{% url 'user_view_wishlist' %}" class="text-muted d-flex align-items-center justify-content-center me-3"><span
                             class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></a>
-                    <a href="#" class="text-muted d-flex align-items-center justify-content-center"><span
+                    <a href="{% url 'user_view_cart' %}" class="text-muted d-flex align-items-center justify-content-center"><span
                             class="rounded-circle btn-md-square border"><i class="fas fa-shopping-cart"></i></span>
-                        <span class="text-dark ms-2">$0.00</span></a>
+                       
                 </div>
             </div>
         </div>
@@ -99,7 +96,7 @@
                             <a href="{% url 'user_view_category' %}" class="nav-item nav-link" style="color:white">Category</a>
                             <a href="{% url 'user_view_all_products' %}" class="nav-item nav-link" style="color:white">Products</a>
 
-                            <a href="{% url 'user_view_cart' %}" class="nav-item nav-link" style="color:white"> My Cart</a>
+                            <a href="{% url 'user_view_cart' %}" class="nav-item nav-link" style="color:white">Cart</a>
                             
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" style="color:white">Pages</a>
@@ -113,46 +110,10 @@
                             <a href="contact.html" class="nav-item nav-link me-2" style="color:white">Contact</a>
                             <a href="{% url '/logout/' %}" class="nav-item nav-link me-2" style="color:white">Logout </a>
                             
-                            <div class="nav-item dropdown d-block d-lg-none mb-3">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">All Category</a>
-                                <div class="dropdown-menu m-0">
-                                    <ul class="list-unstyled categories-bars">
-                                        <li>
-                                            <div class="categories-bars-item">
-                                                <a href="#">Accessories</a>
-                                                <span>(3)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="categories-bars-item">
-                                                <a href="#">Electronics & Computer</a>
-                                                <span>(5)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="categories-bars-item">
-                                                <a href="#">Laptops & Desktops</a>
-                                                <span>(2)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="categories-bars-item">
-                                                <a href="#">Mobiles & Tablets</a>
-                                                <span>(8)</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="categories-bars-item">
-                                                <a href="#">SmartPhone & Smart TV</a>
-                                                <span>(5)</span>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                           
                         </div>
-                        <a href="" class="btn btn-secondary rounded-pill py-2 px-4 px-lg-3 mb-3 mb-md-3 mb-lg-0"><i
-                                class="fa fa-mobile-alt me-2"></i> +0123 456 7890</a>
+                        <a class="btn btn-secondary rounded-pill py-2 px-4 px-lg-3 mb-3 mb-md-3 mb-lg-0"><i
+                                class="fa fa-mobile-alt me-2"></i> +91 773 6299 405</a>
                     </div>
                 </nav>
             </div>
