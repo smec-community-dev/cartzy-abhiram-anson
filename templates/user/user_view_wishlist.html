@@ -54,6 +54,244 @@
 .add_items:hover{
     color:maroon
 }
+
+/* Wishlist Card Styles */
+.content-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.04);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.card-header-custom {
+    padding: 32px 40px;
+    border-bottom: 1px solid #f5f5f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-title h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+}
+
+.header-title p {
+    font-size: 0.9375rem;
+    color: #86868b;
+    margin: 0;
+}
+
+.btn-primary-custom {
+    background: #800000;
+    color: #ffffff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 980px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary-custom:hover {
+    background: #a10000;
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(128, 0, 0, 0.3);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table thead {
+    background: #fafafa;
+}
+
+.custom-table th {
+    padding: 16px 24px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #86868b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #f5f5f7;
+}
+
+.custom-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f5f5f7;
+    font-size: 0.9375rem;
+    color: #1d1d1f;
+}
+
+.custom-table tbody tr {
+    transition: background 0.2s;
+}
+
+.custom-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #f5f5f7;
+}
+
+.product-info h6 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+}
+
+.product-info small {
+    font-size: 0.875rem;
+    color: #86868b;
+}
+
+.price-text {
+    font-weight: 600;
+    color: #1d1d1f;
+    font-size: 1.125rem;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #86868b;
+    font-size: 0.875rem;
+    margin-left: 8px;
+}
+
+.discount-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 980px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.stock-badge.in-stock {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.stock-badge.out-stock {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.stock-badge i {
+    font-size: 6px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-edit, .btn-delete, .btn-move {
+    padding: 8px 20px;
+    border-radius: 980px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit {
+    color: #35dc5f;
+    border-color: #35dc5f;
+}
+
+.btn-edit:hover {
+    background: #35dc5f;
+    color: #ffffff;
+}
+
+.btn-delete {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-delete:hover {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+.btn-move {
+    color: #800000;
+    border-color: #800000;
+}
+
+.btn-move:hover {
+    background: #800000;
+    color: #ffffff;
+}
+
+.card-footer-custom {
+    padding: 20px 40px;
+    background: #fafafa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #86868b;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.text-muted {
+    color: #86868b !important;
+}
+
+.me-3 {
+    margin-right: 1rem !important;
+}
 </style>
 <body>
 
@@ -80,75 +318,108 @@
     </div>
     <!-- Single Page Header End -->
 
-    <!-- Cart Page Start -->
+    <!-- Wishlist Card -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr >
-                            
-                            <th  scope="col">Name</th>
-                            <th scope="col">Brand</th>
-                            <th scope="col">Price</th>                            
-                            <th scope="col">Manage</th>                            
-                            <th scope="col">Details</th>
-                           
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-    {% if wish %}
-        {% for item in wish %}
-        <tr>
-            <th scope="row">
-                <p class="mb-0 py-4">{{ item.product.name }}</p>
-            </th>
-            <td>
-                <p class="mb-0 py-4">{{ item.product.brand }}</p>
-            </td>
-            <td>
-                <p class="mb-0 py-4">₹{{ item.product.price }}</p>
-            </td>
-            <td class="py-4">
-                <a href="{% url 'user_remove_cart_item' item.id %}">
-                    <button class="btn btn-md rounded-circle bg-light border">
-                        <i class="fa fa-times text-danger"></i>
-                    </button>
-                </a>
-            </td>
-            <td>
-                <a href="{% url 'user_view_product_details' item.product.id %}">
-                    <p class="mb-0 py-4">
-                        <button class="btn btn-primary">VIEW DETAILS</button>
-                    </p>
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    {% else %}
-        <tr>
-            <td colspan="5" class="text-center py-5" style="font-size: 18px; color: #555;">
-                <strong>wishlist is empty  </strong> 
-                <a href="{% url 'user_view_all_products' %}"  class="add_items">
-                    <div>Add items to see them here.</div>
-                </a>
-            </td>
-        </tr>
-    {% endif %}
-</tbody>
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Saved Items</h2>
+                        <p>Products you've added to your wishlist</p>
+                    </div>
+                    <div class="top-bar-actions">
+                        <span class="text-muted me-3">{{ wish|length }} items</span>
+                        <a href="{% url 'user_view_all_products' %}" class="btn-primary-custom">
+                            <i class="fas fa-plus-circle"></i>
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
 
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Stock Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if wish %}
+                                {% for item in wish %}
+                                <!-- Wishlist Item -->
+                                <tr>
+                                    <td>
+                                        <div class="product-cell">
+                                            <img src="https://via.placeholder.com/80" class="product-image" alt="{{ item.product.name }}">
+                                            <div class="product-info">
+                                                <h6>{{ item.product.name }}</h6>
+                                                <small>{{ item.product.brand }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="price-text">₹{{ item.product.price }}</span>
+                                        {% comment %} You can add old price and discount badges here if needed {% endcomment %}
+                                        {% comment %} <span class="old-price">₹3,999</span>
+                                        <span class="discount-badge">38% off</span> {% endcomment %}
+                                    </td>
+                                    <td>
+                                        <span class="stock-badge in-stock">
+                                            <i class="fas fa-circle"></i>
+                                            In Stock
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-move">
+                                                <i class="fas fa-cart-plus"></i>
+                                                Add to Cart
+                                            </button>
+                                            <a href="{% url 'user_remove_cart_item' item.id %}">
+                                                <button class="btn-delete">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                    Remove
+                                                </button>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 60px 20px;">
+                                        <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
+                                            <strong>Your wishlist is empty</strong>
+                                        </div>
+                                        <a href="{% url 'user_view_all_products' %}" class="add_items">
+                                            <div>Add items to see them here.</div>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer-custom">
+                    <div>
+                        <i class="fas fa-info-circle"></i>
+                        Items in your wishlist are saved for 90 days
+                    </div>
+                    <div>
+                        <a href="#" class="btn-primary-custom">
+                            <i class="fas fa-share"></i>
+                            Share Wishlist
+                        </a>
+                    </div>
+                </div>
             </div>
-            <!-- <div class="mt-5">
-                <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-                <button class="btn btn-primary rounded-pill px-4 py-3" type="button">Apply Coupon</button>
-            </div> -->
-            
         </div>
     </div>
-    <!-- Cart Page End -->
+    <!-- Wishlist Card End -->
 
     {% include 'user/footer.html' %}
 

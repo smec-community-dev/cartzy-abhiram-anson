@@ -155,8 +155,10 @@
                             <h5 class="mb-0 ps-4 me-4">Total</h5>
                             <p class="mb-0 pe-4">₹{{context.grand_total}}</p>
                         </div>
-                        <button class="btn btn-primary rounded-pill px-4 py-3 text-uppercase mb-4 ms-4"
+                        <a href="{% url 'user_proceed_to_checkout' context.cart.id %}">
+                            <button class="btn btn-primary rounded-pill px-4 py-3 text-uppercase mb-4 ms-4"
                             type="button">Proceed Checkout</button>
+                        </a>
                     </div>
                 </div>
             </div>

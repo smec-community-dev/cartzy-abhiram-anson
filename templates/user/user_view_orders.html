@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Electro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e7;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px 24px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #86868b;
+        }
+
+        .sidebar-nav {
+            padding: 24px 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0 24px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #1d1d1f;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .nav-item.active {
+            background: rgba(128, 0, 0, 0.05);
+            color: #800000;
+            border-left-color: #800000;
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+
+        .nav-item span {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #f5f5f7;
+            background: #fafafa;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #800000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 2px;
+        }
+
+        .user-details p {
+            font-size: 0.8125rem;
+            color: #86868b;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e7;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .page-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: #86868b;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .notification-btn:hover {
+            color: #1d1d1f;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #800000;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.625rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 32px;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .card-header-custom {
+            padding: 32px 40px;
+            border-bottom: 1px solid #f5f5f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .btn-primary-custom {
+            background: #800000;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #a10000;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(128, 0, 0, 0.3);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .custom-table thead {
+            background: #fafafa;
+        }
+
+        .custom-table th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .custom-table td {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+        }
+
+        .custom-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .custom-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid #f5f5f7;
+        }
+
+        .product-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d2d2d7;
+        }
+
+        .product-info h6 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .product-info small {
+            font-size: 0.875rem;
+            color: #86868b;
+        }
+
+        .price-text {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 1.125rem;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #86868b;
+            font-size: 0.875rem;
+            margin-left: 8px;
+        }
+
+        .discount-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+
+        .stock-badge.in-stock {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-badge.out-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .stock-badge i {
+            font-size: 6px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-edit, .btn-delete, .btn-move {
+            padding: 8px 20px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid;
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            color: #35dc5f;
+            border-color: #35dc5f;
+        }
+
+        .btn-edit:hover {
+            background: #35dc5f;
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: #ffffff;
+        }
+
+        .btn-move {
+            color: #800000;
+            border-color: #800000;
+        }
+
+        .btn-move:hover {
+            background: #800000;
+            color: #ffffff;
+        }
+
+        /* Cart Summary */
+        .cart-summary {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .summary-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 0.9375rem;
+        }
+
+        .summary-row.total {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            padding-top: 16px;
+            border-top: 1px solid #f5f5f7;
+            margin-top: 16px;
+        }
+
+        .checkout-btn {
+            background: #800000;
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            margin-top: 24px;
+        }
+
+        .checkout-btn:hover {
+            background: #a10000;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(128, 0, 0, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d2d2d7;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            color: #86868b;
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        .card-footer-custom {
+            padding: 20px 40px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #86868b;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Quantity Controls */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #e5e5e7;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #f5f5f7;
+            border-color: #d2d2d7;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .card-header-custom {
+                padding: 24px;
+            }
+
+            .custom-table th,
+            .custom-table td {
+                padding: 12px 16px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .top-bar {
+                padding: 16px 20px;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>My Account</h2>
+            <p>Manage your profile and orders</p>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Account</div>
+                <a href="/user/account" class="nav-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="/user/orders" class="nav-item">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="/user/addresses" class="nav-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Addresses</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Shopping</div>
+                <a href="/user/wishlist" class="nav-item active">
+                    <i class="fas fa-heart"></i>
+                    <span>Wishlist</span>
+                </a>
+                <a href="/user/cart" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <a href="/user/security" class="nav-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Security</span>
+                </a>
+                <a href="/user/preferences" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Preferences</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+                </div>
+                <div class="user-details">
+                    <h4>{{ request.user.get_full_name }}</h4>
+                    <p>Customer Account</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>My Wishlist</h1>
+                <p>Your saved items for later</p>
+            </div>
+            <div class="top-bar-actions">
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">2</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Wishlist Card -->
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Saved Items</h2>
+                        <p>Products you've added to your wishlist</p>
+                    </div>
+                    <div class="top-bar-actions">
+                        <span class="text-muted me-3">3 items</span>
+                        <a href="/" class="btn-primary-custom">
+                            <i class="fas fa-plus-circle"></i>
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Stock Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Wishlist Item 1 -->
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="https://via.placeholder.com/80" class="product-image" alt="Wireless Earbuds Pro">
+                                        <div class="product-info">
+                                            <h6>Wireless Earbuds Pro</h6>
+                                            <small>Noise cancellation, 30hr battery</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹2,499</span>
+                                    <span class="old-price">₹3,999</span>
+                                    <span class="discount-badge">38% off</span>
+                                </td>
+                                <td>
+                                    <span class="stock-badge in-stock">
+                                        <i class="fas fa-circle"></i>
+                                        In Stock
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-move">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                        <button class="btn-delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Wishlist Item 2 -->
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="https://via.placeholder.com/80" class="product-image" alt="Smart Watch Series 5">
+                                        <div class="product-info">
+                                            <h6>Smart Watch Series 5</h6>
+                                            <small>Health monitoring, GPS, 7-day battery</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹4,999</span>
+                                </td>
+                                <td>
+                                    <span class="stock-badge in-stock">
+                                        <i class="fas fa-circle"></i>
+                                        In Stock
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-move">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                        <button class="btn-delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Wishlist Item 3 -->
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="https://via.placeholder.com/80" class="product-image" alt="Bluetooth Speaker">
+                                        <div class="product-info">
+                                            <h6>Bluetooth Speaker</h6>
+                                            <small>360° sound, waterproof, 20W output</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹1,799</span>
+                                    <span class="old-price">₹2,499</span>
+                                    <span class="discount-badge">28% off</span>
+                                </td>
+                                <td>
+                                    <span class="stock-badge out-stock">
+                                        <i class="fas fa-circle"></i>
+                                        Out of Stock
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-move" disabled>
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                        <button class="btn-delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer-custom">
+                    <div>
+                        <i class="fas fa-info-circle"></i>
+                        Items in your wishlist are saved for 90 days
+                    </div>
+                    <div>
+                        <a href="#" class="btn-primary-custom">
+                            <i class="fas fa-share"></i>
+                            Share Wishlist
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recently Viewed Card -->
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Recently Viewed</h2>
+                        <p>Products you've recently browsed</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="https://via.placeholder.com/80" class="product-image" alt="Gaming Headset">
+                                        <div class="product-info">
+                                            <h6>Gaming Headset</h6>
+                                            <small>7.1 surround sound, RGB lighting</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹3,299</span>
+                                </td>
+                                <td>
+                                    <span class="stock-badge in-stock">In Stock</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-move">
+                                            <i class="fas fa-heart"></i>
+                                            Add to Wishlist
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="https://via.placeholder.com/80" class="product-image" alt="USB-C Hub">
+                                        <div class="product-info">
+                                            <h6>USB-C Hub</h6>
+                                            <small>7-in-1, 4K HDMI, 100W PD</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="price-text">₹1,299</span>
+                                </td>
+                                <td>
+                                    <span class="stock-badge in-stock">In Stock</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-move">
+                                            <i class="fas fa-heart"></i>
+                                            Add to Wishlist
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
