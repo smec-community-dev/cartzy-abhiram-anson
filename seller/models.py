@@ -60,10 +60,11 @@ class ProductImage(models.Model):
 
     def save(self, *args, **kwargs):
         if self.is_main:
+           
             ProductImage.objects.filter(
                 product=self.product,
                 is_main=True
-            ).update(is_main=False)
+            ).exclude(pk=self.pk).update(is_main=False)
         super().save(*args, **kwargs)
 
     def __str__(self):

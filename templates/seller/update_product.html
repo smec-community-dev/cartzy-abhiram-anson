@@ -3,9 +3,570 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Update Product</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .hero-header {
+            background: linear-gradient(135deg, #000000 0%, #1d1d1f 100%);
+            padding: 80px 20px 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-header h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-header p {
+            font-size: 1.25rem;
+            color: #a1a1a6;
+            font-weight: 400;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
+            margin: -60px auto 80px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card-header-custom {
+            padding: 32px 40px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .header-title h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        /* Form Styles */
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+
+        .form-control-custom::placeholder {
+            color: #86868b;
+        }
+
+        .form-select-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 48px;
+        }
+
+        .form-select-custom:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-text {
+            font-size: 0.8125rem;
+            color: #86868b;
+            margin-top: 6px;
+            display: block;
+        }
+
+        /* File Upload Custom */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-upload-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .file-upload-custom:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+
+        /* File Upload Styling */
+        .file-upload-custom::-webkit-file-upload-button {
+            visibility: hidden;
+            width: 0;
+        }
+
+        .file-upload-custom::before {
+            content: 'Choose Files';
+            display: inline-block;
+            background: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            padding: 6px 12px;
+            outline: none;
+            white-space: nowrap;
+            cursor: pointer;
+            color: #1d1d1f;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 12px;
+            transition: all 0.2s;
+        }
+
+        .file-upload-custom:hover::before {
+            background: #e8e8ed;
+        }
+
+        .file-upload-custom:active::before {
+            background: #d2d2d7;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: #0071e3;
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0,113,227,0.3);
+        }
+
+        .btn-primary-custom:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+            padding: 14px 32px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #0071e3;
+            color: #ffffff;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary-custom:active {
+            transform: scale(0.98);
+        }
+
+        /* Grid Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-header p {
+                font-size: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header-custom,
+            .form-container {
+                padding: 24px;
+            }
+
+            .main-content {
+                margin: -40px auto 60px;
+            }
+
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Helper Text */
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        /* Current Images Section */
+        .current-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #f5f5f7;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .image-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item.main::after {
+            content: 'MAIN';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #0071e3;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            box-shadow: 0 2px 8px rgba(0,113,227,0.4);
+        }
+
+        .image-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        /* Button Container */
+        .button-container {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Empty Images State */
+        .no-images {
+            padding: 40px;
+            text-align: center;
+            color: #86868b;
+            font-size: 0.875rem;
+        }
+    </style>
 </head>
 <body>
-    
+    <!-- Hero Header -->
+    <div class="hero-header">
+        <h1>Update Product</h1>
+        <p>Modify the details below to update your product</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <div class="header-title">
+                    <h2>Product Information</h2>
+                    <p>Update the necessary details for your product listing</p>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <!-- Left Column -->
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label required-field">Product Name</label>
+                                <input type="text" name="name" class="form-control-custom" value="{{ product.name }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Brand (Optional)</label>
+                                <input type="text" name="brand" class="form-control-custom" value="{{ product.brand }}">
+                                <div class="form-text">Leave blank if no specific brand</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required-field">Price (₹)</label>
+                                <input type="number" name="price" class="form-control-custom" value="{{ product.price }}" min="0" step="0.01" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required-field">Stock Quantity</label>
+                                <input type="number" name="stock" class="form-control-custom" value="{{ product.stock }}" min="0" required>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label required-field">Category</label>
+                                <select name="category" class="form-select-custom" required>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>
+                                            {{ cat.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Current Images -->
+                            <div class="form-group">
+                                <label class="form-label">Current Images</label>
+                                {% if images %}
+                                <div class="current-images">
+                                    {% for img in images %}
+                                        <div class="image-item {% if img.is_main %}main{% endif %}">
+                                            <img src="{{ img.image.url }}" alt="Product Image">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="current-images">
+                                    <div class="no-images">No images uploaded yet</div>
+                                </div>
+                                {% endif %}
+                                <div class="form-text">These are the current product images</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Upload More Images (Optional)</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" name="images[]" class="form-control-custom file-upload-custom" multiple accept="image/*">
+                                </div>
+                                <div class="form-text">Add new images to your product. Leave empty to keep current images.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Main Image Index (For New Uploads)</label>
+                                <input type="number" name="main_image" class="form-control-custom" value="0" min="0">
+                                <div class="form-text">Specify which new image should be the main display (0 = first image, 1 = second, etc.)</div>
+                            </div>
+                        </div>
+
+                        <!-- Full Width Description -->
+                        <div class="form-full-width">
+                            <div class="form-group">
+                                <label class="form-label required-field">Product Description</label>
+                                <textarea name="description" class="form-control-custom" rows="5" required>{{ product.description }}</textarea>
+                                <div class="form-text">Describe your product's features, specifications, and benefits</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-full-width button-container">
+                        <a href="/seller/dashboard" class="btn-secondary-custom">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn-primary-custom">
+                            <i class="fas fa-save"></i>
+                            Update Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // File input enhancement
+            const fileInput = document.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const files = e.target.files;
+                    const fileText = files.length > 1 ? 
+                        `${files.length} files selected` : 
+                        files.length === 1 ? files[0].name : 'No files selected';
+                    
+                    console.log(fileText);
+                });
+            }
+
+            // Price input formatting
+            const priceInput = document.querySelector('input[name="price"]');
+            if (priceInput) {
+                priceInput.addEventListener('blur', function(e) {
+                    if (this.value) {
+                        this.value = parseFloat(this.value).toFixed(2);
+                    }
+                });
+            }
+
+            // Smooth scroll for form validation errors
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('invalid', function(e) {
+                    e.preventDefault();
+                    const firstInvalid = form.querySelector(':invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                }, true);
+            }
+        });
+    </script>
 </body>
 </html>

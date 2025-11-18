@@ -1,72 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<!-- Dashboard Header -->
-<div class="container-fluid bg-light py-5 mb-4">
-    <div class="container text-center">
-        <h1 class="display-5 fw-bold">Seller Dashboard</h1>
-        <p class="text-muted">Manage your products, edit listings, and add new items</p>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .hero-header {
+            background-color: #660e0e;
+            padding: 80px 20px 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-header h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-header p {
+            font-size: 1.25rem;
+            color: #a1a1a6;
+            font-weight: 400;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            max-width: 1200px;
+            margin: -60px auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-color) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #86868b;
+            margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            line-height: 1;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            padding: 32px 40px;
+            border-bottom: 1px solid #f5f5f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .btn-primary-custom {
+            background: #800000;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #800000;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(3, 23, 43, 0.3);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .custom-table thead {
+            background: #fafafa;
+        }
+
+        .custom-table th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .custom-table td {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+        }
+
+        .custom-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .custom-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .product-image {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid #f5f5f7;
+        }
+
+        .product-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d2d2d7;
+        }
+
+        .product-info h6 {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 2px;
+        }
+
+        .product-info small {
+            font-size: 0.8125rem;
+            color: #86868b;
+        }
+
+        .category-badge {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .price-text {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 1rem;
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+
+        .stock-badge.in-stock {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stock-badge.out-stock {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .stock-badge i {
+            font-size: 6px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 20px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid;
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-edit:hover {
+            background: #800000;
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: #ffffff;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d2d2d7;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            color: #86868b;
+            margin-bottom: 32px;
+        }
+
+        /* Footer */
+        .card-footer-custom {
+            padding: 20px 40px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #86868b;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header-custom {
+                padding: 24px;
+            }
+
+            .custom-table th,
+            .custom-table td {
+                padding: 12px 16px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+
+        /* Stock warning */
+        .stock-warning {
+            color: #ff9500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Header -->
+    <div class="hero-header">
+        <h1>Seller Dashboard</h1>
+        <p>Manage your products, edit listings, and track your inventory</p>
     </div>
-</div>
 
-<!-- Dashboard Content -->
-<div class="container pb-5">
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Your Products</h4>
-            <a href="/seller/addproduct" class="btn btn-primary rounded-pill px-4 py-2">
-                <i class="fas fa-plus me-2"></i>Add Product
-            </a>
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card" style="--card-color: #0071e3;">
+            <div class="stat-label">Total Products</div>
+            <div class="stat-value">{{ total_products }}</div>
         </div>
-        <div class="card-body p-0">
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+        <div class="stat-card" style="--card-color: #34c759;">
+            <div class="stat-label">In Stock</div>
+            <div class="stat-value">{{ in_stock_products }}</div>
+        </div>
+
+        <div class="stat-card" style="--card-color: #ff9500;">
+            <div class="stat-label">Low Stock</div>
+            <div class="stat-value">{{ low_stock_products }}</div>
+        </div>
+
+        <div class="stat-card" style="--card-color: #af52de;">
+            <div class="stat-label">Categories</div>
+            <div class="stat-value">{{ categories_count }}</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <div class="header-title">
+                    <h2>Your Products</h2>
+                    <p>Manage and update your product listings</p>
+                </div>
+                <a href="/seller/addproduct" class="btn-primary-custom">
+                    <i class="fas fa-plus-circle"></i>
+                    Add New Product
+                </a>
+            </div>
+
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
                         <tr>
                             <th>#</th>
-                            <th>Image</th>
                             <th>Product</th>
                             <th>Category</th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th>Status</th>
-                            <th class="text-end">Actions</th>
+                            <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {% for p in products %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
-
+                            <td><strong>{{ forloop.counter }}</strong></td>
                             <td>
-                                <img src="{{ p.image.url }}" alt="{{ p.name }}" class="rounded border" 
-                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                <div class="product-cell">
+                                    {% if p.main_image_obj %}
+                                        <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
+                                    {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="product-info">
+                                        <h6>{{ p.name|truncatechars:30 }}</h6>
+                                        <small>ID: {{ p.id }}</small>
+                                    </div>
+                                </div>
                             </td>
-
-                            <td>{{ p.name }}</td>
-                            <td>{{ p.category }}</td>
-                            <td>₹{{ p.price }}</td>
-                            <td>{{ p.stock }}</td>
-
+                            <td><span class="category-badge">{{ p.category }}</span></td>
+                            <td><span class="price-text">₹{{ p.price }}</span></td>
                             <td>
-                                {% if p.stock > 0 %}
-                                    <span class="badge bg-success">In Stock</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Out of Stock</span>
+                                <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
+                                    {{ p.stock }}
+                                </span>
+                                {% if p.stock < 10 and p.stock > 0 %}
+                                    <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
                                 {% endif %}
                             </td>
-
-                            <td class="text-end">
-                               
+                            <td>
+                                {% if p.stock > 0 %}
+                                    <span class="stock-badge in-stock">
+                                        <i class="fas fa-circle"></i>
+                                        In Stock
+                                    </span>
+                                {% else %}
+                                    <span class="stock-badge out-stock">
+                                        <i class="fas fa-circle"></i>
+                                        Out of Stock
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-edit" onclick="window.location.href='/seller/update/{{ p.id }}'">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </button>
+                                    <form action="{% url 'delete_product' p.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-delete" 
+                                                onclick="return confirm('Are you sure you want to delete {{ p.name }}? This action cannot be undone.');">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
-
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fas fa-box-open fa-3x mb-3"></i><br>
-                                No products found. Add one using the button above.
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <h4>No Products Found</h4>
+                                    <p>Start by adding your first product to showcase in your store.</p>
+                                    <a href="/seller/addproduct" class="btn-primary-custom">
+                                        <i class="fas fa-plus"></i>
+                                        Add Your First Product
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -74,9 +556,18 @@
                 </table>
             </div>
 
+            {% if products %}
+            <div class="card-footer-custom">
+                <div>
+                    Showing <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}
+                </div>
+                <div>
+                    <i class="fas fa-info-circle"></i>
+                    Last updated: {% now "F j, Y" %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-
-</div>
-
-
+</body>
+</html>

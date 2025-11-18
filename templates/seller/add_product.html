@@ -1,97 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
 
+        /* Header */
+        .hero-header {
+            background: linear-gradient(135deg, #000000 0%, #1d1d1f 100%);
+            padding: 80px 20px 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
 
-<div class="container py-5">
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 8px;
+    font-size: 0.875rem;
+}
 
-    <!-- Heading -->
-    <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold">Add New Product</h1>
-        <p class="text-muted">Fill the details below to add a new product to your store</p>
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.upload-area.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+/* Loading state for button */
+.btn-primary-custom:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+        .hero-header h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-header p {
+            font-size: 1.25rem;
+            color: #a1a1a6;
+            font-weight: 400;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 800px;
+            margin: -60px auto 80px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card-header-custom {
+            padding: 32px 40px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .header-title h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        /* Form Styles */
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+
+        .form-control-custom::placeholder {
+            color: #86868b;
+        }
+
+        .form-select-custom {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 48px;
+        }
+
+        .form-select-custom:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-text {
+            font-size: 0.8125rem;
+            color: #86868b;
+            margin-top: 6px;
+            display: block;
+        }
+
+        /* File Upload Custom */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        /* Enhanced Image Upload Styles */
+        .upload-area {
+            border: 2px dashed #d2d2d7;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #0071e3;
+            background-color: rgba(0,113,227,0.05);
+        }
+        
+        .upload-area i {
+            font-size: 48px;
+            color: #0071e3;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            margin-bottom: 10px;
+            color: #86868b;
+        }
+        
+        .upload-btn {
+            display: inline-block;
+            background-color: #0071e3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        
+        .upload-btn:hover {
+            background-color: #0077ed;
+        }
+        
+        .image-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .image-preview {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            aspect-ratio: 1/1;
+        }
+        
+        .image-preview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-preview.selected {
+            border: 3px solid #0071e3;
+        }
+        
+        .image-preview .main-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: #0071e3;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(220, 53, 69, 0.8);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .image-preview:hover .remove-btn {
+            opacity: 1;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .instructions {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0071e3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #1d1d1f;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: #0071e3;
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0,113,227,0.3);
+        }
+
+        .btn-primary-custom:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+            padding: 14px 32px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #0071e3;
+            color: #ffffff;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary-custom:active {
+            transform: scale(0.98);
+        }
+
+        /* Single Column Layout */
+        .form-single-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Price and Stock in one row */
+        .price-stock-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .price-stock-row .form-group {
+            margin-bottom: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-header p {
+                font-size: 1rem;
+            }
+
+            .price-stock-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .price-stock-row .form-group {
+                margin-bottom: 24px;
+            }
+
+            .price-stock-row .form-group:last-child {
+                margin-bottom: 0;
+            }
+
+            .card-header-custom,
+            .form-container {
+                padding: 24px;
+            }
+
+            .main-content {
+                margin: -40px auto 60px;
+            }
+
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .image-previews {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Helper Text */
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        /* Button Container */
+        .button-container {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Header -->
+    <div class="hero-header">
+        <h1>Add New Product</h1>
+        <p>Fill the details below to add a new product to your store</p>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-card">
+            <div class="card-header-custom">
+                <div class="header-title">
+                    <h2>Product Information</h2>
+                    <p>Enter all the necessary details for your new product listing</p>
+                </div>
+            </div>
 
-            <form action="" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
+            <div class="form-container">
+                <form id="productForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
 
-                <div class="row g-4">
-
-                    <!-- LEFT COLUMN -->
-                    <div class="col-md-6">
-
-                        <div class="mb-3">
-                            <label class="form-label">Product Name</label>
-                            <input type="text" name="name" class="form-control" placeholder="Enter product name" required>
+                    <div class="form-single-column">
+                        <!-- Product Name -->
+                        <div class="form-group">
+                            <label class="form-label required-field">Product Name</label>
+                            <input type="text" name="name" class="form-control-custom" placeholder="Enter product name" required>
                         </div>
 
-
-                        <div class="mb-3">
-                            <label class="form-label">Brand (optional)</label>
-                            <input type="text" name="brand" class="form-control" placeholder="Brand name">
+                        <!-- Brand -->
+                        <div class="form-group">
+                            <label class="form-label">Brand (Optional)</label>
+                            <input type="text" name="brand" class="form-control-custom" placeholder="Enter brand name">
+                            <div class="form-text">Leave blank if no specific brand</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Price (₹)</label>
-                            <input type="number" name="price" class="form-control" placeholder="Enter price" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Stock</label>
-                            <input type="number" name="stock" class="form-control" placeholder="Stock qty" required>
-                        </div>
-                        
-                        
-                    </div>
-
-                    <!-- RIGHT COLUMN -->
-                    <div class="col-md-6">
-
-                        <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select name="category" class="form-select" required>
-                                <option value="" disabled selected>Select category</option>
+                        <!-- Category -->
+                        <div class="form-group">
+                            <label class="form-label required-field">Category</label>
+                            <select name="category" class="form-select-custom" required>
+                                <option value="" disabled selected>Select a category</option>
                                 {% for cat in category %}
                                 <option value="{{ cat.id }}">{{ cat.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Product Images</label>
-                            <input type="file" name="images[]" class="form-control" multiple required>
-                            <small class="text-muted">You can upload multiple images</small>
+                        <!-- Enhanced Product Images Section -->
+                            
+                           
+                            
+                            <div class="form-group">
+        <label class="form-label required-field">Product Images</label>
+        
+        <div class="upload-area" id="uploadArea">
+            <i>📁</i>
+            <p>Drag & Drop your images here</p>
+            <p>or</p>
+            <div class="upload-btn">Browse Files</div>
+            <!-- Remove the required attribute from this line -->
+<input type="file" name="images[]" id="imageUpload" class="hidden" multiple accept="image/*">
+        </div>
+                            
+                            <div class="form-text">You can select multiple images. First image will be used as main by default.</div>
+                            
+                            <div class="image-previews" id="imagePreviews">
+                                <!-- Image previews will be dynamically added here -->
+                            </div>
+                            
+                            <div class="hidden" id="mainImageField">
+                                <input type="hidden" name="main_image" id="mainImageInput" value="0">
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Main Image Index</label>
-                            <input type="number" name="main_image" class="form-control" value="0" min="0">
-                            <small class="text-muted">Specify which uploaded image is the main image (0-based index)</small>
+                        <!-- Price and Stock in one row -->
+                        <div class="price-stock-row">
+                            <div class="form-group">
+                                <label class="form-label required-field">Price (₹)</label>
+                                <input type="number" name="price" class="form-control-custom" placeholder="0.00" min="0" step="0.01" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required-field">Stock Quantity</label>
+                                <input type="number" name="stock" class="form-control-custom" placeholder="0" min="0" required>
+                            </div>
                         </div>
 
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label class="form-label required-field">Product Description</label>
+                            <textarea name="description" class="form-control-custom" rows="5" placeholder="Write a detailed description of your product..." required></textarea>
+                            <div class="form-text">Describe your product's features, specifications, and benefits</div>
+                        </div>
                     </div>
 
-                    <!-- FULL WIDTH DESSCRIPTION -->
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label class="form-label">Product Description</label>
-                            <textarea name="description" class="form-control" rows="5" placeholder="Write product description..." required></textarea>
-                        </div>
+                    <!-- Action Buttons -->
+                    <div class="button-container">
+                        <a href="/seller/dashboard" class="btn-secondary-custom">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn-primary-custom">
+                            <i class="fas fa-plus-circle"></i>
+                            Add Product
+                        </button>
                     </div>
-
-                </div>
-
-                <!-- Submit button -->
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2">
-                        <i class="fas fa-save me-2"></i>Add Product
-                    </button>
-                </div>
-
-            </form>
-
+                </form>
+            </div>
         </div>
     </div>
 
-</div>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const imageUpload = document.getElementById('imageUpload');
+            const imagePreviews = document.getElementById('imagePreviews');
+            const mainImageInput = document.getElementById('mainImageInput');
+            const mainImageField = document.getElementById('mainImageField');
+            const form = document.getElementById('productForm');
+            
+            let uploadedImages = [];
+            let mainImageIndex = 0;
+            
+            // Click on upload area to trigger file input
+            uploadArea.addEventListener('click', function() {
+                imageUpload.click();
+            });
+            
+            // Handle file selection
+            imageUpload.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            // Handle the selected files
+            function handleFiles(files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Check if file is an image
+                    if (!file.type.match('image.*')) {
+                        alert('Please upload only image files.');
+                        continue;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const imageData = {
+                            src: e.target.result,
+                            file: file,
+                            isMain: uploadedImages.length === 0 // First image is main by default
+                        };
+                        
+                        uploadedImages.push(imageData);
+                        renderImagePreviews();
+                        
+                        // Show the main image field if we have images
+                        if (uploadedImages.length > 0) {
+                            mainImageField.classList.remove('hidden');
+                        }
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                // Reset the file input to allow selecting the same file again
+                imageUpload.value = '';
+            }
+            
+            // Render all image previews
+            function renderImagePreviews() {
+                imagePreviews.innerHTML = '';
+                
+                uploadedImages.forEach((imageData, index) => {
+                    const preview = document.createElement('div');
+                    preview.className = 'image-preview';
+                    if (imageData.isMain) {
+                        preview.classList.add('selected');
+                        mainImageIndex = index;
+                        mainImageInput.value = index;
+                    }
+                    
+                    preview.innerHTML = `
+                        <img src="${imageData.src}" alt="Product image ${index + 1}">
+                        ${imageData.isMain ? '<div class="main-badge">Main</div>' : ''}
+                        <div class="remove-btn" data-index="${index}">×</div>
+                    `;
+                    
+                    // Click to set as main image
+                    preview.addEventListener('click', function(e) {
+                        if (!e.target.classList.contains('remove-btn')) {
+                            setMainImage(index);
+                        }
+                    });
+                    
+                    // Remove image
+                    const removeBtn = preview.querySelector('.remove-btn');
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        removeImage(index);
+                    });
+                    
+                    imagePreviews.appendChild(preview);
+                });
+            }
+            
+            // Set an image as the main image
+            function setMainImage(index) {
+                uploadedImages.forEach((image, i) => {
+                    image.isMain = (i === index);
+                });
+                
+                mainImageIndex = index;
+                mainImageInput.value = index;
+                renderImagePreviews();
+            }
+            
+            // Remove an image
+            function removeImage(index) {
+                const wasMain = uploadedImages[index].isMain;
+                
+                uploadedImages.splice(index, 1);
+                
+                // If we removed the main image, set the first image as main
+                if (wasMain && uploadedImages.length > 0) {
+                    uploadedImages[0].isMain = true;
+                    mainImageIndex = 0;
+                    mainImageInput.value = 0;
+                }
+                
+                // Hide the main image field if no images left
+                if (uploadedImages.length === 0) {
+                    mainImageField.classList.add('hidden');
+                }
+                
+                renderImagePreviews();
+            }
+            
+            // Form submission
+            // Form submission
+// Form submission
+// Form submission
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (uploadedImages.length === 0) {
+        alert('Please upload at least one product image.');
+        return;
+    }
+    
+    // Create a new FormData object
+    const formData = new FormData();
+    
+    // Add all form fields except images
+    const formElements = form.elements;
+    for (let i = 0; i < formElements.length; i++) {
+        const element = formElements[i];
+        if (element.name && element.type !== 'file' && element.name !== 'main_image') {
+            formData.append(element.name, element.value);
+        }
+    }
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    // Add images in the correct order from uploadedImages array
+    uploadedImages.forEach((imageData, index) => {
+        formData.append('images[]', imageData.file, imageData.file.name);
+    });
+    
+    // Add the main image index
+    formData.append('main_image', mainImageInput.value);
+    
+    console.log('Submitting form with main_image index:', mainImageInput.value);
+    console.log('Total images:', uploadedImages.length);
+    
+    // Submit via fetch
+    fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else if (response.ok) {
+            return response.text().then(html => {
+                if (html.includes('error') || html.includes('Error')) {
+                    console.log('Response HTML:', html);
+                    alert('There was an error submitting the form. Check console for details.');
+                } else {
+                    window.location.href = '/seller/dashboard';
+                }
+            });
+        } else {
+            throw new Error('Network response was not ok');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the form.');
+    });
+});
+        });
+    </script>
+</body>
+</html>
