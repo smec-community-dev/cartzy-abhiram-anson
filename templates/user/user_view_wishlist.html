@@ -353,7 +353,7 @@
                                 <tr>
                                     <td>
                                         <div class="product-cell">
-                                            <img src="https://via.placeholder.com/80" class="product-image" alt="{{ item.product.name }}">
+                                            <img src="{{item.product.images.first.image.url}}" class="product-image" alt="{{ item.product.name }}">
                                             <div class="product-info">
                                                 <h6>{{ item.product.name }}</h6>
                                                 <small>{{ item.product.brand }}</small>
@@ -390,7 +390,8 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="4" style="text-align: center; padding: 60px 20px;">
+                                   
+                            <td colspan="4" style="text-align: center; padding: 60px 20px;">
                                         <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
                                             <strong>Your wishlist is empty</strong>
                                         </div>
@@ -398,7 +399,7 @@
                                             <div>Add items to see them here.</div>
                                         </a>
                                     </td>
-                                </tr>
+                        </tr>
                             {% endif %}
                         </tbody>
                     </table>

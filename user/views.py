@@ -95,20 +95,26 @@ def user_add_to_cart(request, id):
 
 def user_view_cart(request):
     user_id=request.user.id
-    cart=Cart.objects.get(customer_id=user_id)
-    cartitems=CartItem.objects.filter(cart_id=cart)
-    subtotal=0
-    for item in cartitems:
-        subtotal+=item.subtotal()
-    shipping = 50 
-    grand_total = subtotal + shipping
-    context={
-        'cart':cart,
-        'cartitems':cartitems,
-        'subtotal':subtotal,
-        'shipping':shipping,
-        'grand_total':grand_total
-    }
+    try:
+        cart=Cart.objects.get(customer_id=user_id)
+        cartitems=CartItem.objects.filter(cart_id=cart)
+        subtotal=0
+        for item in cartitems:
+            subtotal+=item.subtotal()
+        shipping = 50 
+        grand_total = subtotal + shipping
+        context={
+            'cart_empty': False, 
+            'cart':cart,
+            'cartitems':cartitems,
+            'subtotal':subtotal,
+            'shipping':shipping,
+            'grand_total':grand_total
+        }
+    except Cart.DoesNotExist:
+        context={
+            'cart_empty':True
+        }
     return render(request, 'user/user_view_cart.html',{'context':context})
 
 def user_remove_cart_item(request, id):
@@ -119,7 +125,7 @@ def user_remove_cart_item(request, id):
 def user_add_to_wishlist(request, id):
     user_id=request.user.id
     product_id=id
-    if not Wishlist.objects.filter(product_id=product_id):
+    if not Wishlist.objects.filter(product_id=product_id, customer_id=user_id):
         Wishlist.objects.create(customer_id=user_id, product_id=product_id)
     return redirect (request.META.get('HTTP_REFERER', '/'))
     
