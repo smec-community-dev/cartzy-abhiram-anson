@@ -27,6 +27,12 @@ urlpatterns=[
     path('useraccount', views.user_view_account, name='user_view_account' ),
     path('userupdateaccount', views.user_update_account, name='user_update_account' ),
     
+    path('usercheckout/<int:id>/', views.user_proceed_to_checkout, name='user_proceed_to_checkout'),
+    
+    
+    
+    path('uservieworder', views.user_view_order, name='user_view_order'),
+    
     
     
     
