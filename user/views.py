@@ -218,32 +218,32 @@ def generate_order_number():
     return f"ORD{today}{random_number}"
 
 
-def user_proceed_to_checkout(request, id):
-    customer=request.user.id
+# def user_proceed_to_checkout(request, id):
+#     customer=request.user.id
 
-    cart=Cart.objects.get(id=id, customer_id=customer)
-    try:
-        address=Address.objects.get(customer_id=request.user)
-        order_no=generate_order_number()
-        tot_amount=cart.total_amount()        
-        cartitems=CartItem.objects.filter(cart_id=cart.id)
-        order=Order.objects.create(customer_id = customer, 
-                                address=address,
-                                order_number=order_no, 
-                                status ='Pending', 
-                                total_amount=tot_amount)
-        for item in cartitems:
-            OrderItem.objects.create(order_id=order.id,
-                                    product_id=item.product.id,
-                                    product_name=item.product.name,
-                                    product_sku=item.product.sku,
-                                    quantity=item.quantity,
-                                    price=item.product.price
-                                    )
-        cart.delete()
-    except Address.DoesNotExist:
-        return redirect("/userupdateaccount")
-    return render(request, 'user/user_home.html')
+#     cart=Cart.objects.get(id=id, customer_id=customer)
+#     try:
+#         address=Address.objects.get(customer_id=request.user)
+#         order_no=generate_order_number()
+#         tot_amount=cart.total_amount()        
+#         cartitems=CartItem.objects.filter(cart_id=cart.id)
+#         order=Order.objects.create(customer_id = customer, 
+#                                 address=address,
+#                                 order_number=order_no, 
+#                                 status ='Pending', 
+#                                 total_amount=tot_amount)
+#         for item in cartitems:
+#             OrderItem.objects.create(order_id=order.id,
+#                                     product_id=item.product.id,
+#                                     product_name=item.product.name,
+#                                     product_sku=item.product.sku,
+#                                     quantity=item.quantity,
+#                                     price=item.product.price
+#                                     )
+#         cart.delete()
+#     except Address.DoesNotExist:
+#         return redirect("/userupdateaccount")
+#     return render(request, 'user/user_home.html')
 
 
 def user_view_order(request):
@@ -406,3 +406,19 @@ def user_add_new_address(request):
             return redirect('user_confirm_order', id=cart_id)
     
     return redirect('user_confirm_order', id=cart_id)
+
+def create_order(request, id):
+    user_id=request.user.id
+    address_id=request.POST.get('selected_address')
+    cart=Cart.objects.get(id=id, customer_id=user_id)
+    cartitems=CartItem.objects.filter(cart_id=cart)
+    order_no=generate_order_number()
+    tot=0
+    for i in cartitems:
+       tot+=i.subtotal()
+    order=Order.objects.create(order_number=order_no, status='pending', total_amount=tot, address_id=address_id, customer_id=user_id)
+    for item in cartitems:        
+        OrderItem.objects.create(product_name=item.product.name, product_sku=item.product.sku, quantity=item.quantity, price=item.product.price, order_id=order.id, product_id=item.product.id)
+    cart.delete()
+    
+    return render(request, 'user/user_home.html')

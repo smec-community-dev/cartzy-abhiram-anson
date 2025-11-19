@@ -675,9 +675,12 @@
                         </div>
                         
                         <!-- Action Buttons -->
+                         <form method="POST" action="{% url 'user_create_order' cart.id %}">
                         <div class="action-buttons">
+                                {% csrf_token %}
+
                             <button id="confirm-order-btn" class="btn-primary-custom">
-                                
+                                 <input type="hidden" name="selected_address" value="{{ address.id }}">
                                 Confirm Order & Proceed to Payment
                                 <i class="fas fa-arrow-right ms-2"></i>
                             </button>
@@ -687,6 +690,7 @@
                                 Back to Cart
                             </a>
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>

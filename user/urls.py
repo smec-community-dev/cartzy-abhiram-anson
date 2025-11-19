@@ -28,7 +28,7 @@ urlpatterns=[
     path('userupdateaccount', views.user_update_account, name='user_update_account' ),
     
     path('userconfirmorder/<int:id>/', views.user_confirm_order, name='user_confirm_order'),
-    path('usercheckout/<int:id>/', views.user_proceed_to_checkout, name='user_proceed_to_checkout'),
+    # path('usercheckout/<int:id>/', views.user_proceed_to_checkout, name='user_proceed_to_checkout'),
     
     
     
@@ -40,7 +40,7 @@ urlpatterns=[
     path('userchooseaddress/<int:id>/', views.user_choose_address, name='user_choose_address'),
     path('uupdateaddress', views.user_update_order_address, name='user_update_order_address'),
     
-    
+    path('userorder/<int:id>/', views.create_order, name='user_create_order')
     
     
 ]
