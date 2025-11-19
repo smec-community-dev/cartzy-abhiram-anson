@@ -27,12 +27,18 @@ urlpatterns=[
     path('useraccount', views.user_view_account, name='user_view_account' ),
     path('userupdateaccount', views.user_update_account, name='user_update_account' ),
     
+    path('userconfirmorder/<int:id>/', views.user_confirm_order, name='user_confirm_order'),
     path('usercheckout/<int:id>/', views.user_proceed_to_checkout, name='user_proceed_to_checkout'),
     
     
     
     path('uservieworder', views.user_view_order, name='user_view_order'),
-    path('useraddaddres', views.user_add_addresses, name='user_add_addresses'),
+    path('useraddaddress', views.user_add_addresses, name='user_add_addresses'),
+    
+    path('useraddaddress', views.user_add_addresses, name='user_add_new_address'),
+    path('useraddanaddress', views.user_add_new_address, name='user_add_an_address'),
+    path('userchooseaddress/<int:id>/', views.user_choose_address, name='user_choose_address'),
+    path('uupdateaddress', views.user_update_order_address, name='user_update_order_address'),
     
     
     

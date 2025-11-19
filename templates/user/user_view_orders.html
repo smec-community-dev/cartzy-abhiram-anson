@@ -80,14 +80,14 @@
     }
 
     .secondary-nav-menu a:hover {
-        color: #800000;
+        color: rgb(225, 17, 17);
         background-color: #f8f9fa;
     }
 
     .secondary-nav-menu a.active {
-        color: #800000;
+        color: #F92400;
         font-weight: 500;
-        border-bottom-color: #800000;
+        border-bottom-color: #F92400;
         background-color: #fff5f5;
     }
 
@@ -663,14 +663,14 @@
                             </tr>
                         </thead>
                         <tbody>                           
-                            {% if not found %}
+                            {% if not context.found %}
                                 <tr>
                                     <td colspan="9" style="text-align: center; padding: 60px 20px;">
                                         <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
-                                            <strong>Your cart is empty</strong>
+                                            <strong>Your haven't made any orders</strong>
                                         </div>
                                         <a href="{% url 'user_view_all_products' %}" class="add_items">
-                                            <div>Add items to see them here.</div>
+                                            <div>Browse products.</div>
                                         </a>
                                     </td>
                                 </tr>
