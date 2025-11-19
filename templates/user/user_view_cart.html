@@ -72,7 +72,7 @@
     }
 
     .btn-primary-custom {
-        background: #800000;
+        background: #F92400;
         color: #ffffff;
         border: none;
         padding: 12px 28px;
@@ -88,9 +88,10 @@
     }
 
     .btn-primary-custom:hover {
-        background: #a10000;
+        background: #ce2305;
         transform: scale(1.02);
-        box-shadow: 0 4px 16px rgba(128, 0, 0, 0.3);
+        color:white;
+        box-shadow: 0 4px 16px rgba(120, 5, 5, 0.829);
     }
 
     .table-container {
@@ -223,6 +224,27 @@
 
     .btn-delete:hover {
         background: #dc3545;
+        color: #ffffff;
+    }
+    .btn-add {
+        padding: 8px 20px;
+        border-radius: 980px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid;
+        background: transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: rgb(1, 76, 1);
+        border-color: darkgreen;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        background: rgb(1, 76, 1);
         color: #ffffff;
     }
 
@@ -366,12 +388,24 @@
                                 <th>Price</th>
                                 <th>Quantity</th>
                                 <th>Total</th>
-                                <th>Actions</th>
+                                <th>Add More</th>
+                                <th>Remove</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if not cart_empty %}
-                                {% for item in context.cartitems %}
+                            {% if context.cart_empty %}
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 60px 20px;">
+                                        <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
+                                            <strong>Your cart is empty</strong>
+                                        </div>
+                                        <a href="{% url 'user_view_all_products' %}" class="add_items">
+                                            <div>Add items to see them here.</div>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                            {% for item in context.cartitems %}
                                 <!-- Cart Item -->
                                 <tr>
                                     <td>
@@ -406,7 +440,15 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-delete">
+                                            <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-add">
+                                                <i class="fas fa-plus-circle"></i>
+                                                Add 
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{% url 'user_view_product_details' item.product.id %}" class="btn-delete">
                                                 <i class="fas fa-trash-alt"></i>
                                                 Remove
                                             </a>
@@ -414,18 +456,8 @@
                                     </td>
                                 </tr>
                                 {% endfor %}
-                            {% else %}
                             
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 60px 20px;">
-                                        <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
-                                            <strong>Your cart is empty</strong>
-                                        </div>
-                                        <a href="{% url 'user_view_all_products' %}" class="add_items">
-                                            <div>Add items to see them here.</div>
-                                        </a>
-                                    </td>
-                                </tr>
+                                
                             {% endif %}
                         </tbody>
                     </table>
@@ -453,7 +485,7 @@
                         
                         <div class="mt-4">
                             {% if context.cart and not cart_empty %}
-                            <a href="{% url 'user_proceed_to_checkout' context.cart.id %}" class="btn-primary-custom w-100 text-center justify-content-center">
+                            <a href="{% url 'user_confirm_order' context.cart.id %}" class="btn-primary-custom w-100 text-center justify-content-center">
                                 <i class="fas fa-lock me-2"></i>
                                 Proceed to Checkout
                             </a>

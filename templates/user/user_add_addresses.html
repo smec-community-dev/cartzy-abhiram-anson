@@ -72,14 +72,14 @@
     }
 
     .secondary-nav-menu a:hover {
-        color: #800000;
+        color: rgb(225, 17, 17);
         background-color: #f8f9fa;
     }
 
     .secondary-nav-menu a.active {
-        color: #800000;
+        color: #F92400;
         font-weight: 500;
-        border-bottom-color: #800000;
+        border-bottom-color: #F92400;
         background-color: #fff5f5;
     }
 
@@ -161,7 +161,7 @@
     }
 
     .btn-primary-custom {
-        background: #800000;
+        background: #F92400;
         color: #ffffff;
         border: none;
         padding: 12px 28px;
@@ -201,12 +201,12 @@
 
     .address-card:hover {
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        border-color: #800000;
+        border-color: #F92400;
         transform: translateY(-2px);
     }
 
     .address-card.default {
-        border: 2px solid #800000;
+        border: 2px solid #F92400;
         background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
     }
 
@@ -225,7 +225,7 @@
     }
 
     .default-badge {
-        background: #800000;
+        background: #F92400;
         color: white;
         padding: 4px 12px;
         border-radius: 20px;
@@ -259,9 +259,9 @@
 
     .btn-edit {
         padding: 8px 16px;
-        border: 1px solid #800000;
+        border: 1px solid #F92400;
         background: transparent;
-        color: #800000;
+        color: #F92400;
         border-radius: 6px;
         font-size: 0.875rem;
         font-weight: 500;
@@ -274,7 +274,7 @@
     }
 
     .btn-edit:hover {
-        background: #800000;
+        background: #F92400;
         color: white;
     }
 
@@ -322,6 +322,7 @@
 
     /* Add New Address Card */
     .add-address-card {
+        
         border: 2px dashed #ddd;
         background: #fafafa;
         display: flex;
@@ -335,19 +336,19 @@
     }
 
     .add-address-card:hover {
-        border-color: #800000;
+        border-color: #F92400;
         background: #fff5f5;
     }
 
     .add-icon {
         font-size: 2rem;
-        color: #800000;
+        color: #F92400;
         margin-bottom: 12px;
     }
 
     .add-text {
         font-size: 1rem;
-        color: #800000;
+        color: #F92400;
         font-weight: 500;
     }
 
@@ -372,7 +373,7 @@
     }
 
     .modal-header {
-        background: #800000;
+        background: #F92400;
         color: white;
         border-radius: 12px 12px 0 0;
         border: none;
@@ -406,7 +407,7 @@
     }
 
     .form-control:focus {
-        border-color: #800000;
+        border-color: #F92400;
         box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
     }
 
@@ -547,7 +548,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <h5 class="modal-title" id="addAddressModalLabel" style="color:white;">Add New Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -557,33 +558,33 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Full Name *</label>
-                                    <input type="text" class="form-control" name="name" required>
+                                    <input type="text" class="form-control" name="new_name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Phone Number *</label>
-                                    <input type="tel" class="form-control" name="phone" required>
+                                    <input type="tel" class="form-control" name="new_phone" required>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Street Address *</label>
-                            <textarea class="form-control" name="street" rows="3" required></textarea>
+                            <textarea class="form-control" name="new_street" rows="3" required></textarea>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">City *</label>
-                                    <input type="text" class="form-control" name="city" required>
+                                    <input type="text" class="form-control" name="new_city" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">State *</label>
-                                    <input type="text" class="form-control" name="state" required>
+                                    <input type="text" class="form-control" name="new_state" required>
                                 </div>
                             </div>
                         </div>
@@ -591,20 +592,20 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label">Pincode *</label>
-                                    <input type="text" class="form-control" name="pincode" required>
+                                    <label class="form-label">Postal Code *</label>
+                                    <input type="text" class="form-control" name="new_postalcode" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Country *</label>
-                                    <input type="text" class="form-control" name="country" required>
+                                    <input type="text" class="form-control" name="new_country" required>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Address Type</label>
                                     <select class="form-control" name="address_type">
@@ -613,7 +614,7 @@
                                         <option value="Other">Other</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="form-check mt-4">
@@ -627,7 +628,7 @@
                         </div>
                         
                         <div class="d-flex gap-3 mt-4">
-                            <button type="submit" class="btn-primary-custom">Save Address</button>
+                            <a hre="{% url 'user_add_new_address' %}"><button type="submit" class="btn-primary-custom">Save Address</button></a>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </form>

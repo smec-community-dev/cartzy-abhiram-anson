@@ -87,7 +87,7 @@ def user_add_to_cart(request, id):
     quantity=int(request.POST.get('quantity', 1))
     
     cart, creat=Cart.objects.get_or_create(customer_id=user_id)
-    cartitem, created=CartItem.objects.get_or_create(cart=cart, product_id=product_id,  defaults={"quantity": quantity})
+    cartitem, created=CartItem.objects.get_or_create(cart_id=cart.id, product_id=product_id,  defaults={"quantity": quantity})
     if not created:
         cartitem.quantity+=quantity
         cartitem.save()
@@ -104,6 +104,7 @@ def user_view_cart(request):
         shipping = 50 
         grand_total = subtotal + shipping
         context={
+            
             'cart_empty': False, 
             'cart':cart,
             'cartitems':cartitems,
@@ -111,16 +112,23 @@ def user_view_cart(request):
             'shipping':shipping,
             'grand_total':grand_total
         }
+        
+        
     except Cart.DoesNotExist:
         context={
             'cart_empty':True
         }
+        print("HEllo")
     return render(request, 'user/user_view_cart.html',{'context':context})
 
 def user_remove_cart_item(request, id):
     cartitem=CartItem.objects.get(id=id)
+    cart=cartitem.cart
     cartitem.delete()
-    return redirect(request.META.get('HTTP_REFERER', '/'))  
+    if not CartItem.objects.filter(cart=cart).exists():
+        cart.delete()
+    return redirect('user_view_cart')
+    
 
 def user_add_to_wishlist(request, id):
     user_id=request.user.id
@@ -153,6 +161,7 @@ def user_view_account(request):
     return render(request, 'user/user_view_account.html', {'context':context})
 
 def user_update_account(request):
+    print("HI")
     user_id=request.user.id
     
     user=User.objects.get(id=user_id)
@@ -208,32 +217,33 @@ def generate_order_number():
     random_number = random.randint(1000, 9999)
     return f"ORD{today}{random_number}"
 
-def user_proceed_to_checkout(request, id):
-    customer=request.user.id
 
-    cart=Cart.objects.get(id=id, customer_id=customer)
-    try:
-        address=Address.objects.get(customer_id=request.user)
-        order_no=generate_order_number()
-        tot_amount=cart.total_amount()        
-        cartitems=CartItem.objects.filter(cart_id=cart.id)
-        order=Order.objects.create(customer_id = customer, 
-                                address=address,
-                                order_number=order_no, 
-                                status ='Pending', 
-                                total_amount=tot_amount)
-        for item in cartitems:
-            OrderItem.objects.create(order_id=order.id,
-                                    product_id=item.product.id,
-                                    product_name=item.product.name,
-                                    product_sku=item.product.sku,
-                                    quantity=item.quantity,
-                                    price=item.product.price
-                                    )
-        cart.delete()
-    except Address.DoesNotExist:
-        return redirect("/userupdateaccount")
-    return render(request, 'user/user_home.html')
+# def user_proceed_to_checkout(request, id):
+#     customer=request.user.id
+
+#     cart=Cart.objects.get(id=id, customer_id=customer)
+#     try:
+#         address=Address.objects.get(customer_id=request.user)
+#         order_no=generate_order_number()
+#         tot_amount=cart.total_amount()        
+#         cartitems=CartItem.objects.filter(cart_id=cart.id)
+#         order=Order.objects.create(customer_id = customer, 
+#                                 address=address,
+#                                 order_number=order_no, 
+#                                 status ='Pending', 
+#                                 total_amount=tot_amount)
+#         for item in cartitems:
+#             OrderItem.objects.create(order_id=order.id,
+#                                     product_id=item.product.id,
+#                                     product_name=item.product.name,
+#                                     product_sku=item.product.sku,
+#                                     quantity=item.quantity,
+#                                     price=item.product.price
+#                                     )
+#         cart.delete()
+#     except Address.DoesNotExist:
+#         return redirect("/userupdateaccount")
+#     return render(request, 'user/user_home.html')
 
 
 def user_view_order(request):
@@ -254,7 +264,161 @@ def user_view_order(request):
 
 
 def user_add_addresses(request):
-    user_id=request.user
-    addresses=Address.objects.filter(customer_id=user_id)
-    return render(request, 'user/user_add_addresses.html',{'addresses':addresses})
+    user_id=request.user.id
+    print(user_id)
+    address=Address.objects.filter(customer_id=user_id)
+    if request.method=="POST":
+        new_name=request.POST['new_name']
+        new_phone=request.POST['new_phone']
+        new_street=request.POST['new_street']
+        new_city=request.POST['new_city']
+        new_state=request.POST['new_state']
+        new_postalcode=request.POST['new_postalcode']
+        new_country=request.POST['new_country']
+        is_default = 'is_default' in request.POST
+        
+        if is_default:
+            Address.objects.filter(customer_id=user_id, is_default=True).update(is_default=False)
+            
+        addresses=Address.objects.create(customer_id=user_id, full_name=new_name, phone=new_phone, street=new_street, city=new_city, state=new_state,
+                               postal_code=new_postalcode, country=new_country, is_default=is_default)
+        return redirect('user_add_addresses')
+    return render(request, 'user/user_add_addresses.html',{'addresses':address})
+
+
+
+
+def user_confirm_order(request, id):
+    user_id=request.user.id
+    user=User.objects.get(id=user_id)
+    customer_profile=CustomerProfile.objects.get(user_id=user_id)
+    all_addresses = Address.objects.filter(customer_id=user_id)
+    try:
+        address=Address.objects.get(customer_id=user_id, is_default=True)   
+    except Address.DoesNotExist:
+        address=Address.objects.filter(customer_id=user_id).first()   
+    cartitems=CartItem.objects.filter(cart_id=id)   
+    for i in cartitems:
+        sub_total=i.subtotal()
+    shipping=50
+    grand_total= sub_total+shipping
+    context={
+        'cartitems':cartitems,
+        'address':address,
+        'all_addresses': all_addresses,
+        'customer_profile':customer_profile,
+        'user':user,
+        'subtotal':sub_total,
+        'shipping':shipping,
+        'grand_total':grand_total,
+        'cart': {'id': id}
+    }
+
+        
+    return render(request, 'user/user_confirm_oder.html',context )
+
+def user_choose_address(request):
+    user_id=request.user.id
+    address=Address.objects.filter(customer_id=request.user.id)
+    if request.method == "POST":
+        new_name = request.POST['new_name']
+        new_phone = request.POST['new_phone']
+        new_street = request.POST['new_street']
+        new_city = request.POST['new_city']
+        new_state = request.POST['new_state']
+        new_postalcode = request.POST['new_postalcode']
+        new_country = request.POST['new_country']
+
+        is_default = 'is_default' in request.POST
+
+        
+        if is_default:
+            Address.objects.filter(customer_id=user_id, is_default=True).update(is_default=False)
+
+        Address.objects.create(
+            customer_id=user_id,
+            full_name=new_name,
+            phone=new_phone,
+            street=new_street,
+            city=new_city,
+            state=new_state,
+            postal_code=new_postalcode,
+            country=new_country,
+            is_default=is_default
+        )
+
+        return redirect('user_choose_address')  
+    return render(request, 'user/user_choose_address.html',{'addresses':address})
+
     
+def user_update_order_address(request):
+    if request.method=='POST':
+        user_id=request.user.id
+        cart_id=request.POST.get('cart_id')
+        selected_address_id = request.POST.get('selected_address')
+        try:
+            Address.objects.filter(customer_id=user_id).update(is_default=False)
+            
+            
+            selected_address = Address.objects.get(id=selected_address_id, customer_id=user_id)
+            selected_address.is_default = True
+            selected_address.save()
+            
+           
+            return redirect('user_confirm_order', id=cart_id)
+            
+        except Exception as e:
+            
+            return redirect('user_confirm_order', id=cart_id)
+    
+    return redirect('user_confirm_order', id=cart_id)
+
+
+def user_add_new_address(request):
+    if request.method == 'POST':
+        user_id = request.user.id
+        cart_id = request.POST.get('cart_id')
+        
+        try:
+            
+            if request.POST.get('is_default'):
+                Address.objects.filter(customer_id=user_id).update(is_default=False)
+            
+            # Create new address
+            address = Address(
+                customer_id=user_id,
+                full_name=request.POST.get('new_name'),
+                street=request.POST.get('new_street'),
+                city=request.POST.get('new_city'),
+                state=request.POST.get('new_state'),
+                postal_code=request.POST.get('new_postalcode'),
+                country=request.POST.get('new_country'),
+                phone_number=request.POST.get('new_phone'),
+                is_default=bool(request.POST.get('is_default'))
+            )
+            address.save()
+            
+           
+            return redirect('user_confirm_order', id=cart_id)
+                
+        except Exception as e:
+            
+            return redirect('user_confirm_order', id=cart_id)
+    
+    return redirect('user_confirm_order', id=cart_id)
+
+def create_order(request, id):
+    user_id=request.user.id
+    address_id=request.POST.get('selected_address')
+    cart=Cart.objects.get(id=id, customer_id=user_id)
+    cartitems=CartItem.objects.filter(cart_id=cart)
+    order_no=generate_order_number()
+    tot=0
+    for i in cartitems:
+       tot+=i.subtotal()
+    order=Order.objects.create(order_number=order_no, status='pending', total_amount=tot, address_id=address_id, customer_id=user_id)
+    for item in cartitems:        
+        OrderItem.objects.create(product_name=item.product.name, product_sku=item.product.sku, quantity=item.quantity, price=item.product.price, order_id=order.id, product_id=item.product.id)
+    cart.delete()
+    
+    return render(request, 'user/user_home.html')
