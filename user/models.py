@@ -54,9 +54,30 @@ class Review(models.Model):
         limit_choices_to={'role': 'customer'}
     )
     product = models.ForeignKey('seller.Product', on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(default=5)
+    rating = models.PositiveIntegerField(
+        default=5,
+        choices=[(1, '1 Star'), (2, '2 Stars'), (3, '3 Stars'), (4, '4 Stars'), (5, '5 Stars')]
+    )
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    # Add these fields for seller functionality
+    seller_reply = models.TextField(blank=True, null=True)
+    replied_at = models.DateTimeField(blank=True, null=True)
+    is_verified_purchase = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['customer', 'product']  # Prevent multiple reviews from same customer
+    
+    def _str_(self):
+        return f"{self.customer.get_full_name()} - {self.product.name} - {self.rating} Stars"
+    
+    def get_customer_initials(self):
+        return f"{self.customer.first_name[0]}{self.customer.last_name[0]}".upper()
+    
+    def get_customer_full_name(self):
+        return self.customer.get_full_name()
 
 
 class Wishlist(models.Model):
