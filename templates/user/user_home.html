@@ -41,7 +41,7 @@
         </div>
     </div>
     <!-- Spinner End -->
-
+{{ header_products|json_script:"header-products-data" }}
 {% if request.user.is_authenticated %}
     {% include "user/header_login.html" %}
 {% else %}

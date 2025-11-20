@@ -10,6 +10,11 @@ from django.contrib.auth import authenticate, login, logout
 from seller.models import Product, ProductImage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+def header_products(request):
+    products = list(Product.objects.all().values('id', 'name', 'price', 'images'))
+    return {
+        'header_products': products
+    }
 def home_view(request):
     return render(request, 'user/index.html')
 
