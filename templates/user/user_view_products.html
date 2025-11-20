@@ -23,7 +23,6 @@
     <link href="/static/lib/animate/animate.min.css" rel="stylesheet">
     <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
-
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -32,14 +31,32 @@
 </head>
 <style>
     .product-item-add {
-    background-color: #fff !important;   /* make background white */
-    padding-top: 0 !important;          /* remove extra top space */
-}
-.product-item-add .btn {
-    margin-bottom: 6px !important;      /* small space between btns */
-}
+        background-color: #fff !important;
+        padding-top: 0 !important;
+    }
+    .product-item-add .btn {
+        margin-bottom: 6px !important;
+    }
+    .price-filter {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .price-display {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+    .price-display span {
+        font-weight: bold;
+        color: #F92400;
+    }
+    .filter-btn {
+        width: 100%;
+        margin-top: 15px;
+    }
 </style>
-
 
 <body>
 
@@ -59,7 +76,6 @@
     {% include "user/header_nologin.html" %}
 {% endif %}
 
-
     <!-- Single Page Header start -->
     <div class="container-fluid page-header py-5">
         <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">Products</h1>
@@ -71,188 +87,68 @@
     </div>
     <!-- Single Page Header End -->
 
-    <!-- Searvices Start -->
-    
-    <!-- Searvices End -->
-
-
-    
-
-
     <!-- Shop Page Start -->
     <div class="container-fluid shop py-5">
         <div class="container py-5">
             <div class="row g-4">
                 <div class="col-lg-3 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="product-categories mb-4">
-                        <h4>Products</h4>
-                        <ul class="list-unstyled">
-                            {% for p in products %}
-                            <li>
-                                <div class="categories-item">
-                                    <a href="" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        {{ c.name }}</a>
-                                    <span></span>
-                                </div>
-                            </li>
-                            {% endfor %}
-                           
-                           
-                            
-                        </ul>
+                    <!-- Price Filter Section -->
+                    <div class="price-filter">
+                        <h4 class="mb-4">Filter by Price</h4>
+                        
+                        <!-- Min Price -->
+                        <div class="mb-3">
+                            <label for="minPrice" class="form-label">Min Price (₹)</label>
+                            <input type="number" class="form-control" id="minPrice" placeholder="0" min="0">
+                        </div>
+                        
+                        <!-- Max Price -->
+                        <div class="mb-3">
+                            <label for="maxPrice" class="form-label">Max Price (₹)</label>
+                            <input type="number" class="form-control" id="maxPrice" placeholder="100000" min="0">
+                        </div>
+                        
+                        <!-- Price Range Display -->
+                        <div class="price-display">
+                            <span id="minPriceDisplay">₹0</span>
+                            <span> - </span>
+                            <span id="maxPriceDisplay">₹100000</span>
+                        </div>
+                        
+                        <!-- Apply Filter Button -->
+                        <button type="button" class="btn btn-primary filter-btn" onclick="applyPriceFilter()">
+                            <i class="fas fa-filter me-2"></i>Apply Filter
+                        </button>
+                        
+                        <!-- Clear Filter Button -->
+                        <button type="button" class="btn btn-outline-secondary filter-btn" onclick="clearPriceFilter()">
+                            <i class="fas fa-times me-2"></i>Clear Filter
+                        </button>
                     </div>
-                   <div class="price mb-4">
-    <h4 class="mb-2">Price</h4>
-    <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500"
-        value="0" oninput="amount.value=rangeInput.value">
-    <output id="amount" name="amount" min-value="0" max-value="500" for="rangeInput">0</output>
-</div>
 
-<div class="product-color mb-3">
-    <h4>Select By Color</h4>
-    <ul class="list-unstyled">
-        <li>
-            <div class="product-color-item">
-                <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i> Gold</a>
-                <span>(1)</span>
-            </div>
-        </li>
-        <li>
-            <div class="product-color-item">
-                <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i> Green</a>
-                <span>(1)</span>
-            </div>
-        </li>
-        <li>
-            <div class="product-color-item">
-                <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i> White</a>
-                <span>(1)</span>
-            </div>
-        </li>
-    </ul>
-</div>
-
-<div class="additional-product mb-4">
-    <h4>Additional Products</h4>
-    <div class="additional-product-item">
-        <input type="radio" class="me-2" id="Categories-1" name="Categories-1" value="Accessories">
-        <label for="Categories-1" class="text-dark"> Accessories</label>
-    </div>
-    <div class="additional-product-item">
-        <input type="radio" class="me-2" id="Categories-2" name="Categories-1" value="Electronics & Computer">
-        <label for="Categories-2" class="text-dark"> Electronics & Computer</label>
-    </div>
-    <div class="additional-product-item">
-        <input type="radio" class="me-2" id="Categories-3" name="Categories-1" value="Laptops & Desktops">
-        <label for="Categories-3" class="text-dark"> Laptops & Desktops</label>
-    </div>
-    <div class="additional-product-item">
-        <input type="radio" class="me-2" id="Categories-4" name="Categories-1" value="Mobiles & Tablets">
-        <label for="Categories-4" class="text-dark"> Mobiles & Tablets</label>
-    </div>
-    <div class="additional-product-item">
-        <input type="radio" class="me-2" id="Categories-5" name="Categories-1" value="SmartPhone & Smart TV">
-        <label for="Categories-5" class="text-dark"> SmartPhone & Smart TV</label>
-    </div>
-</div>
-
-<div class="featured-product mb-4">
-    <h4 class="mb-3">Featured products</h4>
-
-    <div class="featured-product-item">
-        <div class="rounded me-4" style="width: 100px; height: 100px;">
-            <img src="/static/img/product-3.png" class="img-fluid rounded" alt="Image">
-        </div>
-        <div>
-            <h6 class="mb-2">SmartPhone</h6>
-            <div class="d-flex mb-2">
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star"></i>
-            </div>
-            <div class="d-flex mb-2">
-                <h5 class="fw-bold me-2">2.99 $</h5>
-                <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-            </div>
-        </div>
-    </div>
-
-    <div class="featured-product-item">
-        <div class="rounded me-4" style="width: 100px; height: 100px;">
-            <img src="/static/img/product-4.png" class="img-fluid rounded" alt="Image">
-        </div>
-        <div>
-            <h6 class="mb-2">Smart Camera</h6>
-            <div class="d-flex mb-2">
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star"></i>
-            </div>
-            <div class="d-flex mb-2">
-                <h5 class="fw-bold me-2">2.99 $</h5>
-                <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-            </div>
-        </div>
-    </div>
-
-    <div class="featured-product-item">
-        <div class="rounded me-4" style="width: 100px; height: 100px;">
-            <img src="/static/img/product-5.png" class="img-fluid rounded" alt="Image">
-        </div>
-        <div>
-            <h6 class="mb-2">Camera Lens</h6>
-            <div class="d-flex mb-2">
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star text-secondary"></i>
-                <i class="fa fa-star"></i>
-            </div>
-            <div class="d-flex mb-2">
-                <h5 class="fw-bold me-2">2.99 $</h5>
-                <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-            </div>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-center my-4">
-        <a href="#" class="btn btn-primary px-4 py-3 rounded-pill w-100">View More</a>
-    </div>
-</div>
-
-<a href="#">
-    <div class="position-relative">
-        <img src="/static/img/product-banner-2.jpg" class="img-fluid w-100 rounded" alt="Image">
-        <div class="text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4"
-            style="width: 100%; height: 100%; top: 0; right: 0; background: rgba(242, 139, 0, 0.3);">
-            <h5 class="display-6 text-primary">SALE</h5>
-            <h4 class="text-secondary">Get UP To 50% Off</h4>
-            <a href="#" class="btn btn-primary rounded-pill px-4">Shop Now</a>
-        </div>
-    </div>
-</a>
-
-<div class="product-tags py-4">
-    <h4 class="mb-3">PRODUCT TAGS</h4>
-    <div class="product-tags-items bg-light rounded p-3">
-        <a href="#" class="border rounded py-1 px-2 mb-2">New</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Brand</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Black</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">White</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Tablets</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Phone</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Camera</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Drone</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Television</a>
-        <a href="#" class="border rounded py-1 px-2 mb-2">Sales</a>
-    </div>
-</div>
-
+                    <!-- Quick Price Filters -->
+                    <div class="quick-filters mt-4">
+                        <h5 class="mb-3">Quick Filters</h5>
+                        <div class="list-group">
+                            <button type="button" class="list-group-item list-group-item-action" onclick="setPriceRange(0, 1000)">
+                                Under ₹1000
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="setPriceRange(1000, 5000)">
+                                ₹1000 - ₹5000
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="setPriceRange(5000, 10000)">
+                                ₹5000 - ₹10000
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="setPriceRange(10000, 50000)">
+                                ₹10000 - ₹50000
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="setPriceRange(50000, 100000)">
+                                Above ₹50000
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="col-lg-9 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="rounded mb-4 position-relative">
                         <img src="/static/img/product-banner-3.jpg" class="img-fluid rounded w-100" style="height: 250px;"
@@ -264,10 +160,12 @@
                             <a href="#" class="btn btn-primary rounded-pill">Shop Now</a>
                         </div>
                     </div>
+                    
+                    <!-- Search and Sort Section -->
                     <div class="row g-4">
                         <div class="col-xl-7">
                             <div class="input-group w-100 mx-auto d-flex">
-                                <input type="search" class="form-control p-3" placeholder="keywords"
+                                <input type="search" class="form-control p-3" placeholder="Search products..."
                                     aria-describedby="search-icon-1">
                                 <span id="search-icon-1" class="input-group-text p-3"><i
                                         class="fa fa-search"></i></span>
@@ -279,182 +177,77 @@
                                 <select id="electronics" name="electronicslist"
                                     class="border-0 form-select-sm bg-light me-3" form="electronicsform">
                                     <option value="volvo">Default Sorting</option>
-                                    <option value="volv">Nothing</option>
-                                    <option value="sab">Popularity</option>
-                                    <option value="saab">Newness</option>
-                                    <option value="opel">Average Rating</option>
-                                    <option value="audio">Low to high</option>
-                                    <option value="audi">High to low</option>
+                                    <option value="saab">Price: Low to High</option>
+                                    <option value="opel">Price: High to Low</option>
+                                    <option value="audi">Newest First</option>
                                 </select>
                             </div>
                         </div>
-                        
-                     
                     </div>
-                    <br>
-                    <br>
+                    
+                    <br><br>
+                    
+                    <!-- Products Grid -->
                     <div class="tab-content">
                         <div id="tab-5" class="tab-pane fade show p-0 active">
-                            
                             <div class="row g-4 product">
                                 {% for p in products %}
-                                <div class="col-lg-4" >
-                                    
+                                <div class="col-lg-4">
                                     <div class="product-item rounded wow fadeInUp" data-wow-delay="0.1s">
-                                        <div class="product-item-inner border rounded" >
-                                            <div class="product-item-inner-item" >
-                                            <img src="{{ p.images.first.image.url }}" class="img-fluid w-100 rounded-top" alt="">                                                
-                                                <!-- <div class="product-details">
-                                                    <a href="#"><i class="fa fa-eye fa-1x"></i></a>
-                                                </div> -->
+                                        <div class="product-item-inner border rounded">
+                                            <div class="product-item-inner-item">
+                                                <img src="{{ p.images.first.image.url }}" class="img-fluid w-100 rounded-top" alt="">
                                             </div>
                                             <div class="text-center rounded-bottom p-4">
-                                                 <a href="#" class="d-block mb-2">{{p.category.name}}</a>
+                                                <a href="#" class="d-block mb-2">{{p.category.name}}</a>
                                                 <a href="#" class="d-block h4">{{p.name}}<br></a>
-                                                 <del class="me-2 fs-5">$1,250.00</del> 
                                                 <span class="text-primary fs-5">₹{{p.price}}</span>
                                             </div>
                                         </div>
-                                        <div class="product-item-add border border-top-0 rounded-bottom  text-center p-4 pt-0">
-                                                <a href="{% url 'user_view_product_details' p.id %}"
-                                            class="btn btn-primary border-secondary rounded-pill py-2 px-4 me-2">
+                                        <div class="product-item-add border border-top-0 rounded-bottom text-center p-4 pt-0">
+                                            <a href="{% url 'user_view_product_details' p.id %}"
+                                                class="btn btn-primary border-secondary rounded-pill py-2 px-4 me-2">
                                                 <i class="fas fa-shopping-cart me-2"></i> View Details
                                             </a>
-
                                             <a href="{% url 'user_add_to_cart' p.id %}"
-                                            class="btn btn-primary border-secondary rounded-pill py-2 px-4">
+                                                class="btn btn-primary border-secondary rounded-pill py-2 px-4">
                                                 <i class="fas fa-shopping-cart me-2"></i> Add To Cart
                                             </a>
-
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <!-- <div class="d-flex">
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star"></i>
-                                                </div> -->
-                                                <!-- <div class="d-flex">
-                                                    <a href="#"
-                                                        class="text-primary d-flex align-items-center justify-content-center me-3"><span
-                                                            class="rounded-circle btn-sm-square border"><i
-                                                                class="fas fa-random"></i></i></a>
-                                                    <a href="#"
-                                                        class="text-primary d-flex align-items-center justify-content-center me-0"><span
-                                                            class="rounded-circle btn-sm-square border"><i
-                                                                class="fas fa-heart"></i></a>
-                                                </div> -->                  
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                               {% endfor %}
-                                <!-- PAGINATION - ADD THIS RIGHT AFTER YOUR PRODUCTS LOOP -->
-<div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-    {% if products.paginator.num_pages > 1 %}
-    <div class="pagination d-flex justify-content-center mt-5">
-        {% if products.has_previous %}
-            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
-            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
-        {% endif %}
-
-        {% for num in products.paginator.page_range %}
-            {% if products.number == num %}
-                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
-            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
-            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
-        {% endif %}
-    </div>
-    
-    <div class="text-center mt-3">
-        <span class="text-muted">
-            Page {{ products.number }} of {{ products.paginator.num_pages }}
-        </span>
-    </div>
-    {% endif %}
-</div>
-                            </div>
-                        </div>
-                        <div id="tab-6" class="products tab-pane fade show p-0">
-                            <div class="row g-4 products-mini">
-                                {% for c in categories %}
-                                <div class="col-lg-6">
-                                    <div class="products-mini-item border">
-                                        <div class="row g-0">
-                                            <div class="col-5">
-                                                <div class="products-mini-img border-end h-100">
-                                                    <img src="/static/img/product-3.png" class="img-fluid w-100 h-100"
-                                                        alt="Image">
-                                                    <div class="products-mini-icon rounded-circle bg-primary">
-                                                        <a href="#"><i class="fa fa-eye fa-1x text-white"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-7">
-                                                <div class="products-mini-content p-3">
-                                                    <a href="#" class="d-block mb-2">SmartPhone</a>
-                                                    <a href="#" class="d-block h4">{{c.name}}<br> </a>
-                                                    <del class="me-2 fs-5">$1,250.00</del>
-                                                    <span class="text-primary fs-5">$1,050.00</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="products-mini-add border p-3">
-                                            <a href="#"
-                                                class="btn btn-primary border-secondary rounded-pill py-2 px-4"><i
-                                                    class="fas fa-shopping-cart me-2"></i>View Products</a>
-                                            <div class="d-flex">
-                                                <a href="#"
-                                                    class="text-primary d-flex align-items-center justify-content-center me-3"><span
-                                                        class="rounded-circle btn-sm-square border"><i
-                                                            class="fas fa-random"></i></i></a>
-                                                <a href="#"
-                                                    class="text-primary d-flex align-items-center justify-content-center me-0"><span
-                                                        class="rounded-circle btn-sm-square border"><i
-                                                            class="fas fa-heart"></i></a>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 {% endfor %}
                                 
-                               <!-- PAGINATION - ADD THIS RIGHT AFTER YOUR PRODUCTS LOOP -->
-<div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-    {% if products.paginator.num_pages > 1 %}
-    <div class="pagination d-flex justify-content-center mt-5">
-        {% if products.has_previous %}
-            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
-            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
-        {% endif %}
+                                <!-- Pagination -->
+                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                                    {% if products.paginator.num_pages > 1 %}
+                                    <div class="pagination d-flex justify-content-center mt-5">
+                                        {% if products.has_previous %}
+                                            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+                                            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+                                        {% endif %}
 
-        {% for num in products.paginator.page_range %}
-            {% if products.number == num %}
-                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
-            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
+                                        {% for num in products.paginator.page_range %}
+                                            {% if products.number == num %}
+                                                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
+                                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+                                            {% endif %}
+                                        {% endfor %}
 
-        {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
-            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
-        {% endif %}
-    </div>
-    
-    <div class="text-center mt-3">
-        <span class="text-muted">
-            Page {{ products.number }} of {{ products.paginator.num_pages }}
-        </span>
-    </div>
-    {% endif %}
-</div>>
+                                        {% if products.has_next %}
+                                            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+                                            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="text-center mt-3">
+                                        <span class="text-muted">
+                                            Page {{ products.number }} of {{ products.paginator.num_pages }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -464,48 +257,10 @@
     </div>
     <!-- Shop Page End -->
 
-    <!-- Product Banner Start -->
-    <div class="container-fluid py-5">
-        <div class="container pb-5">
-            <div class="row g-4">
-                <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
-                    <a href="#">
-                        <div class="bg-primary rounded position-relative">
-                            <img src="img/product-banner.jpg" class="img-fluid w-100 rounded" alt="">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
-                                style="background: rgba(255, 255, 255, 0.5);">
-                                <h3 class="display-5 text-primary">EOS Rebel <br> <span>T7i Kit</span></h3>
-                                <p class="fs-4 text-muted">$899.99</p>
-                                <a href="#" class="btn btn-primary rounded-pill align-self-start py-2 px-4">Shop Now</a>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.2s">
-                    <a href="#">
-                        <div class="text-center bg-primary rounded position-relative">
-                            <img src="img/product-banner-2.jpg" class="img-fluid w-100" alt="">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
-                                style="background: rgba(242, 139, 0, 0.5);">
-                                <h2 class="display-2 text-secondary">SALE</h2>
-                                <h4 class="display-5 text-white mb-4">Get UP To 50% Off</h4>
-                                <a href="#" class="btn btn-secondary rounded-pill align-self-center py-2 px-4">Shop
-                                    Now</a>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Product Banner End -->
-
     {% include 'user/footer.html' %}
-
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
-
 
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -513,9 +268,73 @@
     <script src="/static/lib/wow/wow.min.js"></script>
     <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
 
-
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
-</body>
 
+    <!-- Price Filter JavaScript -->
+    <script>
+        function setPriceRange(min, max) {
+            document.getElementById('minPrice').value = min;
+            document.getElementById('maxPrice').value = max;
+            updatePriceDisplay();
+            applyPriceFilter();
+        }
+
+        function updatePriceDisplay() {
+            const minPrice = document.getElementById('minPrice').value || 0;
+            const maxPrice = document.getElementById('maxPrice').value || 100000;
+            document.getElementById('minPriceDisplay').textContent = '₹' + minPrice;
+            document.getElementById('maxPriceDisplay').textContent = '₹' + maxPrice;
+        }
+
+        function applyPriceFilter() {
+            const minPrice = document.getElementById('minPrice').value || 0;
+            const maxPrice = document.getElementById('maxPrice').value || 100000;
+            
+            // Update URL with price parameters
+            const url = new URL(window.location.href);
+            url.searchParams.set('min_price', minPrice);
+            url.searchParams.set('max_price', maxPrice);
+            url.searchParams.set('page', '1'); // Reset to first page
+            
+            window.location.href = url.toString();
+        }
+
+        function clearPriceFilter() {
+            // Clear the input fields
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            
+            // Remove price parameters from URL
+            const url = new URL(window.location.href);
+            url.searchParams.delete('min_price');
+            url.searchParams.delete('max_price');
+            url.searchParams.set('page', '1');
+            
+            window.location.href = url.toString();
+        }
+
+        // Initialize price display on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePriceDisplay();
+            
+            // Set current filter values from URL if they exist
+            const urlParams = new URLSearchParams(window.location.search);
+            const minPrice = urlParams.get('min_price');
+            const maxPrice = urlParams.get('max_price');
+            
+            if (minPrice) {
+                document.getElementById('minPrice').value = minPrice;
+            }
+            if (maxPrice) {
+                document.getElementById('maxPrice').value = maxPrice;
+            }
+            updatePriceDisplay();
+        });
+
+        // Update display when inputs change
+        document.getElementById('minPrice').addEventListener('input', updatePriceDisplay);
+        document.getElementById('maxPrice').addEventListener('input', updatePriceDisplay);
+    </script>
+</body>
 </html>
