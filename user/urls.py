@@ -40,7 +40,10 @@ urlpatterns=[
     path('userchooseaddress/<int:id>/', views.user_choose_address, name='user_choose_address'),
     path('uupdateaddress', views.user_update_order_address, name='user_update_order_address'),
     
-    path('userorder/<int:id>/', views.create_order, name='user_create_order')
+    path('userorder/<int:id>/', views.create_order, name='user_create_order'),
+    
+    
+    path('useraddreview/<int:id>/', views.user_add_review, name='user_add_review'),
     
     
 ]

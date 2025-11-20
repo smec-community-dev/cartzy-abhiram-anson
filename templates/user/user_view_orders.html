@@ -658,7 +658,6 @@
                                 <th>Total</th>
                                 <th>Payment</th>
                                 <th>Status</th>
-                                <th>Track Order</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -709,21 +708,31 @@
                                  <td>
                                         <span class="status-badge status-{{ item.order.status|lower }}">{{ item.order.status }}</span>
                                 </td>
-                                <td>
-                                        <a href="#" class="btn-track">
-                                    <i class="fas fa-shipping-fast"></i>
-                                    Track Order
-                                    </a>
-                                </td>
-                                    
-                               <td>
+                                
+                                {% if item.order.status == 'pending' or item.order.status == 'processing' %} 
+                               <td>                                
                                     <div class="action-buttons">
                                     <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-cancel">
                                     <i class="fas fa-times-circle"></i>
                                     Cancel Order
                                     </a>
                                     </div>
-                                    </td>
+                                </td>
+                                {% elif item.order.status == 'Shipped'%}
+                                <td>
+                                    <a href="#" class="btn-track">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    Track Order
+                                    </a>
+                                </td>
+                                {% elif item.order.status == 'Delivered'%}
+                                <td>
+                                    <a href="{% url 'user_add_review' item.product.id %}" class="btn-track">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    Add Review
+                                    </a>
+                                </td>
+                                {% endif %}
 
                             </tr>
                             {% endfor %}

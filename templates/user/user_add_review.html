@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Electro - Product Review</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="/static/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<style>
+    /* Main Container */
+    .review-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    /* Left and Right Layout */
+    .review-layout {
+        display: flex;
+        gap: 32px;
+        margin-bottom: 40px;
+    }
+    
+    .left-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+    
+    .right-section {
+        flex: 1;
+    }
+    
+    /* Content Card */
+    .content-card {
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.04);
+        padding: 32px;
+        height: fit-content;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f5f5f7;
+    }
+    
+    /* Product Header */
+    .product-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f5f5f7;
+    }
+    
+    .product-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-right: 20px;
+        flex-shrink: 0;
+        background-color: #f5f5f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .product-info {
+        flex: 1;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 4px;
+        font-size: 1.25rem;
+    }
+    
+    .product-specs {
+        font-size: 0.875rem;
+        color: #86868b;
+        line-height: 1.4;
+    }
+    
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #1d1d1f;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #F92400;
+        box-shadow: 0 0 0 3px rgba(249, 36, 0, 0.1);
+    }
+    
+    /* Rating Stars */
+    .rating-section {
+        margin-bottom: 24px;
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .star {
+        font-size: 2rem;
+        color: #d2d2d7;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .star.active {
+        color: #FFC107;
+    }
+    
+    .star:hover {
+        color: #FFC107;
+    }
+    
+    .rating-text {
+        font-size: 0.875rem;
+        color: #86868b;
+        margin-top: 8px;
+    }
+    
+    /* Review Textarea */
+    .review-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    .review-textarea:focus {
+        outline: none;
+        border-color: #F92400;
+        box-shadow: 0 0 0 3px rgba(249, 36, 0, 0.1);
+    }
+    
+    /* Buttons */
+    .btn-primary-custom {
+        background: #F92400;
+        color: #ffffff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 980px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        width: 100%;
+        justify-content: center;
+        margin-top: 24px;
+    }
+    
+    .btn-primary-custom:hover {
+        background: #ce2305;
+        transform: scale(1.02);
+        color:white;
+        box-shadow: 0 4px 16px rgba(120, 5, 5, 0.829);
+    }
+    
+    .btn-secondary-custom {
+        background: #ffffff;
+        color: #1d1d1f;
+        border: 1px solid #d2d2d7;
+        padding: 12px 28px;
+        border-radius: 980px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        width: 100%;
+        justify-content: center;
+        margin-top: 16px;
+    }
+    
+    .btn-secondary-custom:hover {
+        background: #f5f5f7;
+        border-color: #1d1d1f;
+    }
+    
+    /* Review Guidelines */
+    .guidelines-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .guidelines-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f5f7;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .guidelines-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .guideline-icon {
+        color: #F92400;
+        font-size: 1.125rem;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    .guideline-text {
+        color: #515154;
+        line-height: 1.5;
+    }
+    
+    /* Review Preview */
+    .review-preview {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 16px;
+        border-left: 4px solid #F92400;
+    }
+    
+    .preview-title {
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 8px;
+    }
+    
+    .preview-rating {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+    
+    .preview-star {
+        color: #FFC107;
+        font-size: 1.25rem;
+    }
+    
+    .preview-text {
+        color: #515154;
+        line-height: 1.6;
+        font-size: 0.875rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .review-layout {
+            flex-direction: column;
+        }
+        
+        .left-section, .right-section {
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .product-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .product-image {
+            margin-right: 0;
+            margin-bottom: 16px;
+        }
+        
+        .rating-stars {
+            justify-content: center;
+        }
+    }
+</style>
+<body>
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Product Review Form -->
+    <div class="review-container">
+        <div class="review-layout">
+            <!-- Left Section: Review Form -->
+            <div class="left-section">
+                <div class="content-card">
+                    <h2 class="section-title">Write a Product Review</h2>
+                    
+                    <!-- Product Information -->
+                    <div class="product-header">
+                        <div class="product-image">
+                            <img src="/static/img/product-image.jpg" alt="Product Image">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">Samsung Galaxy S23 Ultra</div>
+                            <div class="product-specs">256GB, Phantom Black, 5G, 200MP Camera</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Review Form -->
+                    <form method="POST" id="review-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="123">
+                        <input type="hidden" name="order_id" value="456">
+                        
+                        <!-- Rating Section -->
+                        <div class="rating-section">
+                            <label class="form-label">Overall Rating *</label>
+                            <div class="rating-stars">
+                                <span class="star" data-rating="1">★</span>
+                                <span class="star" data-rating="2">★</span>
+                                <span class="star" data-rating="3">★</span>
+                                <span class="star" data-rating="4">★</span>
+                                <span class="star" data-rating="5">★</span>
+                                <input type="hidden" name="rating" class="rating-value" value="0" required>
+                            </div>
+                            <div class="rating-text">Click on a star to rate this product</div>
+                        </div>
+                        
+                        <!-- Review Title -->
+                        <div class="form-group">
+                            <label class="form-label" for="review-title">Review Title *</label>
+                            <input type="text" class="form-control" id="review-title" name="review_title" placeholder="Summarize your experience in a few words" required>
+                        </div>
+                        
+                        <!-- Review Text -->
+                        <div class="form-group">
+                            <label class="form-label" for="review-text">Your Review *</label>
+                            <textarea class="review-textarea" id="review-text" name="review_text" placeholder="Share your experience with this product. What did you like or dislike? How does it compare to similar products?" required></textarea>
+                        </div>
+                        
+                        <!-- Recommendation -->
+                        <div class="form-group">
+                            <label class="form-label">Would you recommend this product to a friend?</label>
+                            <div style="display: flex; gap: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="recommend" value="yes" checked>
+                                    <span>Yes</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="recommend" value="no">
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <button type="submit" class="btn-primary-custom">
+                            Submit Review
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                        
+                        <a href="#" class="btn-secondary-custom">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Product
+                        </a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Right Section: Guidelines and Preview -->
+            <div class="right-section">
+                <!-- Review Guidelines -->
+                <div class="content-card">
+                    <h3 class="section-title">Review Guidelines</h3>
+                    
+                    <ul class="guidelines-list">
+                        <li>
+                            <div class="guideline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="guideline-text">
+                                <strong>Be specific:</strong> Mention specific features you liked or disliked
+                            </div>
+                        </li>
+                        <li>
+                            <div class="guideline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="guideline-text">
+                                <strong>Be honest:</strong> Share your genuine experience with the product
+                            </div>
+                        </li>
+                        <li>
+                            <div class="guideline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="guideline-text">
+                                <strong>Be helpful:</strong> Your review can help other customers make better decisions
+                            </div>
+                        </li>
+                        <li>
+                            <div class="guideline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="guideline-text">
+                                <strong>Keep it clean:</strong> Avoid offensive language or personal attacks
+                            </div>
+                        </li>
+                        <li>
+                            <div class="guideline-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="guideline-text">
+                                <strong>Stay on topic:</strong> Focus your review on the product and your experience
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Review Preview -->
+                <div class="content-card">
+                    <h3 class="section-title">Review Preview</h3>
+                    <p style="color: #86868b; margin-bottom: 16px;">See how your review will appear to others</p>
+                    
+                    <div class="review-preview">
+                        <div class="preview-title" id="preview-title">Your Review Title</div>
+                        <div class="preview-rating" id="preview-rating">
+                            <!-- Stars will be dynamically added here -->
+                        </div>
+                        <div class="preview-text" id="preview-text">
+                            Your review text will appear here. This is a preview of how your review will look to other customers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/lib/wow/wow.min.js"></script>
+    <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
+    
+    <!-- Template Javascript -->
+    <script src="/static/js/main.js"></script>
+    
+    <script>
+        // Star rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.querySelector('.rating-value');
+            const reviewTitle = document.getElementById('review-title');
+            const reviewText = document.getElementById('review-text');
+            const previewTitle = document.getElementById('preview-title');
+            const previewText = document.getElementById('preview-text');
+            const previewRating = document.getElementById('preview-rating');
+            
+            // Initialize preview
+            updatePreview();
+            
+            // Star rating functionality
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-rating');
+                    ratingInput.value = rating;
+                    
+                    // Update star appearance
+                    updateStars(rating);
+                    updatePreview();
+                });
+                
+                // Hover effect
+                star.addEventListener('mouseover', function() {
+                    const hoverRating = this.getAttribute('data-rating');
+                    updateStars(hoverRating, true);
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    const currentRating = ratingInput.value;
+                    updateStars(currentRating);
+                });
+            });
+            
+            // Update title and text preview
+            reviewTitle.addEventListener('input', updatePreview);
+            reviewText.addEventListener('input', updatePreview);
+            
+            // Form validation
+            const form = document.getElementById('review-form');
+            form.addEventListener('submit', function(e) {
+                if (ratingInput.value === '0') {
+                    e.preventDefault();
+                    alert('Please select a rating before submitting your review.');
+                    return false;
+                }
+            });
+            
+            // Function to update star appearance
+            function updateStars(rating, isHover = false) {
+                stars.forEach(s => {
+                    const starRating = s.getAttribute('data-rating');
+                    if (starRating <= rating) {
+                        s.classList.add('active');
+                        if (isHover) {
+                            s.style.color = '#FFC107';
+                        }
+                    } else {
+                        s.classList.remove('active');
+                        if (isHover) {
+                            s.style.color = '#d2d2d7';
+                        }
+                    }
+                });
+                
+                // If not hovering, set colors based on active state
+                if (!isHover) {
+                    stars.forEach(s => {
+                        if (s.classList.contains('active')) {
+                            s.style.color = '#FFC107';
+                        } else {
+                            s.style.color = '#d2d2d7';
+                        }
+                    });
+                }
+            }
+            
+            // Function to update preview
+            function updatePreview() {
+                // Update title
+                if (reviewTitle.value.trim() !== '') {
+                    previewTitle.textContent = reviewTitle.value;
+                } else {
+                    previewTitle.textContent = 'Your Review Title';
+                }
+                
+                // Update text
+                if (reviewText.value.trim() !== '') {
+                    previewText.textContent = reviewText.value;
+                } else {
+                    previewText.textContent = 'Your review text will appear here. This is a preview of how your review will look to other customers.';
+                }
+                
+                // Update rating stars
+                const rating = ratingInput.value;
+                previewRating.innerHTML = '';
+                if (rating > 0) {
+                    for (let i = 0; i < 5; i++) {
+                        const star = document.createElement('span');
+                        star.className = 'preview-star';
+                        star.innerHTML = '★';
+                        if (i < rating) {
+                            star.style.color = '#FFC107';
+                        } else {
+                            star.style.color = '#d2d2d7';
+                        }
+                        previewRating.appendChild(star);
+                    }
+                } else {
+                    previewRating.innerHTML = '<span style="color: #86868b;">No rating selected</span>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

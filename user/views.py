@@ -265,7 +265,7 @@ def user_view_order(request):
 
 def user_add_addresses(request):
     user_id=request.user.id
-    print(user_id)
+    print("HI")
     address=Address.objects.filter(customer_id=user_id)
     if request.method=="POST":
         new_name=request.POST['new_name']
@@ -298,8 +298,9 @@ def user_confirm_order(request, id):
     except Address.DoesNotExist:
         address=Address.objects.filter(customer_id=user_id).first()   
     cartitems=CartItem.objects.filter(cart_id=id)   
+    sub_total=0
     for i in cartitems:
-        sub_total=i.subtotal()
+        sub_total+=i.subtotal()
     shipping=50
     grand_total= sub_total+shipping
     context={
@@ -375,17 +376,22 @@ def user_update_order_address(request):
 
 
 def user_add_new_address(request):
+    
     if request.method == 'POST':
+       
         user_id = request.user.id
         cart_id = request.POST.get('cart_id')
-        
+
         try:
-            
-            if request.POST.get('is_default'):
+            # Checkbox handling
+            is_default = 'is_default' in request.POST
+
+            # If new default, remove old defaults
+            if is_default:
                 Address.objects.filter(customer_id=user_id).update(is_default=False)
-            
-            # Create new address
-            address = Address(
+
+            # Create address
+            Address.objects.create(
                 customer_id=user_id,
                 full_name=request.POST.get('new_name'),
                 street=request.POST.get('new_street'),
@@ -393,18 +399,17 @@ def user_add_new_address(request):
                 state=request.POST.get('new_state'),
                 postal_code=request.POST.get('new_postalcode'),
                 country=request.POST.get('new_country'),
-                phone_number=request.POST.get('new_phone'),
-                is_default=bool(request.POST.get('is_default'))
+                phone=request.POST.get('new_phone'),
+                is_default=is_default
             )
-            address.save()
-            
-           
+
             return redirect('user_confirm_order', id=cart_id)
-                
+
         except Exception as e:
-            
+            print("Hkkki")
+            print("ERROR:", e)
             return redirect('user_confirm_order', id=cart_id)
-    
+
     return redirect('user_confirm_order', id=cart_id)
 
 def create_order(request, id):
@@ -416,9 +421,13 @@ def create_order(request, id):
     tot=0
     for i in cartitems:
        tot+=i.subtotal()
-    order=Order.objects.create(order_number=order_no, status='pending', total_amount=tot, address_id=address_id, customer_id=user_id)
+    order=Order.objects.create(order_number=order_no, status='Delivered', total_amount=tot, address_id=address_id, customer_id=user_id)
     for item in cartitems:        
         OrderItem.objects.create(product_name=item.product.name, product_sku=item.product.sku, quantity=item.quantity, price=item.product.price, order_id=order.id, product_id=item.product.id)
     cart.delete()
     
     return render(request, 'user/user_home.html')
+
+
+def user_add_review(request, id):
+    return render(request, 'user/user_add_review.html')

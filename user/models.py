@@ -79,6 +79,19 @@ class Review(models.Model):
     def get_customer_full_name(self):
         return self.customer.get_full_name()
 
+class ReviewImage(models.Model):
+    review = models.ForeignKey(
+        'Review',
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image = models.ImageField(upload_to='review_images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for Review {self.review.id}"
+
+
 
 class Wishlist(models.Model):
     customer = models.ForeignKey(
