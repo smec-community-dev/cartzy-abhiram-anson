@@ -12,4 +12,7 @@ urlpatterns = [
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('orders/', views.seller_orders, name='seller_orders'),
     path('profile/', views.seller_profile, name='seller_profile'),
+    path('reviews/', views.seller_reviews, name='seller_reviews'),
+    # path('reviews/<int:review_id>/reply/', views.reply_to_review, name='reply_to_review'),
+     path('orders/<int:order_id>/details/', views.order_details, name='order_details'),
 ]

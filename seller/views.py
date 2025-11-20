@@ -3,15 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model, authenticate, login
 from .models import Product, SellerProfile, Category, ProductImage
 from django.contrib import messages
+from django.db.models import Prefetch
 from django.utils.text import slugify
 from django.db.models import Count, Q
 from django.db.models import Q, Sum, Count
 from user.models import Order, OrderItem
 from django.core.paginator import Paginator
-
+from django.http import JsonResponse    
 import random
 import string
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q, Count, Case, When, IntegerField
+from django.contrib import messages
+
 User = get_user_model()
 
 
@@ -271,9 +276,6 @@ def delete_product(request, product_id):
 def main_image(self):
     return self.images.filter(is_main=True).first()
 
-from django.core.paginator import Paginator
-from django.db.models import Q, Count, Case, When, IntegerField
-from django.contrib import messages
 
 @login_required
 def seller_products(request):
@@ -316,7 +318,7 @@ def seller_products(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # ✅ FIX — attach main image to each PRODUCT IN THE PAGE
+   
     for p in page_obj:
         main_img = p.images.filter(is_main=True).first()
         p.main_image_obj = main_img if main_img else p.images.first()
@@ -363,12 +365,19 @@ def product_detail(request, product_id):
 @login_required
 def seller_orders(request):
     seller = request.user.seller_profile
-    
+    print(f"Seller ID: {seller.id}, Seller: {seller}")
     # Get all orders that contain products from this seller
     orders = Order.objects.filter(
         items__product__seller=seller
-    ).distinct().select_related('customer', 'address').prefetch_related('items').order_by('-created_at')
-    
+    ).distinct().select_related('customer', 'address').prefetch_related(
+        'items__product__images'
+    ).order_by('-created_at')
+    print(f"Total orders found: {orders.count()}")
+    for order in orders:
+        seller_items_count = order.items.filter(product__seller=seller).count()
+        print(f"Order #{order.order_number}: {seller_items_count} items from this seller")
+        if seller_items_count == 0:
+            print(f"  WARNING: Order {order.order_number} has no items from this seller!")
     # Apply filters
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
@@ -397,8 +406,20 @@ def seller_orders(request):
         order__status='Delivered'
     ).aggregate(total_revenue=Sum('price'))['total_revenue'] or 0
     
+    # Calculate seller subtotal for each order and attach main images
+    for order in orders:
+        order.seller_subtotal = 0
+        for item in order.items.all():
+            if item.product and item.product.seller == seller:
+                # Calculate seller's subtotal
+                order.seller_subtotal += item.price * item.quantity
+                
+                # Attach main image to product
+                main_img = item.product.images.filter(is_main=True).first()
+                item.product.main_image_obj = main_img if main_img else item.product.images.first()
+    
     # Pagination
-    paginator = Paginator(orders, 15)  # 15 orders per page
+    paginator = Paginator(orders, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -424,13 +445,13 @@ def seller_profile(request):
     seller = request.user.seller_profile
     
     if request.method == "POST":
-        # Update user information
+    
         request.user.first_name = request.POST.get("first_name", "")
         request.user.last_name = request.POST.get("last_name", "")
         request.user.email = request.POST.get("email", "")
         request.user.save()
         
-        # Update seller profile information
+        
         seller.shop_name = request.POST.get("shop_name", "")
         seller.contact_number = request.POST.get("contact_number", "")
         seller.gst_number = request.POST.get("gst_number", "")
@@ -444,3 +465,185 @@ def seller_profile(request):
         'seller': seller,
     }
     return render(request, 'seller/profile.html', context)
+from django.db.models import Avg, Count, Q
+from user.models import Review, Order, OrderItem  
+
+@login_required
+def seller_reviews(request):
+    seller = request.user.seller_profile
+    
+    
+    products = Product.objects.filter(
+        seller=seller,
+        reviews__isnull=False
+    ).distinct().prefetch_related('reviews', 'images').annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    ).order_by('-avg_rating')
+    
+   
+    search_query = request.GET.get('search', '')
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(sku__icontains=search_query)
+        )
+    
+    
+    rating_filter = request.GET.get('rating', '')
+    if rating_filter:
+        products = products.filter(avg_rating__gte=float(rating_filter))
+    
+    
+    selected_product_id = request.GET.get('product')
+    selected_product = None
+    product_reviews = []
+    rating_distribution = {}
+    
+    if selected_product_id:
+        try:
+            selected_product = products.get(id=selected_product_id)
+            product_reviews = selected_product.reviews.all().select_related('user').order_by('-created_at')
+            
+           
+            for rating in range(1, 6):
+                rating_distribution[rating] = selected_product.reviews.filter(rating=rating).count()
+        except Product.DoesNotExist:
+            pass
+    
+    
+    total_reviews = Review.objects.filter(product__seller=seller).count()
+    average_rating = Review.objects.filter(product__seller=seller).aggregate(
+        avg_rating=Avg('rating')
+    )['avg_rating'] or 0
+    
+    
+    replied_reviews = Review.objects.filter(product__seller=seller).exclude(seller_reply='').count()
+    response_rate = (replied_reviews / total_reviews * 100) if total_reviews > 0 else 0
+    
+    
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+   
+    for product in page_obj:
+        main_img = product.images.filter(is_main=True).first()
+        product.main_image_obj = main_img if main_img else product.images.first()
+    
+    context = {
+        'products': page_obj,
+        'selected_product': selected_product,
+        'product_reviews': product_reviews,
+        'total_reviews': total_reviews,
+        'average_rating': round(average_rating, 1),
+        'rating_distribution': rating_distribution,
+        'response_rate': round(response_rate, 1),
+        'search_query': search_query,
+        'rating_filter': rating_filter,
+        'selected_product_id': selected_product_id,
+    }
+    
+    return render(request, 'seller/reviews.html', context)
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+
+@login_required
+def order_details(request, order_id):
+    seller = request.user.seller_profile
+
+    try:
+        # Check if seller has items in this order
+        order_exists = Order.objects.filter(
+            id=order_id,
+            items__product__seller=seller
+        ).exists()
+
+        if not order_exists:
+            return JsonResponse({
+                'success': False,
+                'error': 'Order not found or not accessible'
+            }, status=404)
+
+        # Fetch order + prefetch images
+        order = (
+            Order.objects
+            .filter(id=order_id, items__product__seller=seller)
+            .select_related('customer', 'address')
+            .prefetch_related(
+                Prefetch(
+                    'items',
+                    queryset=(
+                        OrderItem.objects
+                        .filter(product__seller=seller)
+                        .select_related('product')
+                        .prefetch_related('product__images')
+                    )
+                )
+            )
+        ).first()
+
+        seller_items = order.items.filter(product__seller=seller)
+
+        # Subtotal
+        seller_subtotal = sum((item.price or 0) * item.quantity for item in seller_items)
+
+        # Build JSON items (RELIABLE VERSION)
+        items_data = []
+        for item in seller_items:
+            product = item.product
+
+            # Fetch main image directly from the DB
+            main_img = None
+            if product:
+                main_img = product.images.filter(is_main=True).first()
+                if not main_img:
+                    main_img = product.images.first()
+
+            image_url = request.build_absolute_uri(main_img.image.url) if main_img else None
+
+            items_data.append({
+                "product_name": item.product_name,
+                "product_sku": item.product_sku,
+                "quantity": item.quantity,
+                "price": float(item.price or 0),
+                "image_url": image_url
+            })
+
+        # Address JSON
+        address = order.address
+        address_data = (
+            {
+                "full_name": address.full_name,
+                "phone": address.phone,
+                "street": address.street,
+                "city": address.city,
+                "state": address.state,
+                "postal_code": address.postal_code,
+                "country": address.country,
+            }
+            if address else None
+        )
+
+        # Final response
+        response_data = {
+            "order_number": order.order_number,
+            "created_at": order.created_at.isoformat(),
+            "status": order.status,
+            "customer_name": order.customer.get_full_name(),
+            "customer_email": order.customer.email,
+            "total_amount": float(order.total_amount),
+            "seller_subtotal": float(seller_subtotal),
+            "shipping_address": address_data,
+            "items": items_data,
+        }
+
+        return JsonResponse({"success": True, "order": response_data})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
