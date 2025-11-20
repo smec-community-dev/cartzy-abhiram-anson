@@ -58,7 +58,8 @@ class Review(models.Model):
         default=5,
         choices=[(1, '1 Star'), (2, '2 Stars'), (3, '3 Stars'), (4, '4 Stars'), (5, '5 Stars')]
     )
-    comment = models.TextField(blank=True)
+    review_title=models.CharField(max_length=255,null=True)
+    review_text =models.CharField(max_length=255,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # Add these fields for seller functionality
