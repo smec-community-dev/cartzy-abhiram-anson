@@ -52,7 +52,7 @@
     </div>
     <!-- Spinner End -->
 
-
+{{ header_products|json_script:"header-products-data" }}
 {% if request.user.is_authenticated %}
     {% include "user/header_login.html" %}
 {% else %}
@@ -350,18 +350,36 @@
                                     
                                 </div>
                                {% endfor %}
-                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="pagination d-flex justify-content-center mt-5">
-                                        <a href="#" class="rounded">&laquo;</a>
-                                        <a href="#" class="active rounded">1</a>
-                                        <a href="#" class="rounded">2</a>
-                                        <a href="#" class="rounded">3</a>
-                                        <a href="#" class="rounded">4</a>
-                                        <a href="#" class="rounded">5</a>
-                                        <a href="#" class="rounded">6</a>
-                                        <a href="#" class="rounded">&raquo;</a>
-                                    </div>
-                                </div>
+                                <!-- PAGINATION - ADD THIS RIGHT AFTER YOUR PRODUCTS LOOP -->
+<div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+    {% if products.paginator.num_pages > 1 %}
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if products.has_previous %}
+            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            {% if products.number == num %}
+                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
+            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+        <span class="text-muted">
+            Page {{ products.number }} of {{ products.paginator.num_pages }}
+        </span>
+    </div>
+    {% endif %}
+</div>
                             </div>
                         </div>
                         <div id="tab-6" class="products tab-pane fade show p-0">
@@ -407,18 +425,36 @@
                                 </div>
                                 {% endfor %}
                                 
-                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="pagination d-flex justify-content-center mt-5">
-                                        <a href="#" class="rounded">&laquo;</a>
-                                        <a href="#" class="active rounded">1</a>
-                                        <a href="#" class="rounded">2</a>
-                                        <a href="#" class="rounded">3</a>
-                                        <a href="#" class="rounded">4</a>
-                                        <a href="#" class="rounded">5</a>
-                                        <a href="#" class="rounded">6</a>
-                                        <a href="#" class="rounded">&raquo;</a>
-                                    </div>
-                                </div>
+                               <!-- PAGINATION - ADD THIS RIGHT AFTER YOUR PRODUCTS LOOP -->
+<div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+    {% if products.paginator.num_pages > 1 %}
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if products.has_previous %}
+            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            {% if products.number == num %}
+                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
+            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+        <span class="text-muted">
+            Page {{ products.number }} of {{ products.paginator.num_pages }}
+        </span>
+    </div>
+    {% endif %}
+</div>>
                             </div>
                         </div>
                     </div>

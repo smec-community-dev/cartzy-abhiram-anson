@@ -1,13 +1,20 @@
 import datetime
+from django.contrib import messages
 import random
 from django.shortcuts import render, redirect
 from core.models import User
-from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, OrderItem
+from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, OrderItem, Review, ReviewImage
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from seller.models import Product, ProductImage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+def header_products(request):
+    products = list(Product.objects.all().values('id', 'name', 'price', 'images'))
+    return {
+        'header_products': products
+    }
 def home_view(request):
     return render(request, 'user/index.html')
 
@@ -59,22 +66,63 @@ def logout_view(request):
 def user_home_view(request):
     return render(request, 'user/user_home.html')
 
+
+
 def user_category_view(request):
-    Categories=Category.objects.all()    
-    return render(request, 'user/user_view_category.html', {'categories':Categories})
+    categories_list = Category.objects.all()
+    paginator = Paginator(categories_list, 3)
+    page = request.GET.get('page')
+    
+    try:
+        categories = paginator.page(page)
+    except PageNotAnInteger:
+       
+        categories = paginator.page(1)
+    except EmptyPage:
+        
+        categories = paginator.page(paginator.num_pages)
+    
+    return render(request, 'user/user_view_category.html', {'categories': categories})
         
         
+
+
 def user_view_all_products(request):
-    products=Product.objects.all()
-    return render(request, 'user/user_view_products.html', {'products':products})
+    products_list = Product.objects.all()
+    
+    # Change from 9 to 2 or 3 products per page
+    paginator = Paginator(products_list, 2)  # ← Change to 2 or 3
+    page = request.GET.get('page')
+    
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
+    
+    return render(request, 'user/user_view_products.html', {'products': products})
 
 def user_view_products(request, id):
-    products=Product.objects.filter(category_id = id)    
-    return render(request, 'user/user_view_products.html',{'products':products})
+    products_list = Product.objects.filter(category_id=id)
+    
+    # Also change this to 2 or 3
+    paginator = Paginator(products_list, 2)  # ← Change to 2 or 3
+    page = request.GET.get('page')
+    
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
+    
+    return render(request, 'user/user_view_products.html', {'products': products})
 
 def user_view_product_details(request, id):
     product_details=Product.objects.get(id=id)
     images=ProductImage.objects.filter(product_id=product_details.id)
+
     context={
         'product_details':product_details,
         'images':images
@@ -430,4 +478,33 @@ def create_order(request, id):
 
 
 def user_add_review(request, id):
-    return render(request, 'user/user_add_review.html')
+    product = Product.objects.get(id=id)
+    customer = request.user.id
+
+    context = {'product': product}
+
+    if request.method == 'POST':
+        # Check duplicate review
+        if Review.objects.filter(customer_id=customer, product_id=id).exists():
+            messages.error(request, "You have already submitted a review for this product.")
+            return redirect('user_view_product_details', id=id)
+
+        review_title = request.POST.get('review_title')
+        review_text = request.POST.get('review_text')
+        images = request.FILES.getlist('images')
+
+        # Create review
+        review = Review.objects.create(
+            review_title=review_title,
+            review_text=review_text,
+            product_id=product.id,
+            customer_id=customer
+        )
+
+        # Save images
+        for image in images:
+            ReviewImage.objects.create(review=review, image=image)
+
+        return redirect('user_view_product_details', id=id)
+
+    return render(request, 'user/user_add_review.html', context)

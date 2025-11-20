@@ -31,7 +31,21 @@
     <link href="/static/css/style.css" rel="stylesheet">
 </head>
 <style>
-    
+    .pagination a {
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
+
+.pagination a.active {
+    background-color: #F92400;
+    color: white;
+    border-color: #F92400;
+}
 </style>
 <body>
 
@@ -44,7 +58,7 @@
     </div>
     <!-- Spinner End -->
 
-
+{{ header_products|json_script:"header-products-data" }}
 {% if request.user.is_authenticated %}
     {% include "user/header_login.html" %}
 {% else %}
@@ -341,17 +355,34 @@
                                 </div>
                                {% endfor %}
                                 <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="pagination d-flex justify-content-center mt-5">
-                                        <a href="#" class="rounded">&laquo;</a>
-                                        <a href="#" class="active rounded">1</a>
-                                        <a href="#" class="rounded">2</a>
-                                        <a href="#" class="rounded">3</a>
-                                        <a href="#" class="rounded">4</a>
-                                        <a href="#" class="rounded">5</a>
-                                        <a href="#" class="rounded">6</a>
-                                        <a href="#" class="rounded">&raquo;</a>
-                                    </div>
-                                </div>
+    {% if categories.paginator.num_pages > 1 %}
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if categories.has_previous %}
+            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+            <a href="?page={{ categories.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+        {% endif %}
+
+        {% for num in categories.paginator.page_range %}
+            {% if categories.number == num %}
+                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
+            {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if categories.has_next %}
+            <a href="?page={{ categories.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+            <a href="?page={{ categories.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+        <span class="text-muted">
+            Page {{ categories.number }} of {{ categories.paginator.num_pages }} ({{ categories.paginator.count }} total categories)
+        </span>
+    </div>
+    {% endif %}
+</div>
                             </div>
                         </div>
                         <div id="tab-6" class="products tab-pane fade show p-0">
@@ -386,18 +417,35 @@
                                 </div>
                                 {% endfor %}
                                 
-                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div class="pagination d-flex justify-content-center mt-5">
-                                        <a href="#" class="rounded">&laquo;</a>
-                                        <a href="#" class="active rounded">1</a>
-                                        <a href="#" class="rounded">2</a>
-                                        <a href="#" class="rounded">3</a>
-                                        <a href="#" class="rounded">4</a>
-                                        <a href="#" class="rounded">5</a>
-                                        <a href="#" class="rounded">6</a>
-                                        <a href="#" class="rounded">&raquo;</a>
-                                    </div>
-                                </div>
+                               <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+    {% if categories.paginator.num_pages > 1 %}
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if categories.has_previous %}
+            <a href="?page=1" class="rounded">&laquo; First</a>
+            <a href="?page={{ categories.previous_page_number }}" class="rounded">Previous</a>
+        {% endif %}
+
+        {% for num in categories.paginator.page_range %}
+            {% if categories.number == num %}
+                <a href="?page={{ num }}" class="active rounded">{{ num }}</a>
+            {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                <a href="?page={{ num }}" class="rounded">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if categories.has_next %}
+            <a href="?page={{ categories.next_page_number }}" class="rounded">Next</a>
+            <a href="?page={{ categories.paginator.num_pages }}" class="rounded">Last &raquo;</a>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+        <span class="text-muted">
+            Page {{ categories.number }} of {{ categories.paginator.num_pages }}
+        </span>
+    </div>
+    {% endif %}
+</div>
                             </div>
                         </div>
                     </div>
