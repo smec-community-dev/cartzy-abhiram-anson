@@ -271,14 +271,12 @@ def user_remove_wishlist_item(request, id):
     try:
         # Get the wishlist item
         wishlist_item = Wishlist.objects.get(id=id, customer_id=request.user.id)
-        wishlist = wishlist_item.wishlist  # Assuming you have a main Wishlist model
+       
         
         # Delete the wishlist item
         wishlist_item.delete()
         
-        # Check if the main wishlist is empty and delete it if so
-        if not Wishlist.objects.filter(wishlist=wishlist).exists():
-            wishlist.delete()
+       
         
         messages.success(request, "Item removed from your wishlist successfully.")
         

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
-
+from django.contrib.auth.models import User
+from user.models import Order
 from core.models import Category
 class SellerProfile(models.Model):
     user = models.OneToOneField(
@@ -46,12 +47,12 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
-# @property
-# def main_image_obj(self):
-#     main_img = self.images.filter(is_main=True).first()
-#     if main_img:
-#         return main_img
-#     return self.images.first()
+    # @property
+    # def main_image_obj(self):
+    #     main_img = self.images.filter(is_main=True).first()
+    #     if main_img:
+    #         return main_img
+    #     return self.images.first()
 
 
     
@@ -77,3 +78,5 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image - {self.product.name}"
+
+   
