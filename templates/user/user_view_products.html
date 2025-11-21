@@ -172,17 +172,16 @@
                             </div>
                         </div>
                         <div class="col-xl-3 text-end">
-                            <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between">
-                                <label for="electronics">Sort By:</label>
-                                <select id="electronics" name="electronicslist"
-                                    class="border-0 form-select-sm bg-light me-3" form="electronicsform">
-                                    <option value="volvo">Default Sorting</option>
-                                    <option value="saab">Price: Low to High</option>
-                                    <option value="opel">Price: High to Low</option>
-                                    <option value="audi">Newest First</option>
-                                </select>
-                            </div>
-                        </div>
+    <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between">
+        <label for="sort">Sort By:</label>
+        <select id="sort" name="sort" class="border-0 form-select-sm bg-light me-3" onchange="applySorting(this.value)">
+            <option value="">Default Sorting</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+        </select>
+    </div>
+</div>
                     </div>
                     
                     <br><br>
@@ -217,38 +216,38 @@
                                     </div>
                                 </div>
                                 {% endfor %}
-                                
-                                <!-- Pagination -->
-                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-                                    {% if products.paginator.num_pages > 1 %}
-                                    <div class="pagination d-flex justify-content-center mt-5">
-                                        {% if products.has_previous %}
-                                            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
-                                            <a href="?page={{ products.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
-                                        {% endif %}
-
-                                        {% for num in products.paginator.page_range %}
-                                            {% if products.number == num %}
-                                                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
-                                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                                                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        {% if products.has_next %}
-                                            <a href="?page={{ products.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
-                                            <a href="?page={{ products.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="text-center mt-3">
-                                        <span class="text-muted">
-                                            Page {{ products.number }} of {{ products.paginator.num_pages }}
-                                        </span>
-                                    </div>
-                                    {% endif %}
                                 </div>
-                            </div>
+                              <!-- Pagination -->
+<div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+    {% if products.paginator.num_pages > 1 %}
+    <div class="pagination d-flex justify-content-center mt-5">
+        {% if products.has_previous %}
+            <a href="javascript:void(0)" onclick="goToPage(1)" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+            <a href="javascript:void(0)" onclick="goToPage({{ products.previous_page_number }})" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            {% if products.number == num %}
+                <a href="javascript:void(0)" onclick="goToPage({{ num }})" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
+            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <a href="javascript:void(0)" onclick="goToPage({{ num }})" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="javascript:void(0)" onclick="goToPage({{ products.next_page_number }})" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+            <a href="javascript:void(0)" onclick="goToPage({{ products.paginator.num_pages }})" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+        <span class="text-muted">
+            Page {{ products.number }} of {{ products.paginator.num_pages }}
+        </span>
+    </div>
+    {% endif %}
+</div>
+                            
                         </div>
                     </div>
                 </div>
@@ -273,68 +272,149 @@
 
     <!-- Price Filter JavaScript -->
     <script>
-        function setPriceRange(min, max) {
-            document.getElementById('minPrice').value = min;
-            document.getElementById('maxPrice').value = max;
-            updatePriceDisplay();
-            applyPriceFilter();
-        }
+function setPriceRange(min, max) {
+    document.getElementById('minPrice').value = min;
+    document.getElementById('maxPrice').value = max;
+    updatePriceDisplay();
+    applyPriceFilter();
+}
 
-        function updatePriceDisplay() {
-            const minPrice = document.getElementById('minPrice').value || 0;
-            const maxPrice = document.getElementById('maxPrice').value || 100000;
-            document.getElementById('minPriceDisplay').textContent = '₹' + minPrice;
-            document.getElementById('maxPriceDisplay').textContent = '₹' + maxPrice;
-        }
+function updatePriceDisplay() {
+    const minPrice = document.getElementById('minPrice').value || 0;
+    const maxPrice = document.getElementById('maxPrice').value || 100000;
+    document.getElementById('minPriceDisplay').textContent = '₹' + minPrice;
+    document.getElementById('maxPriceDisplay').textContent = '₹' + maxPrice;
+}
 
-        function applyPriceFilter() {
-            const minPrice = document.getElementById('minPrice').value || 0;
-            const maxPrice = document.getElementById('maxPrice').value || 100000;
-            
-            // Update URL with price parameters
-            const url = new URL(window.location.href);
-            url.searchParams.set('min_price', minPrice);
-            url.searchParams.set('max_price', maxPrice);
-            url.searchParams.set('page', '1'); // Reset to first page
-            
-            window.location.href = url.toString();
-        }
+function applyPriceFilter() {
+    const minPrice = document.getElementById('minPrice').value || 0;
+    const maxPrice = document.getElementById('maxPrice').value || 100000;
+    
+    // Get current URL and parameters
+    const url = new URL(window.location.href);
+    
+    // Update price parameters
+    if (minPrice > 0) {
+        url.searchParams.set('min_price', minPrice);
+    } else {
+        url.searchParams.delete('min_price');
+    }
+    
+    if (maxPrice < 100000) {
+        url.searchParams.set('max_price', maxPrice);
+    } else {
+        url.searchParams.delete('max_price');
+    }
+    
+    // Reset to first page when applying new filter
+    url.searchParams.set('page', '1');
+    
+    window.location.href = url.toString();
+}
 
-        function clearPriceFilter() {
-            // Clear the input fields
-            document.getElementById('minPrice').value = '';
-            document.getElementById('maxPrice').value = '';
-            
-            // Remove price parameters from URL
-            const url = new URL(window.location.href);
-            url.searchParams.delete('min_price');
-            url.searchParams.delete('max_price');
-            url.searchParams.set('page', '1');
-            
-            window.location.href = url.toString();
-        }
+function clearPriceFilter() {
+    // Clear the input fields
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+    
+    // Remove price parameters from URL but keep other parameters
+    const url = new URL(window.location.href);
+    url.searchParams.delete('min_price');
+    url.searchParams.delete('max_price');
+    url.searchParams.set('page', '1');
+    
+    window.location.href = url.toString();
+}
 
-        // Initialize price display on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updatePriceDisplay();
-            
-            // Set current filter values from URL if they exist
-            const urlParams = new URLSearchParams(window.location.search);
-            const minPrice = urlParams.get('min_price');
-            const maxPrice = urlParams.get('max_price');
-            
-            if (minPrice) {
-                document.getElementById('minPrice').value = minPrice;
-            }
-            if (maxPrice) {
-                document.getElementById('maxPrice').value = maxPrice;
-            }
-            updatePriceDisplay();
-        });
+// Initialize price display on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePriceDisplay();
+    
+    // Set current filter values from URL if they exist
+    const urlParams = new URLSearchParams(window.location.search);
+    const minPrice = urlParams.get('min_price');
+    const maxPrice = urlParams.get('max_price');
+    
+    if (minPrice) {
+        document.getElementById('minPrice').value = minPrice;
+    }
+    if (maxPrice) {
+        document.getElementById('maxPrice').value = maxPrice;
+    }
+    updatePriceDisplay();
+});
 
-        // Update display when inputs change
-        document.getElementById('minPrice').addEventListener('input', updatePriceDisplay);
-        document.getElementById('maxPrice').addEventListener('input', updatePriceDisplay);
-    </script>
+// Update display when inputs change
+document.getElementById('minPrice').addEventListener('input', updatePriceDisplay);
+document.getElementById('maxPrice').addEventListener('input', updatePriceDisplay);
+
+// Add Enter key support for price inputs
+document.getElementById('minPrice').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        applyPriceFilter();
+    }
+});
+
+document.getElementById('maxPrice').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        applyPriceFilter();
+    }
+});
+function applySorting(sortValue) {
+    const url = new URL(window.location.href);
+    
+    if (sortValue) {
+        url.searchParams.set('sort', sortValue);
+    } else {
+        url.searchParams.delete('sort');
+    }
+    
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+// Set the current sort value on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort');
+    if (currentSort) {
+        document.getElementById('sort').value = currentSort;
+    }
+});
+function goToPage(page) {
+    const url = new URL(window.location.href);
+
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    const sort = document.getElementById('sort').value;
+
+    // MIN PRICE
+    if (minPrice !== "" && !isNaN(minPrice)) {
+        url.searchParams.set('min_price', minPrice);
+    } else {
+        url.searchParams.delete('min_price');
+    }
+
+    // MAX PRICE
+    if (maxPrice !== "" && !isNaN(maxPrice)) {
+        url.searchParams.set('max_price', maxPrice);
+    } else {
+        url.searchParams.delete('max_price');
+    }
+
+    // SORT
+    if (sort !== "" && sort !== null) {
+        url.searchParams.set('sort', sort);
+    } else {
+        url.searchParams.delete('sort');
+    }
+
+    // ⭐ IMPORTANT: SET PAGE NUMBER
+    url.searchParams.set('page', page);
+
+    window.location.href = url.toString();
+}
+
+</script>
 </body>
 </html>
