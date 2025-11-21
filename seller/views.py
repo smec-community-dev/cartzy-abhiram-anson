@@ -14,9 +14,10 @@ import random
 import string
 from django.utils import timezone
 from django.core.paginator import Paginator
+import json
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.contrib import messages
-
+from django.db.models import F
 User = get_user_model()
 
 
@@ -94,36 +95,302 @@ def seller_login(request):
         return redirect("/seller/dashboard")
 
     return render(request, "seller/seller_login.html")
+# views.py
 
+from django.utils import timezone
+from datetime import timedelta
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum, Avg
+import json
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum, Avg
+import json
 
 @login_required
 def seller_dashboard(request):
-    seller = request.user.seller_profile
-    products = seller.products.all().prefetch_related('images')
+    try:
+        # Import Review model
+        from user.models import Review
+        
+        # Get the seller profile for the current user
+        seller_profile = SellerProfile.objects.get(user=request.user)
+        
+        print(f"\n=== DEBUGGING SELLER DASHBOARD ===")
+        print(f"Seller Profile: {seller_profile}")
+        print(f"Seller ID: {seller_profile.id}")
+        
+        # Basic stats
+        total_products = Product.objects.filter(seller=seller_profile).count()
+        print(f"Total Products: {total_products}")
+        
+        in_stock_products = Product.objects.filter(seller=seller_profile, stock__gt=0).count()
+        low_stock_products = Product.objects.filter(seller=seller_profile, stock__lt=10, stock__gt=0).count()
+        categories_count = Product.objects.filter(seller=seller_profile).values('category').distinct().count()
+        
+        # Sales metrics
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        last_week = today - timedelta(days=7)
+        last_month = today - timedelta(days=30)
+        
+        # Get seller's products
+        seller_products = Product.objects.filter(seller=seller_profile)
+        seller_product_ids = list(seller_products.values_list('id', flat=True))
+        print(f"Seller Product IDs: {seller_product_ids}")
+        
+        # Check all orders in the system
+        all_orders = Order.objects.all()
+        print(f"\nTotal Orders in System: {all_orders.count()}")
+        
+        # Check order statuses
+        if all_orders.exists():
+            print("\nOrder Statuses in Database:")
+            statuses = Order.objects.values_list('status', flat=True).distinct()
+            for status in statuses:
+                count = Order.objects.filter(status=status).count()
+                print(f"  - '{status}': {count} orders")
+        
+        # Check orders with seller's products
+        orders_with_seller_products = Order.objects.filter(
+            items__product__in=seller_products
+        ).distinct()
+        print(f"\nOrders containing seller's products: {orders_with_seller_products.count()}")
+        
+        # Try different status variations
+        status_variations = [
+            'completed', 'Completed', 'COMPLETED',
+            'delivered', 'Delivered', 'DELIVERED',
+            'pending', 'Pending', 'PENDING',
+            'shipped', 'Shipped', 'SHIPPED',
+            'processing', 'Processing', 'PROCESSING'
+        ]
+        
+        print("\nChecking different status variations:")
+        for status in status_variations:
+            count = Order.objects.filter(
+                items__product__in=seller_products,
+                status=status
+            ).distinct().count()
+            if count > 0:
+                print(f"  - Status '{status}': {count} orders")
+        
+        # Get ALL orders (regardless of status) for today
+        print(f"\nOrders for today ({today}):")
+        today_all_orders = Order.objects.filter(
+            items__product__in=seller_products,
+            created_at__date=today
+        ).distinct()
+        print(f"  Total orders today (any status): {today_all_orders.count()}")
+        
+        # Check order items
+        if today_all_orders.exists():
+            print("\n  Today's Orders Details:")
+            for order in today_all_orders:
+                print(f"    Order #{order.order_number or order.id}:")
+                print(f"      Status: '{order.status}'")
+                print(f"      Total Amount: {order.total_amount}")
+                seller_items = order.items.filter(product__in=seller_products)
+                print(f"      Seller's Items: {seller_items.count()}")
+                for item in seller_items:
+                    print(f"        - {item.product_name}: ₹{item.price} x {item.quantity}")
+        
+        # Calculate revenue with ALL statuses first (for debugging)
+        today_orders_all_status = Order.objects.filter(
+            items__product__in=seller_products,
+            created_at__date=today
+        ).distinct()
+        
+        today_revenue = 0
+        for order in today_orders_all_status:
+            for order_item in order.items.filter(product__in=seller_products):
+                item_revenue = float(order_item.price) * order_item.quantity
+                today_revenue += item_revenue
+                print(f"    Adding revenue: ₹{item_revenue} (from order #{order.order_number or order.id})")
+        
+        print(f"\nTotal Today's Revenue (all statuses): ₹{today_revenue}")
+        
+        # Now try with specific statuses
+        # Get unique statuses from actual orders
+        actual_statuses = list(Order.objects.filter(
+            items__product__in=seller_products
+        ).values_list('status', flat=True).distinct())
+        
+        print(f"\nActual order statuses for seller's products: {actual_statuses}")
+        
+        # Yesterday's revenue
+        yesterday_orders = Order.objects.filter(
+            items__product__in=seller_products,
+            created_at__date=yesterday
+        ).distinct()
+        
+        yesterday_revenue = 0
+        for order in yesterday_orders:
+            for order_item in order.items.filter(product__in=seller_products):
+                yesterday_revenue += float(order_item.price) * order_item.quantity
+        
+        # Calculate revenue change percentage
+        revenue_change = 0
+        if yesterday_revenue > 0:
+            revenue_change = round(((today_revenue - yesterday_revenue) / yesterday_revenue) * 100, 1)
+        elif today_revenue > 0:
+            revenue_change = 100.0
+        
+        # Total orders
+        total_orders = Order.objects.filter(
+            items__product__in=seller_products
+        ).distinct().count()
+        
+        last_week_orders = Order.objects.filter(
+            items__product__in=seller_products,
+            created_at__date__gte=last_week
+        ).distinct().count()
+        
+        # Calculate orders change percentage
+        orders_change = 0
+        prev_week_orders = total_orders - last_week_orders
+        if prev_week_orders > 0:
+            orders_change = round((last_week_orders / prev_week_orders) * 100, 1)
+        elif last_week_orders > 0:
+            orders_change = 100.0
+        
+        # Average rating
+        average_rating = Review.objects.filter(
+            product__seller=seller_profile
+        ).aggregate(avg_rating=Avg('rating'))['avg_rating'] or 0
+        average_rating = round(average_rating, 1)
+        
+        # Top products with sales data
+        top_products = []
+        for product in seller_products[:20]:
+            # Get all order items for this product (ANY status for now)
+            order_items = OrderItem.objects.filter(product=product)
+            
+            total_sold = sum(item.quantity for item in order_items)
+            total_revenue = sum(float(item.price) * item.quantity for item in order_items)
+            
+            # Get the first image or use None if no images
+            product_image = None
+            product_image = product.images.filter(is_main=True).first() or product.images.first()
     
-    # Calculate statistics for the dashboard
-    total_products = products.count()
-    in_stock_products = products.filter(stock__gt=0).count()
-    low_stock_products = products.filter(stock__lt=10, stock__gt=0).count()
+            
+            if total_sold > 0:
+                top_products.append({
+                    'id': product.id,
+                    'name': product.name,
+                    'image': product_image,
+                    'total_sold': total_sold,
+                    'total_revenue': total_revenue
+                })
+        
+        # Sort by total sold and take top 5
+        top_products = sorted(top_products, key=lambda x: x['total_sold'], reverse=True)[:5]
+        
+        # Recent reviews
+        recent_reviews = Review.objects.filter(
+            product__seller=seller_profile
+        ).select_related('product').order_by('-created_at')[:5]
+        
+        # Recent orders
+        recent_orders = Order.objects.filter(
+            items__product__in=seller_products
+        ).select_related('customer').distinct().order_by('-created_at')[:5]
+        
+        # Chart data - last 30 days - USE ALL ORDERS (remove status filter for debugging)
+        print("\n=== GENERATING CHART DATA ===")
+        chart_data = []
+        for i in range(30):
+            date = today - timedelta(days=29-i)
+            
+            # Get orders for this date (ANY status)
+            daily_orders = Order.objects.filter(
+                items__product__in=seller_products,
+                created_at__date=date
+            ).distinct()
+            
+            # Calculate daily revenue
+            daily_revenue = 0
+            for order in daily_orders:
+                for order_item in order.items.filter(product__in=seller_products):
+                    daily_revenue += float(order_item.price) * order_item.quantity
+            
+            daily_order_count = daily_orders.count()
+            
+            if daily_order_count > 0 or daily_revenue > 0:
+                print(f"{date.strftime('%b %d')}: {daily_order_count} orders, ₹{daily_revenue}")
+            
+            chart_data.append({
+                'date': date.strftime('%b %d'),
+                'revenue': round(daily_revenue, 2),
+                'orders': daily_order_count
+            })
+        
+        print(f"\nChart Data Generated: {len(chart_data)} points")
+        print("Chart Data:", chart_data)
+        
+        context = {
+            'total_products': total_products,
+            'in_stock_products': in_stock_products,
+            'low_stock_products': low_stock_products,
+            'categories_count': categories_count,
+            'today_revenue': today_revenue,
+            'revenue_change': revenue_change,
+            'total_orders': total_orders,
+            'orders_change': orders_change,
+            'average_rating': average_rating,
+            'top_products': top_products,
+            'recent_reviews': recent_reviews,
+            'recent_orders': recent_orders,
+            'chart_data': json.dumps(chart_data),
+        }
+        
+    except SellerProfile.DoesNotExist:
+        context = {
+            'error': 'Seller profile not found. Please complete your seller profile setup.',
+            'total_products': 0,
+            'in_stock_products': 0,
+            'low_stock_products': 0,
+            'categories_count': 0,
+            'today_revenue': 0,
+            'revenue_change': 0,
+            'total_orders': 0,
+            'orders_change': 0,
+            'average_rating': 0,
+            'top_products': [],
+            'recent_reviews': [],
+            'recent_orders': [],
+            'chart_data': json.dumps([]),
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error in seller_dashboard: {str(e)}")
+        
+        context = {
+            'error': f'An error occurred: {str(e)}',
+            'total_products': 0,
+            'in_stock_products': 0,
+            'low_stock_products': 0,
+            'categories_count': 0,
+            'today_revenue': 0,
+            'revenue_change': 0,
+            'total_orders': 0,
+            'orders_change': 0,
+            'average_rating': 0,
+            'top_products': [],
+            'recent_reviews': [],
+            'recent_orders': [],
+            'chart_data': json.dumps([]),
+        }
     
-    # Get distinct categories count from seller's products
-    categories_count = products.values('category').distinct().count()
-    
-    # Attach main_image to each product for template use
-    for product in products:
-        main_img = product.images.filter(is_main=True).first()
-        product.main_image_obj = main_img if main_img else product.images.first()
-        print(f"Product: {product.name}, Main Image: {main_img}, All images count: {product.images.count()}")
-    
-    context = {
-        "products": products,
-        "total_products": total_products,
-        "in_stock_products": in_stock_products,
-        "low_stock_products": low_stock_products,
-        "categories_count": categories_count,
-    }
-    
-    return render(request, "seller/seller_dashboard.html", context)
+    return render(request, 'seller/seller_dashboard.html', context)
 @login_required
 def add_product(request):
     seller = request.user.seller_profile
@@ -365,6 +632,22 @@ def product_detail(request, product_id):
 @login_required
 def seller_orders(request):
     seller = request.user.seller_profile
+    
+    # MARK NOTIFICATIONS AS READ WHEN VISITING ORDERS PAGE
+    try:
+        from core.models import Notification
+        # Mark order-related notifications as read when seller visits orders page
+        Notification.objects.filter(
+            user=request.user,
+            notification_type='order',
+            is_read=False
+        ).update(is_read=True)
+        print("✅ Marked order notifications as read")
+    except ImportError:
+        print("⚠️  Notification model not found - make sure core app is properly configured")
+    except Exception as e:
+        print(f"⚠️  Error marking notifications as read: {e}")
+    
     print(f"Seller ID: {seller.id}, Seller: {seller}")
     # Get all orders that contain products from this seller
     orders = Order.objects.filter(
@@ -372,12 +655,14 @@ def seller_orders(request):
     ).distinct().select_related('customer', 'address').prefetch_related(
         'items__product__images'
     ).order_by('-created_at')
+    
     print(f"Total orders found: {orders.count()}")
     for order in orders:
         seller_items_count = order.items.filter(product__seller=seller).count()
         print(f"Order #{order.order_number}: {seller_items_count} items from this seller")
         if seller_items_count == 0:
             print(f"  WARNING: Order {order.order_number} has no items from this seller!")
+    
     # Apply filters
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
