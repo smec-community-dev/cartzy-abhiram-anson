@@ -138,7 +138,13 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
+    def get_seller_subtotal(self, seller_user):
+        """Calculate subtotal for a specific seller in this order"""
+        from django.db.models import Sum
+        seller_items = self.items.filter(product_seller_user=seller_user)
+        return seller_items.aggregate(total=Sum('price'))['total'] or 0
+    
     def __str__(self):
         return f"Order #{self.order_number}"
 

@@ -88,10 +88,29 @@ def user_category_view(request):
 
 
 def user_view_all_products(request):
-    products_list = Product.objects.all()
+    # Get all products
+    products = Product.objects.all()
     
-    # Change from 9 to 2 or 3 products per page
-    paginator = Paginator(products_list, 2)  # ← Change to 2 or 3
+    # Price filtering
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
+    
+    # Sorting
+    sort = request.GET.get('sort', '')
+    if sort == 'price_asc':
+        products = products.order_by('price')
+    elif sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'newest':
+        products = products.order_by('-id')  # Assuming newer products have higher IDs
+    
+    # Pagination
+    paginator = Paginator(products, 2)
     page = request.GET.get('page')
     
     try:
@@ -101,7 +120,10 @@ def user_view_all_products(request):
     except EmptyPage:
         products = paginator.page(paginator.num_pages)
     
-    return render(request, 'user/user_view_products.html', {'products': products})
+    context = {
+        'products': products,
+    }
+    return render(request, 'user/user_view_products.html', context)
 
 def user_view_products(request, id):
     products_list = Product.objects.filter(category_id=id)
@@ -491,12 +513,28 @@ def user_add_review(request, id):
 
         review_title = request.POST.get('review_title')
         review_text = request.POST.get('review_text')
+        rating = request.POST.get('rating')  # Get the rating from form data
         images = request.FILES.getlist('images')
 
-        # Create review
+        # Validate rating
+        if not rating or rating == '0':
+            messages.error(request, "Please select a rating for the product.")
+            return render(request, 'user/user_add_review.html', context)
+
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                messages.error(request, "Please select a valid rating between 1 and 5 stars.")
+                return render(request, 'user/user_add_review.html', context)
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid rating value.")
+            return render(request, 'user/user_add_review.html', context)
+
+        # Create review with rating
         review = Review.objects.create(
             review_title=review_title,
             review_text=review_text,
+            rating=rating,  # Add the rating field
             product_id=product.id,
             customer_id=customer
         )
@@ -505,6 +543,7 @@ def user_add_review(request, id):
         for image in images:
             ReviewImage.objects.create(review=review, image=image)
 
+        messages.success(request, "Your review has been submitted successfully!")
         return redirect('user_view_product_details', id=id)
 
     return render(request, 'user/user_add_review.html', context)

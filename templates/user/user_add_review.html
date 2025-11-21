@@ -588,238 +588,265 @@
     <script src="/static/js/main.js"></script>
     
     <script>
-        // Star rating functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const stars = document.querySelectorAll('.star');
-            const ratingInput = document.querySelector('.rating-value');
-            const reviewTitle = document.getElementById('review-title');
-            const reviewText = document.getElementById('review-text');
-            const previewTitle = document.getElementById('preview-title');
-            const previewText = document.getElementById('preview-text');
-            const previewRating = document.getElementById('preview-rating');
-            const previewImages = document.getElementById('preview-images');
-            const uploadArea = document.getElementById('upload-area');
-            const uploadBtn = document.getElementById('upload-btn');
-            const imageInput = document.getElementById('image-input');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
-            
-            let uploadedImages = [];
-            
-            // Initialize preview
-            updatePreview();
-            
-            // Star rating functionality
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    const rating = this.getAttribute('data-rating');
-                    ratingInput.value = rating;
-                    
-                    // Update star appearance
-                    updateStars(rating);
-                    updatePreview();
-                });
-                
-                // Hover effect
-                star.addEventListener('mouseover', function() {
-                    const hoverRating = this.getAttribute('data-rating');
-                    updateStars(hoverRating, true);
-                });
-                
-                star.addEventListener('mouseout', function() {
-                    const currentRating = ratingInput.value;
-                    updateStars(currentRating);
-                });
-            });
-            
-            // Update title and text preview
-            reviewTitle.addEventListener('input', updatePreview);
-            reviewText.addEventListener('input', updatePreview);
-            
-            // Image upload functionality
-            uploadBtn.addEventListener('click', function() {
-                imageInput.click();
-            });
-            
-            uploadArea.addEventListener('click', function() {
-                imageInput.click();
-            });
-            
-            // Drag and drop functionality
-            uploadArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-            
-            uploadArea.addEventListener('dragleave', function() {
-                uploadArea.classList.remove('dragover');
-            });
-            
-            uploadArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                handleImageFiles(files);
-            });
-            
-            imageInput.addEventListener('change', function() {
-                handleImageFiles(this.files);
-                this.value = ''; // Reset input to allow selecting same file again
-            });
-            
-            // Form validation
-            const form = document.getElementById('review-form');
-            form.addEventListener('submit', function(e) {
-                if (ratingInput.value === '0') {
-                    e.preventDefault();
-                    alert('Please select a rating before submitting your review.');
-                    return false;
-                }
-                
-                // Before submitting, update the hidden file inputs
-                updateHiddenFileInputs();
-            });
-            
-            // Function to handle image files
-            function handleImageFiles(files) {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const imageData = {
-                                id: Date.now() + i,
-                                src: e.target.result,
-                                file: file
-                            };
-                            uploadedImages.push(imageData);
-                            createImagePreview(imageData);
-                            updatePreview();
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-            }
-            
-            // Function to create image preview
-            function createImagePreview(imageData) {
-                const preview = document.createElement('div');
-                preview.className = 'image-preview';
-                preview.innerHTML = `
-                    <img src="${imageData.src}" alt="Review image">
-                    <button type="button" class="remove-image" data-id="${imageData.id}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                imagePreviewContainer.appendChild(preview);
-                
-                // Add remove functionality
-                const removeBtn = preview.querySelector('.remove-image');
-                removeBtn.addEventListener('click', function() {
-                    const id = parseInt(this.getAttribute('data-id'));
-                    uploadedImages = uploadedImages.filter(img => img.id !== id);
-                    preview.remove();
-                    updatePreview();
-                });
-            }
-            
-            // Function to update hidden file inputs
-            function updateHiddenFileInputs() {
-                // Clear existing hidden inputs
-                hiddenInputsContainer.innerHTML = '';
-                
-                // Create new file inputs for each uploaded image
-                uploadedImages.forEach((imageData, index) => {
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.name = 'images';
-                    fileInput.style.display = 'none';
-                    
-                    // Create a DataTransfer object to set the file
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(imageData.file);
-                    fileInput.files = dataTransfer.files;
-                    
-                    hiddenInputsContainer.appendChild(fileInput);
-                });
-            }
-            
-            // Function to update star appearance
-            function updateStars(rating, isHover = false) {
-                stars.forEach(s => {
-                    const starRating = s.getAttribute('data-rating');
-                    if (starRating <= rating) {
-                        s.classList.add('active');
-                        if (isHover) {
-                            s.style.color = '#FFC107';
-                        }
-                    } else {
-                        s.classList.remove('active');
-                        if (isHover) {
-                            s.style.color = '#d2d2d7';
-                        }
-                    }
-                });
-                
-                // If not hovering, set colors based on active state
-                if (!isHover) {
-                    stars.forEach(s => {
-                        if (s.classList.contains('active')) {
-                            s.style.color = '#FFC107';
-                        } else {
-                            s.style.color = '#d2d2d7';
-                        }
-                    });
-                }
-            }
-            
-            // Function to update preview
-            function updatePreview() {
-                // Update title
-                if (reviewTitle.value.trim() !== '') {
-                    previewTitle.textContent = reviewTitle.value;
-                } else {
-                    previewTitle.textContent = 'Your Review Title';
-                }
-                
-                // Update text
-                if (reviewText.value.trim() !== '') {
-                    previewText.textContent = reviewText.value;
-                } else {
-                    previewText.textContent = 'Your review text will appear here. This is a preview of how your review will look to other customers.';
-                }
-                
-                // Update rating stars
-                const rating = ratingInput.value;
-                previewRating.innerHTML = '';
-                if (rating > 0) {
-                    for (let i = 0; i < 5; i++) {
-                        const star = document.createElement('span');
-                        star.className = 'preview-star';
-                        star.innerHTML = '★';
-                        if (i < rating) {
-                            star.style.color = '#FFC107';
-                        } else {
-                            star.style.color = '#d2d2d7';
-                        }
-                        previewRating.appendChild(star);
-                    }
-                } else {
-                    previewRating.innerHTML = '<span style="color: #86868b;">No rating selected</span>';
-                }
-                
-                // Update image preview
-                previewImages.innerHTML = '';
-                if (uploadedImages.length > 0) {
-                    uploadedImages.forEach(image => {
-                        const img = document.createElement('div');
-                        img.className = 'preview-image';
-                        img.innerHTML = `<img src="${image.src}" alt="Review image">`;
-                        previewImages.appendChild(img);
-                    });
-                }
+// Star rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.querySelector('.rating-value');
+    const ratingText = document.querySelector('.rating-text');
+    const reviewTitle = document.getElementById('review-title');
+    const reviewText = document.getElementById('review-text');
+    const previewTitle = document.getElementById('preview-title');
+    const previewText = document.getElementById('preview-text');
+    const previewRating = document.getElementById('preview-rating');
+    const previewImages = document.getElementById('preview-images');
+    const uploadArea = document.getElementById('upload-area');
+    const uploadBtn = document.getElementById('upload-btn');
+    const imageInput = document.getElementById('image-input');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
+    
+    let uploadedImages = [];
+    
+    // Rating descriptions
+    const ratingDescriptions = {
+        1: 'Poor - 1 Star',
+        2: 'Fair - 2 Stars', 
+        3: 'Good - 3 Stars',
+        4: 'Very Good - 4 Stars',
+        5: 'Excellent - 5 Stars'
+    };
+    
+    // Initialize with no rating
+    let currentRating = 0;
+    let hoverRating = 0;
+    
+    // Initialize preview
+    updatePreview();
+    
+    // Star rating event listeners
+    stars.forEach(star => {
+        // Click event - set permanent rating
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            setRating(rating);
+        });
+        
+        // Mouseover event - temporary highlight
+        star.addEventListener('mouseover', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            hoverRating = rating;
+            highlightStars(rating);
+            updateRatingText(rating, true);
+        });
+        
+        // Mouseout event - restore to actual rating
+        star.addEventListener('mouseout', function() {
+            hoverRating = 0;
+            highlightStars(currentRating);
+            updateRatingText(currentRating, false);
+        });
+    });
+    
+    // Update title and text preview
+    reviewTitle.addEventListener('input', updatePreview);
+    reviewText.addEventListener('input', updatePreview);
+    
+    // Image upload functionality
+    uploadBtn.addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    uploadArea.addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function() {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleImageFiles(files);
+    });
+    
+    imageInput.addEventListener('change', function() {
+        handleImageFiles(this.files);
+        this.value = ''; // Reset input to allow selecting same file again
+    });
+    
+    // Form validation
+    const form = document.getElementById('review-form');
+    form.addEventListener('submit', function(e) {
+        if (ratingInput.value === '0') {
+            e.preventDefault();
+            alert('Please select a rating before submitting your review.');
+            return false;
+        }
+        
+        // Before submitting, update the hidden file inputs
+        updateHiddenFileInputs();
+    });
+    
+    // Function to set the rating
+    function setRating(rating) {
+        currentRating = rating;
+        ratingInput.value = rating;
+        highlightStars(rating);
+        updateRatingText(rating, false);
+        updatePreview();
+        
+        // Optional: Log for debugging
+        console.log('Rating selected:', rating);
+    }
+    
+    // Function to highlight stars based on rating
+    function highlightStars(rating) {
+        stars.forEach(star => {
+            const starRating = parseInt(star.getAttribute('data-rating'));
+            if (starRating <= rating) {
+                star.classList.add('active');
+                star.style.color = '#FFC107';
+            } else {
+                star.classList.remove('active');
+                star.style.color = '#d2d2d7';
             }
         });
+    }
+    
+    // Function to update rating text
+    function updateRatingText(rating, isHovering) {
+        if (rating === 0) {
+            ratingText.textContent = 'Click on a star to rate this product';
+        } else if (isHovering) {
+            ratingText.textContent = `Rate: ${ratingDescriptions[rating]}`;
+        } else {
+            ratingText.textContent = `Your rating: ${ratingDescriptions[rating]}`;
+        }
+    }
+    
+    // Function to handle image files
+    function handleImageFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        id: Date.now() + i,
+                        src: e.target.result,
+                        file: file
+                    };
+                    uploadedImages.push(imageData);
+                    createImagePreview(imageData);
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+    
+    // Function to create image preview
+    function createImagePreview(imageData) {
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+            <img src="${imageData.src}" alt="Review image">
+            <button type="button" class="remove-image" data-id="${imageData.id}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        imagePreviewContainer.appendChild(preview);
+        
+        // Add remove functionality
+        const removeBtn = preview.querySelector('.remove-image');
+        removeBtn.addEventListener('click', function() {
+            const id = parseInt(this.getAttribute('data-id'));
+            uploadedImages = uploadedImages.filter(img => img.id !== id);
+            preview.remove();
+            updatePreview();
+        });
+    }
+    
+    // Function to update hidden file inputs
+    function updateHiddenFileInputs() {
+        // Clear existing hidden inputs
+        hiddenInputsContainer.innerHTML = '';
+        
+        // Create new file inputs for each uploaded image
+        uploadedImages.forEach((imageData, index) => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.name = 'images';
+            fileInput.style.display = 'none';
+            
+            // Create a DataTransfer object to set the file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(imageData.file);
+            fileInput.files = dataTransfer.files;
+            
+            hiddenInputsContainer.appendChild(fileInput);
+        });
+    }
+    
+    // Function to update preview
+    function updatePreview() {
+        // Update title
+        if (reviewTitle.value.trim() !== '') {
+            previewTitle.textContent = reviewTitle.value;
+        } else {
+            previewTitle.textContent = 'Your Review Title';
+        }
+        
+        // Update text
+        if (reviewText.value.trim() !== '') {
+            previewText.textContent = reviewText.value;
+        } else {
+            previewText.textContent = 'Your review text will appear here. This is a preview of how your review will look to other customers.';
+        }
+        
+        // Update rating stars in preview
+        const rating = ratingInput.value;
+        previewRating.innerHTML = '';
+        if (rating > 0) {
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'preview-star';
+                star.innerHTML = '★';
+                if (i < rating) {
+                    star.style.color = '#FFC107';
+                } else {
+                    star.style.color = '#d2d2d7';
+                }
+                previewRating.appendChild(star);
+            }
+        } else {
+            previewRating.innerHTML = '<span style="color: #86868b;">No rating selected</span>';
+        }
+        
+        // Update image preview
+        previewImages.innerHTML = '';
+        if (uploadedImages.length > 0) {
+            uploadedImages.forEach(image => {
+                const img = document.createElement('div');
+                img.className = 'preview-image';
+                img.innerHTML = `<img src="${image.src}" alt="Review image">`;
+                previewImages.appendChild(img);
+            });
+        }
+    }
+    
+    // Initialize with no stars highlighted
+    highlightStars(0);
+    updateRatingText(0, false);
+});
     </script>
 </body>
     {% include 'user/footer.html' %}
