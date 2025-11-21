@@ -142,26 +142,80 @@ def user_view_products(request, id):
     return render(request, 'user/user_view_products.html', {'products': products})
 
 def user_view_product_details(request, id):
-    product_details=Product.objects.get(id=id)
-    images=ProductImage.objects.filter(product_id=product_details.id)
-
-    context={
-        'product_details':product_details,
-        'images':images
+    product_details = Product.objects.get(id=id)
+    images = ProductImage.objects.filter(product=product_details)
+    
+    # Check if the current user has already reviewed this product
+    user_has_reviewed = False
+    if request.user.is_authenticated:
+        user_has_reviewed = Review.objects.filter(
+            customer=request.user, 
+            product=product_details
+        ).exists()
+    
+    context = {
+        'product_details': product_details,
+        'images': images,
+        'user_has_reviewed': user_has_reviewed,
     }
+    
     return render(request, 'user/user_view_single_products.html', context)
 
 def user_add_to_cart(request, id):
-    product_id=id
-    user_id=request.user.id
-    quantity=int(request.POST.get('quantity', 1))
+    if not request.user.is_authenticated:
+        messages.error(request, "Please login to add items to cart.")
+        return redirect('user_login')
     
-    cart, creat=Cart.objects.get_or_create(customer_id=user_id)
-    cartitem, created=CartItem.objects.get_or_create(cart_id=cart.id, product_id=product_id,  defaults={"quantity": quantity})
-    if not created:
-        cartitem.quantity+=quantity
-        cartitem.save()
-    return redirect (request.META.get('HTTP_REFERER', '/'))
+    try:
+        product = Product.objects.get(id=id)
+        user_id = request.user.id
+        quantity = int(request.POST.get('quantity', 1))
+        
+        # Server-side validation
+        if quantity < 1:
+            messages.error(request, "Please select at least 1 item.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        # Check if product has enough stock
+        if quantity > product.stock:
+            messages.error(request, f"Cannot add {quantity} items. Only {product.stock} available in stock.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        # Check if adding this quantity would exceed stock (considering existing cart items)
+        cart, created = Cart.objects.get_or_create(customer_id=user_id)
+        try:
+            cart_item = CartItem.objects.get(cart_id=cart.id, product_id=product.id)
+            total_quantity_after_add = cart_item.quantity + quantity
+        except CartItem.DoesNotExist:
+            total_quantity_after_add = quantity
+        
+        if total_quantity_after_add > product.stock:
+            available_quantity = product.stock - (cart_item.quantity if not created else 0)
+            messages.error(request, f"Cannot add {quantity} items. You can only add {available_quantity} more items to your cart.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        # Add to cart
+        cart_item, created = CartItem.objects.get_or_create(
+            cart_id=cart.id, 
+            product_id=product.id,  
+            defaults={"quantity": quantity}
+        )
+        
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+            messages.success(request, f"Updated cart: {product.name} quantity increased to {cart_item.quantity}.")
+        else:
+            messages.success(request, f"Added {quantity} {product.name} to cart.")
+            
+    except Product.DoesNotExist:
+        messages.error(request, "Product not found.")
+    except ValueError:
+        messages.error(request, "Invalid quantity provided.")
+    except Exception as e:
+        messages.error(request, "An error occurred while adding to cart.")
+    
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def user_view_cart(request):
     user_id=request.user.id
@@ -212,6 +266,26 @@ def user_view_wishlist(request):
     wish=Wishlist.objects.filter(customer_id=user_id)
 
     return render(request, 'user/user_view_wishlist.html', {'wish':wish})
+
+def user_remove_wishlist_item(request, id):
+    try:
+        # Get the wishlist item
+        wishlist_item = Wishlist.objects.get(id=id, customer_id=request.user.id)
+        wishlist = wishlist_item.wishlist  # Assuming you have a main Wishlist model
+        
+        # Delete the wishlist item
+        wishlist_item.delete()
+        
+        # Check if the main wishlist is empty and delete it if so
+        if not Wishlist.objects.filter(wishlist=wishlist).exists():
+            wishlist.delete()
+        
+        messages.success(request, "Item removed from your wishlist successfully.")
+        
+    except Wishlist.DoesNotExist:
+        messages.error(request, "Wishlist item not found.")
+    
+    return redirect('user_view_wishlist')
 
 
 def user_view_account(request):
@@ -483,21 +557,62 @@ def user_add_new_address(request):
     return redirect('user_confirm_order', id=cart_id)
 
 def create_order(request, id):
-    user_id=request.user.id
-    address_id=request.POST.get('selected_address')
-    cart=Cart.objects.get(id=id, customer_id=user_id)
-    cartitems=CartItem.objects.filter(cart_id=cart)
-    order_no=generate_order_number()
-    tot=0
-    for i in cartitems:
-       tot+=i.subtotal()
-    order=Order.objects.create(order_number=order_no, status='Delivered', total_amount=tot, address_id=address_id, customer_id=user_id)
-    for item in cartitems:        
-        OrderItem.objects.create(product_name=item.product.name, product_sku=item.product.sku, quantity=item.quantity, price=item.product.price, order_id=order.id, product_id=item.product.id)
+    user_id = request.user.id
+    address_id = request.POST.get('selected_address')
+    cart = Cart.objects.get(id=id, customer_id=user_id)
+    cartitems = CartItem.objects.filter(cart_id=cart)
+    order_no = generate_order_number()
+    tot = 0
+    
+    # Check stock and adjust quantities if needed
+    items_to_order = []
+    for item in cartitems:
+        available_quantity = min(item.quantity, item.product.stock)
+        if available_quantity > 0:
+            items_to_order.append({
+                'item': item,
+                'quantity': available_quantity,
+                'subtotal': item.product.price * available_quantity
+            })
+            tot += item.product.price * available_quantity
+    
+    if not items_to_order:
+        messages.error(request, "No items available for ordering.")
+        return redirect('user_view_cart')
+    
+    # Create the order
+    order = Order.objects.create(
+        order_number=order_no, 
+        status='Delivered', 
+        total_amount=tot, 
+        address_id=address_id, 
+        customer_id=user_id
+    )
+    
+    # Create order items and update product stock
+    for order_item in items_to_order:
+        item = order_item['item']
+        quantity = order_item['quantity']
+        
+        OrderItem.objects.create(
+            product_name=item.product.name, 
+            product_sku=item.product.sku, 
+            quantity=quantity, 
+            price=item.product.price, 
+            order_id=order.id, 
+            product_id=item.product.id
+        )
+        
+        # Reduce the product stock
+        product = item.product
+        product.stock -= quantity
+        product.save()
+    
+    # Delete the cart after order is created
     cart.delete()
     
-    return render(request, 'user/user_home.html')
-
+    messages.success(request, f"Order #{order_no} placed successfully!")
+    return redirect('user_home')
 
 def user_add_review(request, id):
     product = Product.objects.get(id=id)

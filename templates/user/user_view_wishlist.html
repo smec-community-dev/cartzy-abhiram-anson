@@ -241,6 +241,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    text-decoration: none;
 }
 
 .btn-edit {
@@ -332,11 +333,8 @@
                         <p>Products you've added to your wishlist</p>
                     </div>
                     <div class="top-bar-actions">
-                        <span class="text-muted me-3">{{ wish|length }} items</span>
-                        <a href="{% url 'user_view_all_products' %}" class="btn-primary-custom">
-                            <i class="fas fa-plus-circle"></i>
-                            Continue Shopping
-                        </a>
+                        <span class="text-muted me-3"><strong>{{ wish|length }} </strong>item(s) in your wishlist</span>
+                       
                     </div>
                 </div>
 
@@ -371,22 +369,29 @@
                                         <span class="discount-badge">38% off</span> {% endcomment %}
                                     </td>
                                     <td>
+                                        {% if item.product.stock > 0 %}
                                         <span class="stock-badge in-stock">
                                             <i class="fas fa-circle"></i>
                                             In Stock
                                         </span>
+                                        {% else %}
+                                        <span class="stock-badge out-stock">
+                                            <i class="fas fa-circle"></i>
+                                            Out of Stock
+                                        </span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-move">
+                                            <!-- Add to Cart - Goes to product page -->
+                                            <a href="{% url 'user_view_product_details' item.product.id %}" class="btn-move">
                                                 <i class="fas fa-cart-plus"></i>
-                                                Add to Cart
-                                            </button>
-                                            <a href="{% url 'user_remove_cart_item' item.id %}">
-                                                <button class="btn-delete">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                    Remove
-                                                </button>
+                                                Continue shopping
+                                            </a>
+                                            <!-- Remove - Directly removes from wishlist -->
+                                            <a href="{% url 'user_remove_wishlist_item' item.id %}" class="btn-delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                                Remove
                                             </a>
                                         </div>
                                     </td>
@@ -394,8 +399,7 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                   
-                            <td colspan="4" style="text-align: center; padding: 60px 20px;">
+                                    <td colspan="4" style="text-align: center; padding: 60px 20px;">
                                         <div style="font-size: 18px; color: #555; margin-bottom: 16px;">
                                             <strong>Your wishlist is empty</strong>
                                         </div>
@@ -403,7 +407,7 @@
                                             <div>Add items to see them here.</div>
                                         </a>
                                     </td>
-                        </tr>
+                                </tr>
                             {% endif %}
                         </tbody>
                     </table>

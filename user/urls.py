@@ -22,6 +22,8 @@ urlpatterns=[
     path('viewcart', views.user_view_cart, name='user_view_cart'),
     
     path('wishlist/', views.user_view_wishlist, name='user_view_wishlist'),
+    path('removewishlistitem/<int:id>/', views.user_remove_wishlist_item, name='user_remove_wishlist_item'),
+
     path('addtowishlist/<int:id>/', views.user_add_to_wishlist, name='user_add_to_wishlist'),
     
     path('useraccount', views.user_view_account, name='user_view_account' ),

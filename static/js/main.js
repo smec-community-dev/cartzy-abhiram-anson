@@ -141,22 +141,7 @@
 
 
 
-    // Product Quantity
-    $('.quantity button').on('click', function () {
-    let container = $(this).closest('.quantity');   // finds the right group
-    let input = container.find('input[name="quantity"]');  // finds the correct input
 
-    let oldVal = parseInt(input.val()) || 1;
-    let newVal = oldVal;
-
-    if ($(this).hasClass('btn-plus')) {
-        newVal = oldVal + 1;
-    } else {
-        newVal = oldVal > 1 ? oldVal - 1 : 1;
-    }
-
-    input.val(newVal);  // 🔥 finally sets new quantity
-});
 
 
 
