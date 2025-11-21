@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from seller.models import Product, ProductImage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from decorators.decorators import role_required
 
 def header_products(request):
     products = list(Product.objects.all().values('id', 'name', 'price', 'images'))
@@ -161,6 +162,7 @@ def user_view_product_details(request, id):
     
     return render(request, 'user/user_view_single_products.html', context)
 
+@role_required("customer", login_url="/login/")
 def user_add_to_cart(request, id):
     if not request.user.is_authenticated:
         messages.error(request, "Please login to add items to cart.")
@@ -217,6 +219,7 @@ def user_add_to_cart(request, id):
     
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+@role_required("customer", login_url="/login/")
 def user_view_cart(request):
     user_id=request.user.id
     try:
@@ -245,6 +248,7 @@ def user_view_cart(request):
         print("HEllo")
     return render(request, 'user/user_view_cart.html',{'context':context})
 
+@role_required("customer", login_url="/login/")
 def user_remove_cart_item(request, id):
     cartitem=CartItem.objects.get(id=id)
     cart=cartitem.cart
@@ -253,20 +257,21 @@ def user_remove_cart_item(request, id):
         cart.delete()
     return redirect('user_view_cart')
     
-
+@role_required("customer", login_url="/login/")
 def user_add_to_wishlist(request, id):
     user_id=request.user.id
     product_id=id
     if not Wishlist.objects.filter(product_id=product_id, customer_id=user_id):
         Wishlist.objects.create(customer_id=user_id, product_id=product_id)
     return redirect (request.META.get('HTTP_REFERER', '/'))
-    
+@role_required("customer", login_url="/login/")    
 def user_view_wishlist(request):
     user_id=request.user.id
     wish=Wishlist.objects.filter(customer_id=user_id)
 
     return render(request, 'user/user_view_wishlist.html', {'wish':wish})
 
+@role_required("customer", login_url="/login/")
 def user_remove_wishlist_item(request, id):
     try:
         # Get the wishlist item
@@ -285,7 +290,7 @@ def user_remove_wishlist_item(request, id):
     
     return redirect('user_view_wishlist')
 
-
+@role_required("customer", login_url="/login/")
 def user_view_account(request):
     user_id=request.user.id
     user=User.objects.get(id=user_id)
@@ -302,6 +307,7 @@ def user_view_account(request):
     }
     return render(request, 'user/user_view_account.html', {'context':context})
 
+@role_required("customer", login_url="/login/")
 def user_update_account(request):
     print("HI")
     user_id=request.user.id
@@ -354,6 +360,7 @@ def user_update_account(request):
         
     return render(request, 'user/user_update_account.html', {'context':context})
 
+@role_required("customer", login_url="/login/")
 def generate_order_number():
     today = datetime.datetime.now().strftime("%Y%m%d")  
     random_number = random.randint(1000, 9999)
@@ -387,7 +394,7 @@ def generate_order_number():
 #         return redirect("/userupdateaccount")
 #     return render(request, 'user/user_home.html')
 
-
+@role_required("customer", login_url="/login/")
 def user_view_order(request):
     user_id=request.user.id
     try:
@@ -404,7 +411,7 @@ def user_view_order(request):
         }
     return render(request, 'user/user_view_orders.html', context)
 
-
+@role_required("customer", login_url="/login/")
 def user_add_addresses(request):
     user_id=request.user.id
     print("HI")
@@ -429,7 +436,7 @@ def user_add_addresses(request):
 
 
 
-
+@role_required("customer", login_url="/login/")
 def user_confirm_order(request, id):
     user_id=request.user.id
     user=User.objects.get(id=user_id)
@@ -460,6 +467,7 @@ def user_confirm_order(request, id):
         
     return render(request, 'user/user_confirm_oder.html',context )
 
+@role_required("customer", login_url="/login/")
 def user_choose_address(request):
     user_id=request.user.id
     address=Address.objects.filter(customer_id=request.user.id)
@@ -493,7 +501,7 @@ def user_choose_address(request):
         return redirect('user_choose_address')  
     return render(request, 'user/user_choose_address.html',{'addresses':address})
 
-    
+@role_required("customer", login_url="/login/")   
 def user_update_order_address(request):
     if request.method=='POST':
         user_id=request.user.id
@@ -516,7 +524,7 @@ def user_update_order_address(request):
     
     return redirect('user_confirm_order', id=cart_id)
 
-
+@role_required("customer", login_url="/login/")
 def user_add_new_address(request):
     
     if request.method == 'POST':
@@ -554,6 +562,7 @@ def user_add_new_address(request):
 
     return redirect('user_confirm_order', id=cart_id)
 
+@role_required("customer", login_url="/login/")
 def create_order(request, id):
     user_id = request.user.id
     address_id = request.POST.get('selected_address')
@@ -612,6 +621,7 @@ def create_order(request, id):
     messages.success(request, f"Order #{order_no} placed successfully!")
     return redirect('user_home')
 
+@role_required("customer", login_url="/login/")
 def user_add_review(request, id):
     product = Product.objects.get(id=id)
     customer = request.user.id
