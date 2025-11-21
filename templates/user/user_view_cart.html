@@ -440,15 +440,17 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-add">
+                                            <!-- Add More - Goes to product page to add more quantity -->
+                                            <a href="{% url 'user_view_product_details' item.product.id %}" class="btn-add">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Add 
+                                                Add More
                                             </a>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="{% url 'user_view_product_details' item.product.id %}" class="btn-delete">
+                                            <!-- Remove - Directly removes from cart -->
+                                            <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-delete">
                                                 <i class="fas fa-trash-alt"></i>
                                                 Remove
                                             </a>

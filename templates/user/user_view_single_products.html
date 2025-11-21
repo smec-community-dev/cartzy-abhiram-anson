@@ -24,7 +24,6 @@
     <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
     <link href="/static/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
 
-
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -60,7 +59,6 @@
         </ol>
     </div>
     <!-- Single Page Header End -->
-
 
     <!-- Single Products Start -->
     <div class="container-fluid shop py-5">
@@ -112,39 +110,6 @@
                             </li>
                         </ul>
                     </div>
-                   
-                    <!-- <div class="featured-product mb-4">
-                        <h4 class="mb-3">Featured products</h4>
-                        <div class="featured-product-item">
-                            <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                <img src="/static/img/product-3.png" class="img-fluid rounded" alt="Image">
-                            </div>
-                            <div>
-                                <h6 class="mb-2">SmartPhone</h6>
-                                <div class="d-flex mb-2">
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star"></i>
-                                </div>
-                                <div class="d-flex mb-2">
-                                    <h5 class="fw-bold me-2">2.99 $</h5>
-                                    <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                </div>
-                            </div>
-                        </div>
-                        
-                       
-                       
-                        
-                        
-                        <div class="d-flex justify-content-center my-4">
-                            <a href="#" class="btn btn-primary px-4 py-3 rounded-pill w-100">Vew More</a>
-                        </div>
-                    </div> -->
-                    
-                    
                 </div>
                 <div class="col-lg-7 col-xl-9 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="row g-4 single-product">
@@ -154,11 +119,10 @@
                                 <div class="single-item"
                                     data-dot="<img class='img-fluid' src='{{img.image.url}}' alt=''>">
                                     <div class="single-inner bg-light rounded">
-                                        <img src="{{img.image.url}}" class="img-fluid rounded" alt="Imajhvuvugvge">
+                                        <img src="{{img.image.url}}" class="img-fluid rounded" alt="Product Image">
                                     </div>
                                 </div>
-                                {% endfor %}                                                           
-                                
+                                {% endfor %}
                             </div>
                         </div>
 
@@ -184,35 +148,53 @@
                                 <small>Available: <strong class="text-primary">{{product_details.stock}} items in stock</strong></small>
                             </div>
                             <p class="mb-4">{{product_details.description}}</p>
-                            <form  method="POST">
+                            <form method="POST">
                                 {% csrf_token %}
-                            <div class="input-group quantity mb-5" style="width: 100px;">
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border">
-                                        <i class="fa fa-minus"></i>
-                                    </button>
+                                <div class="stock-info mb-3">
+                                    {% if product_details.stock > 10 %}
+                                        <span class="badge bg-success">In Stock ({{ product_details.stock }} available)</span>
+                                    {% elif product_details.stock > 0 %}
+                                        <span class="badge bg-warning">Low Stock (Only {{ product_details.stock }} left)</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    {% endif %}
                                 </div>
+
+                                <div class="input-group quantity mb-3" style="width: 100px;">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-sm btn-minus rounded-circle bg-light border">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
                                     <input type="text" name="quantity" id="quantity-input"
-                                                class="form-control form-control-sm text-center border-0"
-                                                value="1">                              
-                                      <div class="input-group-btn">
-                                    <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
+                                           class="form-control form-control-sm text-center border-0"
+                                           value="1" min="1" max="{{ product_details.stock }}" readonly>
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                           
-                            <button type="submit"
-                                formaction="{% url 'user_add_to_cart' product_details.id %}"
-                                class="btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary">
-                                <i class="fa fa-shopping-bag me-2 text-white"></i> Add to cart
-                            </button>
-                            <button type="submit"
-                                formaction="{% url 'user_add_to_wishlist' product_details.id %}"
-                                class="btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary">
-                                <i class="fa fa-shopping-bag me-2 text-white"></i> Add to Wishlist
-                            </button>
-                                     </form>
+
+                                <!-- Conditionally disable Add to Cart button when out of stock -->
+                                {% if product_details.stock > 0 %}
+                                    <button type="submit"
+                                        formaction="{% url 'user_add_to_cart' product_details.id %}"
+                                        class="btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-2 w-100">
+                                        <i class="fa fa-shopping-cart me-2"></i> Add to Cart
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-secondary border border-secondary rounded-pill px-4 py-2 mb-2 w-100" disabled>
+                                        <i class="fa fa-shopping-cart me-2"></i> Out of Stock
+                                    </button>
+                                {% endif %}
+
+                                <button type="submit"
+                                    formaction="{% url 'user_add_to_wishlist' product_details.id %}"
+                                    class="btn btn-outline-primary border border-secondary rounded-pill px-4 py-2 w-100">
+                                    <i class="fa fa-heart me-2"></i> Add to Wishlist
+                                </button>
+                            </form>
                         </div>
                         <div class="col-lg-12">
                             <nav>
@@ -228,83 +210,110 @@
                             <div class="tab-content mb-5">
                                 <div class="tab-pane active" id="nav-about" role="tabpanel"
                                     aria-labelledby="nav-about-tab">
-                                    <p>Our new <b class="fw-bold">HPB12 / A12 battery</b> is rated at 2000mAh and
-                                        designed to power up Black and Decker / FireStorm line of 12V tools allowing
-                                        users to run multiple devices off the same battery pack. The HPB12 is compatible
-                                        with the following Black and Decker power tool models:
-                                    </p>
-                                    <b class="fw-bold">Black & Decker Drills and Drivers:</b>
-                                    <p class="small">BD12PSK, BDG1200K, BDGL12K, BDID1202, CD1200SK, CD12SFK, CDC1200K,
-                                        CDC120AK, CDC120ASB, CP122K, CP122KB, CP12K, CP12KB, EPC12, EPC126, EPC126BK,
-                                        EPC12CA, EPC12CABK, HP122K, HP122KD, HP126F2B, HP126F2K, HP126F3B, HP126F3K,
-                                        HP126FBH, HP126FSC, HP126FSH, HP126K, HP128F3B, HP12K, HP12KD, HPD1200, HPD1202,
-                                        HPD1202KF, HPD12K-2, PS122K, PS122KB, PS12HAK, SS12, SX3000, SX3500, XD1200,
-                                        XD1200K, XTC121
-                                    </p>
-                                    <b class="fw-bold">lack & Decker Impact Wrenches:</b>
-                                    <p class="small">SX5000, XTC12IK, XTC12IKH</p>
-                                    <b class="fw-bold">Black & Decker Multi-Tools:</b>
-                                    <p class="small">KC2000FK</p>
-                                    <b class="fw-bold">Black & Decker Nailers:</b>
-                                    <p class="small">BDBN1202</p>
-                                    <b class="fw-bold">Black & Decker Screwdrivers:</b>
-                                    <p class="small">HP9019K</p>
-                                    <b class="fw-bold mb-0">Best replacement for the following Black and Decker OEM
-                                        battery part numbers:</b>
-                                    <p class="small">HPB12, A12, A12EX, A12-XJ, A1712, B-8315, BD1204L, BD-1204L,
-                                        BPT1047, FS120B, FS120BX, FSB12.</p>
+                                    <p>{{product_details.description}}</p>
                                 </div>
-                               <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
-                        <div class="d-flex">
-                            <img src="/static/img/avatar.jpg" class="img-fluid rounded-circle p-3"
-                                style="width: 100px; height: 100px;" alt="">
-                            <div class="w-100">
-                                <p class="mb-2" style="font-size: 14px;">April 12, 2024</p>
-                                <div class="d-flex justify-content-between">
-                                    <h5>Jason Smith</h5>
-                                    <div class="d-flex mb-3">
-                                        <i class="fa fa-star text-secondary"></i>
-                                        <i class="fa fa-star text-secondary"></i>
-                                        <i class="fa fa-star text-secondary"></i>
-                                        <i class="fa fa-star text-secondary"></i>
-                                        <i class="fa fa-star"></i>
+                                <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
+                                    {% if product_details.reviews.all %}
+                                        {% for review in product_details.reviews.all %}
+                                        <div class="d-flex mb-4">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                                     style="width: 80px; height: 80px; font-size: 1.5rem; font-weight: bold;">
+                                                    {{ review.get_customer_initials }}
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <p class="mb-2" style="font-size: 14px;">{{ review.created_at|date:"F j, Y" }}</p>
+                                                <div class="d-flex justify-content-between">
+                                                    <h5>{{ review.get_customer_full_name }}</h5>
+                                                    <div class="d-flex mb-2">
+                                                        {% for i in "12345" %}
+                                                            {% if forloop.counter <= review.rating %}
+                                                                <i class="fa fa-star text-secondary"></i>
+                                                            {% else %}
+                                                                <i class="fa fa-star text-muted"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                {% if review.review_title %}
+                                                <h6 class="fw-bold mb-2">{{ review.review_title }}</h6>
+                                                {% endif %}
+                                                <p class="mb-2">{{ review.review_text }}</p>
+                                                
+                                                <!-- Seller Reply Section -->
+                                                {% if review.seller_reply %}
+                                                <div class="seller-reply bg-light rounded p-3 mt-3">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="fas fa-store text-primary me-2"></i>
+                                                        <strong class="text-primary">Seller's Response</strong>
+                                                        {% if review.replied_at %}
+                                                        <small class="text-muted ms-2">{{ review.replied_at|date:"F j, Y" }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <p class="mb-0">{{ review.seller_reply }}</p>
+                                                </div>
+                                                {% endif %}
+                                                
+                                                <!-- Review Images Section -->
+                                                {% if review.images.all %}
+                                                <div class="review-images mt-3">
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        {% for image in review.images.all %}
+                                                        <a href="{{ image.image.url }}" data-lightbox="review-{{ review.id }}">
+                                                            <img src="{{ image.image.url }}" class="img-thumbnail" 
+                                                                 style="width: 80px; height: 80px; object-fit: cover;" 
+                                                                 alt="Review image">
+                                                        </a>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                
+                                                <!-- Verified Purchase Badge -->
+                                                {% if review.is_verified_purchase %}
+                                                <div class="mt-2">
+                                                    <small class="text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Verified Purchase
+                                                    </small>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        {% if not forloop.last %}
+                                        <hr class="my-4">
+                                        {% endif %}
+                                        
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No reviews yet</h5>
+                                            <p class="text-muted">Be the first to review this product!</p>
+                                            {% if request.user.is_authenticated %}
+                                            <a href="{% url 'user_add_review' product_details.id %}" class="btn btn-primary">
+                                                <i class="fas fa-pen me-2"></i>Write a Review
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'user_login' %}" class="btn btn-primary">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Login to Review
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Add Review Button for logged-in users who haven't reviewed yet -->
+                                    {% if request.user.is_authenticated and not user_has_reviewed %}
+                                    <div class="text-center mt-4">
+                                        <a href="{% url 'user_add_review' product_details.id %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-plus me-2"></i>Add Your Review
+                                        </a>
                                     </div>
-                                </div>
-                                <p>The generated Lorem Ipsum is therefore always free from repetition injected humour, or non-characteristic words etc. Susp endisse ultricies nisi vel quam suscipit </p>
-                                
-                                <!-- Review Images Section -->
-                                <div class="review-images mt-3">
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <a href="/static/img/product-1.jpg" data-lightbox="review-1">
-                                            <img src="/static/img/product-1.jpg" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" alt="Review image">
-                                        </a>
-                                        <a href="/static/img/product-2.jpg" data-lightbox="review-1">
-                                            <img src="/static/img/product-2.jpg" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" alt="Review image">
-                                        </a>
-                                        <a href="/static/img/product-3.jpg" data-lightbox="review-1">
-                                            <img src="/static/img/product-3.jpg" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" alt="Review image">
-                                        </a>
-                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-    
-    
-    
-    <!-- Add more review examples with images -->
-    </div>
-                                </div>
-                                <div class="tab-pane" id="nav-vision" role="tabpanel">
-                                    <p class="text-dark">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et
-                                        tempor sit. Aliqu diam
-                                        amet diam et eos labore. 3</p>
-                                    <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos
-                                        labore.
-                                        Clita erat ipsum et lorem et sit</p>
-                                </div>
-                            </div>
-                        </div>
-                                   
                     </div>
                 </div>
             </div>
@@ -312,14 +321,10 @@
     </div>
     <!-- Single Products End -->
 
-    
-
-   {% include 'user/footer.html' %}
-
+    {% include 'user/footer.html' %}
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
-
 
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -331,9 +336,94 @@
     <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="/static/lib/lightbox/js/lightbox.min.js"></script>
 
-
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
-</body>
 
+    <!-- Quantity Control Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('quantity-input');
+            const minusButton = document.querySelector('.btn-minus');
+            const plusButton = document.querySelector('.btn-plus');
+            const maxStock = parseInt('{{ product_details.stock }}');
+            
+            // Function to update button states
+            function updateButtonStates() {
+                const currentQuantity = parseInt(quantityInput.value);
+                
+                // Update minus button
+                minusButton.disabled = (currentQuantity <= 1);
+                minusButton.style.opacity = minusButton.disabled ? '0.5' : '1';
+                minusButton.style.cursor = minusButton.disabled ? 'not-allowed' : 'pointer';
+                
+                // Update plus button
+                plusButton.disabled = (currentQuantity >= maxStock);
+                plusButton.style.opacity = plusButton.disabled ? '0.5' : '1';
+                plusButton.style.cursor = plusButton.disabled ? 'not-allowed' : 'pointer';
+            }
+            
+            // Plus button click handler
+            plusButton.addEventListener('click', function() {
+                const currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity < maxStock) {
+                    quantityInput.value = currentQuantity + 1;
+                    updateButtonStates();
+                }
+            });
+            
+            // Minus button click handler
+            minusButton.addEventListener('click', function() {
+                const currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity > 1) {
+                    quantityInput.value = currentQuantity - 1;
+                    updateButtonStates();
+                }
+            });
+            
+            // Initialize button states
+            updateButtonStates();
+            
+            // Form validation
+            const form = document.querySelector('form');
+            
+            const addToCartBtn = form.querySelector('[formaction*="user_add_to_cart"]');
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function(e) {
+                    const selectedQuantity = parseInt(quantityInput.value);
+                    
+                    if (selectedQuantity > maxStock) {
+                        e.preventDefault();
+                        alert(`Cannot add ${selectedQuantity} items to cart. Only ${maxStock} items available in stock.`);
+                        quantityInput.value = maxStock;
+                        updateButtonStates();
+                        return false;
+                    }
+                    
+                    if (selectedQuantity < 1) {
+                        e.preventDefault();
+                        alert('Please select at least 1 item.');
+                        quantityInput.value = 1;
+                        updateButtonStates();
+                        return false;
+                    }
+                });
+            }
+            
+            const addToWishlistBtn = form.querySelector('[formaction*="user_add_to_wishlist"]');
+            if (addToWishlistBtn) {
+                addToWishlistBtn.addEventListener('click', function(e) {
+                    const selectedQuantity = parseInt(quantityInput.value);
+                    
+                    if (selectedQuantity > maxStock) {
+                        e.preventDefault();
+                        alert(`Cannot add ${selectedQuantity} items. Only ${maxStock} items available in stock.`);
+                        quantityInput.value = maxStock;
+                        updateButtonStates();
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
 </html>
