@@ -97,35 +97,3 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-
-from user.models import Order
-
-
-class Notification(models.Model):
-    NOTIFICATION_TYPES = (
-        ('order', 'New Order'),
-        ('review', 'New Review'),
-        ('system', 'System Update'),
-        ('low_stock', 'Low Stock Alert'),
-    )
-    
-    # FIX: Use settings.AUTH_USER_MODEL
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
-    message = models.TextField()
-    icon = models.CharField(max_length=50, default='fas fa-bell')
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='order')
-    is_read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    related_order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-        # REMOVE this line or Django will auto-generate table name
-        # db_table = 'core_notification'
-    
-    def __str__(self):
-        return f"{self.user.username} - {self.message}"
-    
-    @property
-    def time(self):
-        return self.created_at.strftime('%H:%M')

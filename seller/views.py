@@ -632,22 +632,6 @@ def product_detail(request, product_id):
 @login_required
 def seller_orders(request):
     seller = request.user.seller_profile
-    
-    # MARK NOTIFICATIONS AS READ WHEN VISITING ORDERS PAGE
-    try:
-        from core.models import Notification
-        # Mark order-related notifications as read when seller visits orders page
-        Notification.objects.filter(
-            user=request.user,
-            notification_type='order',
-            is_read=False
-        ).update(is_read=True)
-        print("✅ Marked order notifications as read")
-    except ImportError:
-        print("⚠️  Notification model not found - make sure core app is properly configured")
-    except Exception as e:
-        print(f"⚠️  Error marking notifications as read: {e}")
-    
     print(f"Seller ID: {seller.id}, Seller: {seller}")
     # Get all orders that contain products from this seller
     orders = Order.objects.filter(
@@ -655,14 +639,12 @@ def seller_orders(request):
     ).distinct().select_related('customer', 'address').prefetch_related(
         'items__product__images'
     ).order_by('-created_at')
-    
     print(f"Total orders found: {orders.count()}")
     for order in orders:
         seller_items_count = order.items.filter(product__seller=seller).count()
         print(f"Order #{order.order_number}: {seller_items_count} items from this seller")
         if seller_items_count == 0:
             print(f"  WARNING: Order {order.order_number} has no items from this seller!")
-    
     # Apply filters
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
@@ -722,6 +704,7 @@ def seller_orders(request):
     }
     
     return render(request, 'seller/orders.html', context)
+
 
 
 
