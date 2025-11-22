@@ -782,7 +782,7 @@ def create_buy_now_order(request):
             )
             
             # Create order item
-            OrderItem.objects.create(
+            order_item = OrderItem.objects.create(
                 product_name=product.name, 
                 product_sku=product.sku, 
                 quantity=quantity, 
@@ -794,6 +794,17 @@ def create_buy_now_order(request):
             # Update product stock
             product.stock -= quantity
             product.save()
+            
+            
+            try:
+                from seller.utils import create_order_notification
+                
+                create_order_notification(order, [order_item])
+                print(f"Buy Now notification created for order #{order.order_number}")
+            except Exception as e:
+                print(f"Error creating Buy Now notification: {e}")
+                import traceback
+                traceback.print_exc()
             
             messages.success(request, f"Order #{order_no} placed successfully!")
             return redirect('user_home')
