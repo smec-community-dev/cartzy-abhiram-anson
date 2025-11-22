@@ -609,7 +609,7 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/seller/products" class="nav-item">
+                <a href="/seller/products" class="nav-item active">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
@@ -834,7 +834,7 @@
                 <div style="padding: 0 40px 32px;">
                     <div class="related-products">
                         {% for related_product in related_products %}
-                        <a href="{% url 'product_detail' related_product.id %}" class="related-product-card">
+                        <a href="{% url 'seller:product_detail' related_product.id %}" class="related-product-card">
                             {% if related_product.main_image_obj %}
                                 <img src="{{ related_product.main_image_obj.image.url }}" alt="{{ related_product.name }}" class="related-product-image">
                             {% else %}

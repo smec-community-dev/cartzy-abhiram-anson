@@ -657,6 +657,131 @@
             color: #ff9500;
         }
 
+        /* Delete Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #f5f5f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #86868b;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .modal-body {
+            padding: 24px 32px;
+        }
+
+        .product-preview {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #f5f5f7;
+        }
+
+        .modal-footer {
+            padding: 20px 32px 24px;
+            border-top: 1px solid #f5f5f7;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #1d1d1f;
+            border-color: #d2d2d7;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f7;
+            border-color: #86868b;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: #ffffff;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .sidebar {
@@ -718,6 +843,17 @@
             .filter-group {
                 min-width: 100%;
             }
+
+            .modal-content {
+                margin: 20px;
+                max-width: none;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -752,7 +888,6 @@
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
-                
             </div>
             
             <div class="nav-section">
@@ -839,37 +974,56 @@
             </div>
 
             <!-- Filters -->
-            <div class="filters-container">
-                <div class="filter-row">
-                    <div class="filter-group">
-                        <label class="filter-label">Category</label>
-                        <select class="filter-select">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Stock Status</label>
-                        <select class="filter-select">
-                            <option value="">All Status</option>
-                            <option value="in_stock">In Stock</option>
-                            <option value="low_stock">Low Stock</option>
-                            <option value="out_of_stock">Out of Stock</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Sort By</label>
-                        <select class="filter-select">
-                            <option value="name">Product Name</option>
-                            <option value="price">Price</option>
-                            <option value="stock">Stock Level</option>
-                            <option value="date">Date Added</option>
-                        </select>
+            <form id="filterForm" method="GET" action="{% url 'seller:seller_products' %}">
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Category</label>
+                            <select name="category" class="filter-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Stock Status</label>
+                            <select name="stock_status" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="in_stock" {% if request.GET.stock_status == 'in_stock' %}selected{% endif %}>In Stock</option>
+                                <option value="low_stock" {% if request.GET.stock_status == 'low_stock' %}selected{% endif %}>Low Stock</option>
+                                <option value="out_of_stock" {% if request.GET.stock_status == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Product Status</label>
+                            <select name="product_status" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="active" {% if request.GET.product_status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if request.GET.product_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Sort By</label>
+                            <select name="sort_by" class="filter-select">
+                                <option value="name" {% if request.GET.sort_by == 'name' or not request.GET.sort_by %}selected{% endif %}>Product Name</option>
+                                <option value="price" {% if request.GET.sort_by == 'price' %}selected{% endif %}>Price</option>
+                                <option value="stock" {% if request.GET.sort_by == 'stock' %}selected{% endif %}>Stock Level</option>
+                                <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Date Added</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">&nbsp;</label>
+                            <button type="button" class="btn-primary-custom" onclick="clearFilters()" style="width: 100%;">
+                                <i class="fas fa-times"></i>
+                                Clear Filters
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Products Card -->
             <div class="content-card">
@@ -898,92 +1052,102 @@
                             </tr>
                         </thead>
                         <tbody>
-    {% for p in products %}
-    <tr>
-        <td><strong>{{ forloop.counter }}</strong></td>
-        <td>
-            <div class="product-cell">
-    {% if p.main_image_obj %}
-        <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
-    {% else %}
-        <div class="product-placeholder">
-            <i class="fas fa-image"></i>
-        </div>
+                            {% for p in products %}
+                            <tr>
+                                <td><strong>{{ forloop.counter }}</strong></td>
+                                <td>
+                                    <div class="product-cell">
+                                        {% if p.main_image_obj %}
+                                            <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
+                                        {% else %}
+                                            <div class="product-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="product-info">
+                                            <h6>{{ p.name|truncatechars:30 }}</h6>
+                                            <small>ID: {{ p.id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="category-badge">{{ p.category }}</span></td>
+                                <td><span class="price-text">₹{{ p.price }}</span></td>
+                                <td>
+    <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
+        {{ p.stock }}
+    </span>
+    {% if p.stock < 10 and p.stock > 0 %}
+        <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
     {% endif %}
-    
-    <div class="product-info">
-        <h6>{{ p.name|truncatechars:30 }}</h6>
-        <small>ID: {{ p.id }}</small>
-    </div>
-</div>
-
-            </div>
-        </td>
-        <td><span class="category-badge">{{ p.category }}</span></td>
-        <td><span class="price-text">₹{{ p.price }}</span></td>
-        <td>
-            <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
-                {{ p.stock }}
+</td>
+<td>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+        {% if p.stock > 10 %}
+            <span class="stock-badge in-stock">
+                <i class="fas fa-circle"></i>
+                In Stock
             </span>
-            {% if p.stock < 10 and p.stock > 0 %}
-                <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
-            {% endif %}
-        </td>
-        <td>
-            {% if p.stock > 10 %}
-                <span class="stock-badge in-stock">
-                    <i class="fas fa-circle"></i>
-                    In Stock
-                </span>
-            {% elif p.stock > 0 and p.stock <= 10 %}
-                <span class="stock-badge low-stock">
-                    <i class="fas fa-circle"></i>
-                    Low Stock
-                </span>
-            {% else %}
-                <span class="stock-badge out-stock">
-                    <i class="fas fa-circle"></i>
-                    Out of Stock
-                </span>
-            {% endif %}
-        </td>
-        <td>
-            <div class="action-buttons">
-                <button class="btn-view" onclick="window.location.href='{% url 'seller:product_detail' p.id %}'">
-                    <i class="fas fa-eye"></i>
-                    View
-                </button>
-                <button class="btn-edit" onclick="window.location.href='{% url 'seller:update_product' p.id %}'">
-                    <i class="fas fa-edit"></i>
-                    Edit
-                </button>
-                <form action="{% url 'seller:delete_product' p.id %}" method="POST" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete" 
-                            onclick="return confirm('Are you sure you want to delete {{ p.name }}? This action cannot be undone.');">
-                        <i class="fas fa-trash-alt"></i>
-                        Delete
-                    </button>
-                </form>
-            </div>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="7">
-            <div class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h4>No Products Found</h4>
-                <p>Start by adding your first product to showcase in your store.</p>
-                <a href="/seller/addproduct" class="btn-primary-custom">
-                    <i class="fas fa-plus"></i>
-                    Add Your First Product
-                </a>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
+        {% elif p.stock > 0 and p.stock <= 10 %}
+            <span class="stock-badge low-stock">
+                <i class="fas fa-circle"></i>
+                Low Stock
+            </span>
+        {% else %}
+            <span class="stock-badge out-stock">
+                <i class="fas fa-circle"></i>
+                Out of Stock
+            </span>
+        {% endif %}
+        
+        {% if not p.is_active %}
+            <span class="stock-badge" style="background: #6c757d; color: white;">
+                <i class="fas fa-eye-slash"></i>
+                Inactive
+            </span>
+        {% endif %}
+    </div>
+</td>
+
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-view" onclick="window.location.href='{% url 'seller:product_detail' p.id %}'">
+                                            <i class="fas fa-eye"></i>
+                                            View
+                                        </button>
+                                        <button class="btn-edit" onclick="window.location.href='{% url 'seller:update_product' p.id %}'">
+                                            <i class="fas fa-edit"></i>
+                                            Edit
+                                        </button>
+                                        <button class="btn-delete" onclick="openDeleteModal('{{ p.id }}', '{{ p.name }}', '₹{{ p.price }}', '{{ p.stock }}', '{{ p.order_count }}', '{{ p.main_image_obj.image.url }}')">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="fas fa-box-open"></i>
+                                        <h4>No Products Found</h4>
+                                        <p>{% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}No products match your current filters. Try adjusting your search criteria.{% else %}Start by adding your first product to showcase in your store.{% endif %}</p>
+                                        {% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}
+                                        <button type="button" class="btn-primary-custom" onclick="clearFilters()">
+                                            <i class="fas fa-times"></i>
+                                            Clear Filters
+                                        </button>
+                                        {% else %}
+                                        <a href="/seller/addproduct" class="btn-primary-custom">
+                                            <i class="fas fa-plus"></i>
+                                            Add Your First Product
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                 </div>
 
@@ -991,6 +1155,9 @@
                 <div class="card-footer-custom">
                     <div>
                         Showing <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}
+                        {% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}
+                         (filtered)
+                        {% endif %}
                     </div>
                     <div>
                         <i class="fas fa-info-circle"></i>
@@ -1006,7 +1173,7 @@
                 <ul class="pagination">
                     {% if products.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ products.previous_page_number }}">
+                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ products.previous_page_number }}">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
@@ -1019,14 +1186,14 @@
                     </li>
                     {% else %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ i }}">{{ i }}</a>
                     </li>
                     {% endif %}
                     {% endfor %}
 
                     {% if products.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ products.next_page_number }}">
+                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ products.next_page_number }}">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
@@ -1037,28 +1204,129 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>
+                    <i class="fas fa-trash-alt text-danger me-2"></i>
+                    Delete Product
+                </h4>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Product Preview -->
+                <div class="product-preview mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <img id="modalProductImage" src="" class="rounded" style="width: 80px; height: 80px; object-fit: cover; display: none;">
+                            <div id="modalProductPlaceholder" class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-image text-muted fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5 id="modalProductName" class="mb-1"></h5>
+                            <p id="modalProductPrice" class="text-muted mb-1"></p>
+                            <p id="modalProductDetails" class="text-muted mb-0"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notice</h6>
+                    <p id="modalOrderCount" class="mb-2"></p>
+                    <p class="mb-0">To preserve order history, the product will be:</p>
+                    <ul class="mb-0 mt-2">
+                        <li>Hidden from your product listings</li>
+                        <li>Kept in customer order history</li>
+                        <li>Marked as inactive (customers won't see it)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-eye-slash me-2"></i>Deactivate Product
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Simple filter functionality
+        // Function to clear all filters
+        function clearFilters() {
+            window.location.href = "{% url 'seller:seller_products' %}";
+        }
+
+        // Auto-submit form when filters change
         document.addEventListener('DOMContentLoaded', function() {
-            const categoryFilter = document.querySelector('select[class="filter-select"]:nth-child(1)');
-            const statusFilter = document.querySelector('select[class="filter-select"]:nth-child(2)');
-            const sortFilter = document.querySelector('select[class="filter-select"]:nth-child(3)');
+            const filterSelects = document.querySelectorAll('.filter-select');
             
-            // In a real implementation, these would trigger AJAX requests to filter/sort products
-            categoryFilter.addEventListener('change', function() {
-                console.log('Category filter changed:', this.value);
-                // Implement filtering logic here
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    document.getElementById('filterForm').submit();
+                });
             });
-            
-            statusFilter.addEventListener('change', function() {
-                console.log('Status filter changed:', this.value);
-                // Implement filtering logic here
-            });
-            
-            sortFilter.addEventListener('change', function() {
-                console.log('Sort filter changed:', this.value);
-                // Implement sorting logic here
-            });
+        });
+
+        // Show loading state when form is submitted
+        document.getElementById('filterForm').addEventListener('submit', function() {
+            // You can add a loading spinner here if needed
+            console.log('Applying filters...');
+        });
+
+        // Delete Modal Functions
+        function openDeleteModal(productId, productName, productPrice, productStock, orderCount, productImage = null) {
+            // Set modal content
+            document.getElementById('modalProductName').textContent = productName;
+            document.getElementById('modalProductPrice').textContent = productPrice;
+            document.getElementById('modalProductDetails').textContent = `Stock: ${productStock} units`;
+            document.getElementById('modalOrderCount').textContent = `This product has ${orderCount || 0} order(s) in history.`;
+
+            // Handle product image
+            if (productImage) {
+                document.getElementById('modalProductImage').src = productImage;
+                document.getElementById('modalProductImage').style.display = 'block';
+                document.getElementById('modalProductPlaceholder').style.display = 'none';
+            } else {
+                document.getElementById('modalProductImage').style.display = 'none';
+                document.getElementById('modalProductPlaceholder').style.display = 'flex';
+            }
+
+            // Set form action
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = `/seller/delete/${productId}`;
+
+            // Show modal
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
         });
     </script>
 </body>
