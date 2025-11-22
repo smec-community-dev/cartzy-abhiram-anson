@@ -301,7 +301,8 @@
         </div>
     </div>
     <!-- Spinner End -->
-
+<!-- Add this somewhere in your template (hidden) for the search functionality -->
+{{ header_products|json_script:"header-products-data" }}
     {% if request.user.is_authenticated %}
         {% include "user/header_login.html" %}
     {% else %}

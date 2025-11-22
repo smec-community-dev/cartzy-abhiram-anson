@@ -11,7 +11,7 @@ from seller.models import Product, ProductImage, SellerProfile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from decorators.decorators import role_required
 from django.shortcuts import get_object_or_404
-
+from seller.models import Notification
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
@@ -775,7 +775,7 @@ def create_buy_now_order(request):
             # Create the order
             order = Order.objects.create(
                 order_number=order_no, 
-                status='pending', 
+                status='delivered', 
                 total_amount=total_amount, 
                 address=address, 
                 customer_id=user_id
@@ -939,3 +939,49 @@ def user_add_review(request, id):
         return redirect('user_view_product_details', id=id)
 
     return render(request, 'user/user_add_review.html', context)
+
+
+@role_required("customer", login_url="/login/")
+def order_details(request, order_id):
+    """View for order details page"""
+    # Get order and check if it belongs to the current user
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    
+    # Get order items for this order
+    order_items = order.items.all()
+    
+    # Mark related notifications as read
+    Notification.objects.filter(
+        customer=request.user,
+        order=order,
+        is_read=False
+    ).update(is_read=True)
+    
+    context = {
+        'order': order,
+        'order_items': order_items,
+    }
+    
+    return render(request, 'user/order_details.html', context)
+
+@role_required("customer", login_url="/login/")
+def product_details(request, product_id):
+    """View for product details page (with reviews)"""
+    product = get_object_or_404(Product, id=product_id, is_listed=True)
+    
+    # Get reviews for this product
+    reviews = Review.objects.filter(product=product).select_related('customer')
+    
+    # Mark related notifications as read
+    Notification.objects.filter(
+        customer=request.user,
+        review__product=product,
+        is_read=False
+    ).update(is_read=True)
+    
+    context = {
+        'product': product,
+        'reviews': reviews,
+    }
+    
+    return render(request, 'user/product_details.html', context)

@@ -127,7 +127,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'user.context_processors.header_products',
                 'seller.context_processors.notifications',
-                
+                'user.context_processors.customer_notifications',
             ],
         },
     },

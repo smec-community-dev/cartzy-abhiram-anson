@@ -1,5 +1,6 @@
 from django.urls import path
 from .import views
+from . import notification_views
 
 urlpatterns=[
     
@@ -57,5 +58,12 @@ urlpatterns=[
     
     path('useraddreview/<int:id>/', views.user_add_review, name='user_add_review'),
     
+    
+    path('notifications/', notification_views.customer_all_notifications, name='customer_all_notifications'),
+    path('notifications/<int:notification_id>/clear/', notification_views.clear_customer_notification, name='clear_customer_notification'),
+    path('notifications/<int:notification_id>/read/', notification_views.mark_customer_notification_read, name='mark_customer_notification_read'),
+    path('notifications/', notification_views.customer_all_notifications, name='customer_all_notifications'),
+      path('order/<int:order_id>/', views.order_details, name='order_details'),
+    path('product/<int:product_id>/', views.product_details, name='product_details'),
     
 ]
