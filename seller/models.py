@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
-from user.models import Order
+from user.models import Order,Review
 from core.models import Category
 class SellerProfile(models.Model):
     user = models.OneToOneField(
@@ -84,6 +84,7 @@ class Notification(models.Model):
     NOTIFICATION_TYPES = (
         ('order', 'New Order'),
         ('review', 'New Review'),
+        ('order_cancelled', 'Order Cancelled'),
         ('low_stock', 'Low Stock'),
     )
     
@@ -93,6 +94,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -110,6 +112,7 @@ class Notification(models.Model):
         icons = {
             'order': 'fas fa-shopping-bag',
             'review': 'fas fa-star',
+            'order_cancelled': 'fas fa-times-circle',  
             'low_stock': 'fas fa-exclamation-triangle',
         }
         return icons.get(self.notification_type, 'fas fa-bell')

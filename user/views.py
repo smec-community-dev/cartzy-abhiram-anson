@@ -462,24 +462,45 @@ def user_view_order(request):
     return render(request, 'user/user_view_orders.html', context)
 
 @role_required("customer", login_url="/login/")
-
 def user_cancel_order(request, order_id):
     try:
         # Get the order item by ID and ensure it belongs to the current user
         order_item = OrderItem.objects.get(
             id=order_id, 
-            order__customer=request.user  # Changed from order__user to order__customer
+            order__customer=request.user
         )
         
+        order = order_item.order
+        
         # Check if order can be cancelled
-        if order_item.order.status in ['pending', 'processing']:  # Note: Capitalized statuses
+        if order.status in ['pending', 'processing']:
             # Update order status to cancelled
-            order_item.order.status = 'cancelled'  # Note: Capitalized
-            order_item.order.save()
+            order.status = 'cancelled'
+            order.save()
+            
+           
+            try:
+                from seller.utils import create_cancellation_notification
+                create_cancellation_notification(order, order_item)
+                print(f"Cancellation notification created for order #{order.order_number}")
+            except Exception as e:
+                print(f"Error creating cancellation notification: {e}")
+                import traceback
+                traceback.print_exc()
+            
+            # Restore product stock
+            try:
+                from seller.models import Product
+                product = Product.objects.get(id=order_item.product_id)
+                product.stock += order_item.quantity
+                product.save()
+                print(f"Restored {order_item.quantity} units to {product.name} stock")
+            except Exception as e:
+                print(f"Error restoring product stock: {e}")
             
             messages.success(request, f'Order for {order_item.product_name} has been cancelled successfully.')
         else:
-            messages.error(request, 'This order cannot be cancelled.')
+            messages.error(request, 'This order cannot be cancelled as it has already been shipped or delivered.')
             
     except OrderItem.DoesNotExist:
         messages.error(request, 'Order not found or you do not have permission to cancel this order.')
@@ -874,7 +895,7 @@ def user_add_review(request, id):
 
         review_title = request.POST.get('review_title')
         review_text = request.POST.get('review_text')
-        rating = request.POST.get('rating')  # Get the rating from form data
+        rating = request.POST.get('rating')
         images = request.FILES.getlist('images')
 
         # Validate rating
@@ -895,7 +916,7 @@ def user_add_review(request, id):
         review = Review.objects.create(
             review_title=review_title,
             review_text=review_text,
-            rating=rating,  # Add the rating field
+            rating=rating,
             product_id=product.id,
             customer_id=customer
         )
@@ -903,6 +924,16 @@ def user_add_review(request, id):
         # Save images
         for image in images:
             ReviewImage.objects.create(review=review, image=image)
+
+       
+        try:
+            from seller.utils import create_review_notification
+            create_review_notification(review)
+            print(f"Review notification created for {product.name}")
+        except Exception as e:
+            print(f"Error creating review notification: {e}")
+            import traceback
+            traceback.print_exc()
 
         messages.success(request, "Your review has been submitted successfully!")
         return redirect('user_view_product_details', id=id)
