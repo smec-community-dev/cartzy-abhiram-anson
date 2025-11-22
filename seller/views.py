@@ -727,7 +727,7 @@ def seller_profile(request):
         seller.save()
         
         messages.success(request, "Profile updated successfully!")
-        return redirect('seller_profile')
+        return redirect('seller:seller_profile')
     
     context = {
         'seller': seller,
@@ -771,7 +771,7 @@ def seller_reviews(request):
     if selected_product_id:
         try:
             selected_product = products.get(id=selected_product_id)
-            product_reviews = selected_product.reviews.all().select_related('user').order_by('-created_at')
+            product_reviews = selected_product.reviews.all().select_related('customer').order_by('-created_at')
             
            
             for rating in range(1, 6):

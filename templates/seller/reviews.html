@@ -753,19 +753,19 @@
         <div class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <a href="{% url 'seller_dashboard' %}" class="nav-item">
+                <a href="{% url 'seller:seller_dashboard' %}" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'seller_products' %}" class="nav-item">
+                <a href="{% url 'seller:seller_products' %}" class="nav-item">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
-                <a href="{% url 'seller_orders' %}" class="nav-item">
+                <a href="{% url 'seller:seller_orders' %}" class="nav-item">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Orders</span>
                 </a>
-                <a href="{% url 'seller_reviews' %}" class="nav-item active">
+                <a href="{% url 'seller:seller_reviews' %}" class="nav-item active">
                     <i class="fas fa-star"></i>
                     <span>Reviews</span>
                 </a>
@@ -789,7 +789,7 @@
             
             <div class="nav-section">
                 <div class="nav-section-title">Settings</div>
-                <a href="{% url 'seller_profile' %}" class="nav-item">
+                <a href="{% url 'seller:seller_profile' %}" class="nav-item">
                     <i class="fas fa-user"></i>
                     <span>Profile</span>
                 </a>
@@ -879,7 +879,7 @@
                                 Search
                             </button>
                             {% if search_query or rating_filter %}
-                            <a href="{% url 'seller_reviews' %}" class="btn-secondary-custom" style="margin-top: 24px; margin-left: 8px;">
+                            <a href="{% url 'seller:seller_reviews' %}" class="btn-secondary-custom" style="margin-top: 24px; margin-left: 8px;">
                                 <i class="fas fa-times"></i>
                                 Clear
                             </a>
@@ -1069,7 +1069,7 @@
                                         <!-- Note: Since your Review model doesn't have seller_reply field, this section won't work -->
                                         <!-- You'll need to implement the SellerReply model as discussed earlier -->
                                         <div class="reply-form">
-                                            <form method="POST" action="{% url 'reply_to_review' review.id %}">
+                                            <form method="POST" >
                                                 {% csrf_token %}
                                                 <textarea name="reply" class="reply-textarea" placeholder="Write a response to this review..." required></textarea>
                                                 <button type="submit" class="btn-primary-custom" style="margin-top: 8px; padding: 8px 16px;">
