@@ -410,7 +410,7 @@ def user_update_account(request):
         
     return render(request, 'user/user_update_account.html', {'context':context})
 
-@role_required("customer", login_url="/login/")
+
 def generate_order_number():
     today = datetime.datetime.now().strftime("%Y%m%d")  
     random_number = random.randint(1000, 9999)
