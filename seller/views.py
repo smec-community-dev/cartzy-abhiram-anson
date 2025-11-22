@@ -132,6 +132,13 @@ def seller_dashboard(request):
             seller=request.user
         ).order_by('-created_at')[:10]
         print(f"Notifications count: {notifications.count()}")
+        
+       
+        unread_count = Notification.objects.filter(
+            seller=request.user,
+            is_read=False
+        ).count()
+        print(f"Unread notifications: {unread_count}")
         # =====================================================
         
         # Basic stats
@@ -345,6 +352,7 @@ def seller_dashboard(request):
         context = {
             # ========== ADD NOTIFICATIONS TO CONTEXT ==========
             'notifications': notifications,
+            'unread_count': unread_count,  
             # ==================================================
             
             'total_products': total_products,
@@ -365,7 +373,8 @@ def seller_dashboard(request):
     except SellerProfile.DoesNotExist:
         context = {
             'error': 'Seller profile not found. Please complete your seller profile setup.',
-            'notifications': [],  # ← Add empty notifications list
+            'notifications': [],  
+            'unread_count': 0,   
             'total_products': 0,
             'in_stock_products': 0,
             'low_stock_products': 0,
@@ -387,7 +396,8 @@ def seller_dashboard(request):
         
         context = {
             'error': f'An error occurred: {str(e)}',
-            'notifications': [],  # ← Add empty notifications list
+            'notifications': [],  
+            'unread_count': 0,   
             'total_products': 0,
             'in_stock_products': 0,
             'low_stock_products': 0,

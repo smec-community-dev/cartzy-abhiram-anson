@@ -659,8 +659,38 @@
             }
         }
 
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(249, 36, 0, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(249, 36, 0, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(249, 36, 0, 0);
+            }
+        }
+
         .stat-card {
             animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .notification-item {
+            animation: slideInRight 0.3s ease-out;
         }
 
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
@@ -793,7 +823,6 @@
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
-                
             </div>
             
             <div class="nav-section">
@@ -847,19 +876,28 @@
                 <p>Track your sales performance and business metrics</p>
             </div>
             <div class="top-bar-actions">
+                <!-- Hidden element to pass unread count to JavaScript -->
+                <div id="notificationData" 
+                     data-unread-count="{{ unread_count }}" 
+                     style="display: none;">
+                </div>
+
                 <button class="notification-btn" id="notifBtn">
                     <i class="fas fa-bell"></i>
-                    {% if notifications|length > 0 %}
-                        <span class="notification-badge">{{ notifications|length }}</span>
+                    {% if unread_count > 0 %}
+                        <span class="notification-badge">
+                            {% if unread_count > 10 %}10+{% else %}{{ unread_count }}{% endif %}
+                        </span>
                     {% endif %}
                 </button>
 
+                <!-- Notification dropdown -->
                 <div class="notification-dropdown" id="notifDropdown">
                     <h5>Notifications</h5>
                     <div class="notification-list">
                         {% if notifications %}
                             {% for n in notifications %}
-                            <div class="notification-item">
+                            <div class="notification-item {% if not n.is_read %}unread{% endif %}">
                                 <i class="{{ n.icon }}"></i>
                                 <div class="notification-text">
                                     <p>{{ n.message }}</p>
@@ -875,8 +913,16 @@
                         {% endif %}
                     </div>
                     <div class="see-all">
-    <a href="{% url 'seller:all_notifications' %}">View all notifications</a>
-</div>
+                        <a href="{% url 'seller:all_notifications' %}">
+                            {% if unread_count > 10 %}
+                                View all (10+)
+                            {% elif unread_count > 0 %}
+                                View all ({{ unread_count }})
+                            {% else %}
+                                View all
+                            {% endif %}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -957,7 +1003,6 @@
                                 <tr>
                                     <td>
                                         <div class="product-cell">
-                                            
                                             {% if product.image %}
                                                 <img src="{{ product.image.image.url }}" class="product-image" alt="{{ product.name }}">
                                             {% else %}
@@ -965,19 +1010,17 @@
                                                     <i class="fas fa-image"></i>
                                                 </div>
                                             {% endif %}
-
                                             <div class="product-info">
                                                 <h6>{{ product.name|truncatechars:20 }}</h6>
                                             </div>
                                         </div>
                                     </td>
-
                                     <td>{{ product.total_sold|default:0 }}</td>
                                     <td class="price-text">₹{{ product.total_revenue|floatformat:2|default:"0.00" }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-4">
+                                    <td colspan="3">
                                         <div class="empty-state">
                                             <i class="fas fa-chart-line"></i>
                                             <h4>No Sales Data</h4>
@@ -1035,7 +1078,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ request.user.get_full_name}}</td>
+                                <td>{{ review.customer.get_full_name|default:review.customer.username }}</td>
                                 <td>
                                     <div class="review-stars">
                                         {% for i in "12345" %}
@@ -1052,7 +1095,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="5">
                                     <div class="empty-state">
                                         <i class="fas fa-star"></i>
                                         <h4>No Reviews Yet</h4>
@@ -1111,7 +1154,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center py-4">
+                                <td colspan="5">
                                     <div class="empty-state">
                                         <i class="fas fa-shopping-bag"></i>
                                         <h4>No Orders Yet</h4>
@@ -1133,38 +1176,28 @@
             const notifBtn = document.getElementById('notifBtn');
             const notifDropdown = document.getElementById('notifDropdown');
             
-            // Toggle dropdown visibility
             notifBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 notifDropdown.classList.toggle('show');
             });
             
-            // Close dropdown when clicking outside
             document.addEventListener('click', function() {
                 notifDropdown.classList.remove('show');
             });
             
-            // Prevent dropdown from closing when clicking inside it
             notifDropdown.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
         });
 
-        // Sales Chart with proper data handling
+        // Sales Chart
         let salesChart = null;
         const salesCtx = document.getElementById('salesChart');
 
-        // Function to initialize chart
         function initChart(labels, revenueData, ordersData) {
-            // Destroy existing chart if it exists
             if (salesChart) {
                 salesChart.destroy();
             }
-            
-            // Debug: Log the data
-            console.log('Chart Labels:', labels);
-            console.log('Revenue Data:', revenueData);
-            console.log('Orders Data:', ordersData);
             
             salesChart = new Chart(salesCtx, {
                 type: 'line',
@@ -1214,7 +1247,7 @@
                             labels: {
                                 font: {
                                     size: 13,
-                                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                                 },
                                 padding: 15,
                                 usePointStyle: true,
@@ -1224,19 +1257,12 @@
                         tooltip: {
                             backgroundColor: 'rgba(0, 0, 0, 0.8)',
                             padding: 12,
-                            titleFont: {
-                                size: 14,
-                                weight: '600'
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 13 },
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
+                                    if (label) label += ': ';
                                     if (context.dataset.yAxisID === 'y') {
                                         label += '₹' + context.parsed.y.toFixed(2);
                                     } else {
@@ -1252,65 +1278,31 @@
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Revenue (₹)',
-                                font: {
-                                    size: 12,
-                                    weight: '600'
-                                }
-                            },
+                            title: { display: true, text: 'Revenue (₹)', font: { size: 12, weight: '600' } },
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toFixed(0);
-                                }
-                            }
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { callback: function(value) { return '₹' + value.toFixed(0); } }
                         },
                         y1: {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Orders',
-                                font: {
-                                    size: 12,
-                                    weight: '600'
-                                }
-                            },
+                            title: { display: true, text: 'Orders', font: { size: 12, weight: '600' } },
                             beginAtZero: true,
-                            grid: {
-                                drawOnChartArea: false,
-                            },
-                            ticks: {
-                                stepSize: 1
-                            }
+                            grid: { drawOnChartArea: false },
+                            ticks: { stepSize: 1 }
                         },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
+                        x: { grid: { display: false } }
                     }
                 }
             });
         }
 
-        // Function to fetch and render chart data
         function fetchChartData(days) {
             try {
-                // Get the chart data from Django context
-                const chartDataElement = document.getElementById('chartDataScript');
-                const chartDataString = chartDataElement ? chartDataElement.textContent : '{{ chart_data|safe }}';
-                
-                console.log('Raw chart data string:', chartDataString);
+                const chartDataString = '{{ chart_data|safe }}';
                 
                 if (!chartDataString || chartDataString === '' || chartDataString === '[]' || chartDataString === 'None') {
-                    console.log('No chart data available');
                     salesCtx.parentElement.innerHTML = `
                         <div class="empty-state" style="padding: 40px 20px;">
                             <i class="fas fa-chart-line"></i>
@@ -1322,10 +1314,8 @@
                 }
                 
                 const chartData = JSON.parse(chartDataString);
-                console.log('Parsed chart data:', chartData);
                 
                 if (!chartData || chartData.length === 0) {
-                    console.log('Empty chart data array');
                     salesCtx.parentElement.innerHTML = `
                         <div class="empty-state" style="padding: 40px 20px;">
                             <i class="fas fa-chart-line"></i>
@@ -1336,308 +1326,181 @@
                     return;
                 }
                 
-                // Filter data based on selected days
                 const filteredData = chartData.slice(-days);
-                console.log('Filtered data (last ' + days + ' days):', filteredData);
-                
                 const labels = filteredData.map(item => item.date);
-                const revenueData = filteredData.map(item => {
-                    const revenue = parseFloat(item.revenue);
-                    return isNaN(revenue) ? 0 : revenue;
-                });
-                const ordersData = filteredData.map(item => {
-                    const orders = parseInt(item.orders);
-                    return isNaN(orders) ? 0 : orders;
-                });
+                const revenueData = filteredData.map(item => parseFloat(item.revenue) || 0);
+                const ordersData = filteredData.map(item => parseInt(item.orders) || 0);
                 
-                console.log('Processed labels:', labels);
-                console.log('Processed revenue:', revenueData);
-                console.log('Processed orders:', ordersData);
-                
-                // Initialize chart
                 initChart(labels, revenueData, ordersData);
                 
             } catch (error) {
                 console.error('Error loading chart data:', error);
-                console.error('Error stack:', error.stack);
-                // Show error state
                 salesCtx.parentElement.innerHTML = `
                     <div class="empty-state" style="padding: 40px 20px;">
                         <i class="fas fa-exclamation-circle" style="color: #ff9500;"></i>
                         <h4>Error Loading Chart</h4>
-                        <p>Unable to load sales data. Error: ${error.message}</p>
-                        <p style="font-size: 0.875rem; color: #86868b;">Check the browser console for more details.</p>
+                        <p>Unable to load sales data</p>
                     </div>
                 `;
             }
         }
 
-        // Initialize chart when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing chart...');
-            
-            // Load initial chart with 30 days
             fetchChartData(30);
             
-            // Add event listener for time range changes
             const timeRangeSelect = document.getElementById('timeRange');
             if (timeRangeSelect) {
                 timeRangeSelect.addEventListener('change', function(e) {
-                    console.log('Time range changed to:', e.target.value);
                     fetchChartData(parseInt(e.target.value));
                 });
             }
         });
 
         // WebSocket Notification Manager
-    class NotificationManager {
-    constructor(userId) {
-        this.userId = userId;
-        this.socket = null;
-        this.totalNotificationCount = 0; // Track total count
-        this.connect();
-    }
-
-    connect() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${this.userId}/`;
-        
-        this.socket = new WebSocket(wsUrl);
-
-        this.socket.onopen = (e) => {
-            console.log('🔌 WebSocket connected successfully');
-            // Initialize total count from existing badge or notifications
-            this.initializeTotalCount();
-        };
-
-        this.socket.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            if (data.type === 'notification') {
-                this.handleRealTimeNotification(data.message);
+        class NotificationManager {
+            constructor(userId) {
+                this.userId = userId;
+                this.socket = null;
+                this.unreadCount = 0;
+                this.connect();
+                this.initializeFromServer();
             }
-        };
 
-        this.socket.onclose = (e) => {
-            console.log('🔌 WebSocket disconnected. Reconnecting in 3 seconds...');
-            setTimeout(() => this.connect(), 3000);
-        };
-
-        this.socket.onerror = (e) => {
-            console.error('🔌 WebSocket error:', e);
-        };
-    }
-
-    initializeTotalCount() {
-        // Get initial count from existing badge or notifications
-        const badge = document.querySelector('.notification-badge');
-        const notificationList = document.querySelector('.notification-list');
-        
-        if (badge && badge.textContent !== '10+') {
-            this.totalNotificationCount = parseInt(badge.textContent) || 0;
-        } else if (notificationList) {
-            const existingNotifications = notificationList.querySelectorAll('.notification-item').length;
-            this.totalNotificationCount = existingNotifications;
-        }
-    }
-
-    handleRealTimeNotification(notification) {
-        console.log('📨 Real-time notification received:', notification);
-        
-        // Increment total count
-        this.totalNotificationCount += 1;
-        
-        // Add to dropdown instantly
-        this.addToDropdown(notification);
-        
-       
-        this.showSubtleIndicator();
-    }
-
-    addToDropdown(notification) {
-        const dropdown = document.getElementById('notifDropdown');
-        if (!dropdown) return;
-
-        const notificationList = dropdown.querySelector('.notification-list');
-        if (!notificationList) return;
-
-        // Create new notification item
-        const notificationItem = this.createNotificationItem(notification);
-        
-        // Add to top of the list
-        const firstItem = notificationList.firstElementChild;
-        if (firstItem) {
-            notificationList.insertBefore(notificationItem, firstItem);
-        } else {
-            notificationList.appendChild(notificationItem);
-        }
-
-        // Remove "no notifications" message if it exists
-        const noNotifications = notificationList.querySelector('.no-notifications');
-        if (noNotifications) {
-            noNotifications.remove();
-        }
-
-      
-        this.maintainDropdownLimit(notificationList);
-
-        
-        this.updateBadgeAndViewAll();
-
-        console.log(' Notification added to dropdown instantly');
-    }
-
-    maintainDropdownLimit(notificationList) {
-        const allNotifications = notificationList.querySelectorAll('.notification-item');
-        
-        // Remove notifications beyond the 10th item
-        if (allNotifications.length > 10) {
-            const notificationsToRemove = Array.from(allNotifications).slice(10);
-            
-            notificationsToRemove.forEach(notification => {
-                notification.remove();
-            });
-            
-            console.log(`Removed ${notificationsToRemove.length} notifications to maintain 10-item limit`);
-        }
-    }
-
-    updateBadgeAndViewAll() {
-        const badge = document.querySelector('.notification-badge');
-        const viewAllLink = document.querySelector('.see-all a');
-        
-        // Update or create badge with "10+" format
-        if (!badge) {
-            const btn = document.querySelector('.notification-btn');
-            const newBadge = document.createElement('span');
-            newBadge.className = 'notification-badge';
-            
-            if (this.totalNotificationCount > 10) {
-                newBadge.textContent = '10+';
-                newBadge.style.fontSize = '0.6rem';
-                newBadge.style.padding = '4px 6px';
-            } else {
-                newBadge.textContent = this.totalNotificationCount;
+            initializeFromServer() {
+                const notificationData = document.getElementById('notificationData');
+                if (notificationData) {
+                    this.unreadCount = parseInt(notificationData.dataset.unreadCount) || 0;
+                    this.updateBadgeDisplay();
+                }
             }
-            
-            btn.appendChild(newBadge);
-        } else {
-            if (this.totalNotificationCount > 10) {
-                badge.textContent = '10+';
-                badge.style.fontSize = '0.6rem';
-                badge.style.padding = '4px 6px';
-            } else {
-                badge.textContent = this.totalNotificationCount;
-                badge.style.fontSize = '';
-                badge.style.padding = '';
+
+            connect() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${this.userId}/`;
+                
+                this.socket = new WebSocket(wsUrl);
+
+                this.socket.onopen = () => console.log('WebSocket connected');
+                this.socket.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'notification') {
+                        this.handleRealTimeNotification(data.message);
+                    }
+                };
+                this.socket.onclose = () => setTimeout(() => this.connect(), 3000);
+                this.socket.onerror = (e) => console.error('WebSocket error:', e);
+            }
+
+            handleRealTimeNotification(notification) {
+                this.unreadCount += 1;
+                this.addToDropdown(notification);
+                this.updateBadgeDisplay();
+                this.showSubtleIndicator();
+            }
+
+            updateBadgeDisplay() {
+                const badge = document.querySelector('.notification-badge');
+                
+                if (this.unreadCount === 0) {
+                    if (badge) badge.remove();
+                    return;
+                }
+                
+                if (!badge) {
+                    const btn = document.querySelector('.notification-btn');
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'notification-badge';
+                    newBadge.textContent = this.unreadCount > 10 ? '10+' : this.unreadCount;
+                    btn.appendChild(newBadge);
+                } else {
+                    badge.textContent = this.unreadCount > 10 ? '10+' : this.unreadCount;
+                }
+                
+                this.updateViewAllLink();
+            }
+
+            updateViewAllLink() {
+                const viewAllLink = document.querySelector('.see-all a');
+                if (viewAllLink) {
+                    if (this.unreadCount > 10) {
+                        viewAllLink.textContent = 'View all (10+)';
+                    } else if (this.unreadCount > 0) {
+                        viewAllLink.textContent = `View all (${this.unreadCount})`;
+                    } else {
+                        viewAllLink.textContent = 'View all';
+                    }
+                }
+            }
+
+            addToDropdown(notification) {
+                const notificationList = document.querySelector('.notification-list');
+                if (!notificationList) return;
+
+                const notificationItem = this.createNotificationItem(notification);
+                const firstItem = notificationList.firstElementChild;
+                
+                if (firstItem) {
+                    notificationList.insertBefore(notificationItem, firstItem);
+                } else {
+                    notificationList.appendChild(notificationItem);
+                }
+
+                const noNotifications = notificationList.querySelector('.no-notifications');
+                if (noNotifications) noNotifications.remove();
+
+                this.maintainDropdownLimit(notificationList);
+            }
+
+            maintainDropdownLimit(notificationList) {
+                const allNotifications = notificationList.querySelectorAll('.notification-item');
+                if (allNotifications.length > 10) {
+                    Array.from(allNotifications).slice(10).forEach(n => n.remove());
+                }
+            }
+
+            createNotificationItem(notification) {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.setAttribute('data-notif-id', notification.id);
+                
+                let iconColor = '#f92400';
+                if (notification.type === 'review') iconColor = '#ff9500';
+                if (notification.type === 'order_cancelled') iconColor = '#ff3b30';
+                if (notification.type === 'low_stock') iconColor = '#ff9500';
+
+                item.innerHTML = `
+                    <i class="${notification.icon}" style="color: ${iconColor}"></i>
+                    <div class="notification-text">
+                        <p>${notification.message}</p>
+                        <span class="time">Just now</span>
+                    </div>
+                `;
+                return item;
+            }
+
+            showSubtleIndicator() {
+                const bell = document.querySelector('.notification-btn');
+                if (bell) {
+                    bell.style.transform = 'scale(1.1)';
+                    bell.style.transition = 'transform 0.3s ease';
+                    setTimeout(() => { bell.style.transform = 'scale(1)'; }, 300);
+
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        badge.style.animation = 'pulse 0.5s ease-in-out';
+                        setTimeout(() => { badge.style.animation = ''; }, 500);
+                    }
+                }
             }
         }
-        
-        // Update "View all" link
-        if (viewAllLink) {
-            if (this.totalNotificationCount > 10) {
-                viewAllLink.textContent = `View all (10+)`;
-            } else {
-                viewAllLink.textContent = `View all (${this.totalNotificationCount})`;
-            }
-        }
-    }
 
-    createNotificationItem(notification) {
-        const item = document.createElement('div');
-        item.className = 'notification-item';
-        item.setAttribute('data-notif-id', notification.id);
-        
-        // Determine icon color based on notification type
-        let iconColor = '#f92400'; // green for orders
-        if (notification.type === 'review') iconColor = '##f92400';
-        if (notification.type === 'order_cancelled') iconColor = '#f92400';
-        if (notification.type === 'low_stock') iconColor = '#f92400';
-
-        item.innerHTML = `
-            <i class="${notification.icon}" style="color: ${iconColor}"></i>
-            <div class="notification-text">
-                <p>${notification.message}</p>
-                <span class="time">Just now</span>
-            </div>
-        `;
-
-        return item;
-    }
-
-    showSubtleIndicator() {
-        // Create a subtle flash effect on the notification bell
-        const bell = document.querySelector('.notification-btn');
-        if (bell) {
-            bell.style.transform = 'scale(1.1)';
-            bell.style.transition = 'transform 0.3s ease';
-            
-            setTimeout(() => {
-                bell.style.transform = 'scale(1)';
-            }, 300);
-
-            // Add a subtle pulse animation to the badge
-            const badge = document.querySelector('.notification-badge');
-            if (badge) {
-                badge.style.animation = 'pulse 0.5s ease-in-out';
-                setTimeout(() => {
-                    badge.style.animation = '';
-                }, 500);
-            }
-        }
-    }
-
-    updateViewAllLink() {
-        // This is now handled in updateBadgeAndViewAll()
-    }
-
-    refreshDropdown() {
-        const dropdown = document.getElementById('notifDropdown');
-        if (dropdown && dropdown.classList.contains('show')) {
-            console.log('Dropdown is open - content updated in real-time');
-        }
-    }
-}
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(249, 36, 0, 0.7);
-        }
-        50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(249, 36, 0, 0);
-        }
-        100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(249, 36, 0, 0);
-        }
-    }
-    
-    .notification-item {
-        animation: slideInRight 0.3s ease-out;
-    }
-`;
-document.head.appendChild(style);
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const userId = {{ request.user.id }};
-    window.notificationManager = new NotificationManager(userId);
-});
+        // Initialize NotificationManager
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if request.user.is_authenticated %}
+            const userId = {{ request.user.id }};
+            window.notificationManager = new NotificationManager(userId);
+            {% endif %}
+        });
     </script>
 </body>
 </html>
