@@ -23,7 +23,14 @@
                         <div class="dropdown-menu rounded">
                             <a href="{% url 'user_view_account' %}" class="dropdown-item"> My Account</a>                            
                             <a href="{% url 'user_view_wishlist' %}" class="dropdown-item"> Wishlist</a>
-                            
+<a href="{% url 'customer_all_notifications' %}" class="dropdown-item"> 
+    Notifications 
+    {% if customer_unread_count > 0 %}
+    <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-2">
+        {{ customer_unread_count }}
+    </span>
+    {% endif %}
+</a>                            
                             <a href="{% url '/logout/' %}" class="dropdown-item"> Log Out</a>
                         </div>
                     </div>
@@ -55,7 +62,21 @@
             </div>
             <div class="col-md-4 col-lg-3 text-center text-lg-end">
                 <div class="d-inline-flex align-items-center">
-                    
+                    <!-- Notification Bell -->
+        {% if customer_notifications %}
+        <div class="relative me-3">
+            <a href="{% url 'customer_all_notifications' %}" class="text-muted d-flex align-items-center justify-content-center position-relative">
+                <span class="rounded-circle btn-md-square border">
+                    <i class="fas fa-bell"></i>
+                </span>
+                {% if customer_unread_count > 0 %}
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 0.7rem;">
+                    {{ customer_unread_count }}
+                </span>
+                {% endif %}
+            </a>
+        </div>
+        {% endif %}
                     <a href="{% url 'user_view_wishlist' %}" class="text-muted d-flex align-items-center justify-content-center me-3"><span
                             class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></a>
                     <a href="{% url 'user_view_cart' %}" class="text-muted d-flex align-items-center justify-content-center"><span

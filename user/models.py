@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 
 
+
 class Address(models.Model):
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -79,6 +80,26 @@ class Review(models.Model):
     
     def get_customer_full_name(self):
         return self.customer.get_full_name()
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        old_reply = None
+        if not is_new:
+            try:
+                old_review = Review.objects.get(pk=self.pk)
+                old_reply = old_review.seller_reply
+            except Review.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+        
+        # Trigger notification when seller replies to review
+        if not is_new and self.seller_reply and self.seller_reply != old_reply:
+            from .notification_service import CustomerNotificationTriggers
+            CustomerNotificationTriggers.notify_review_reply(
+                customer=self.customer,
+                review=self,
+                seller_reply=self.seller_reply
+            )
 
 class ReviewImage(models.Model):
     review = models.ForeignKey(
@@ -147,6 +168,37 @@ class Order(models.Model):
     
     def __str__(self):
         return f"Order #{self.order_number}"
+    
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old_order = Order.objects.get(pk=self.pk)
+            old_status = old_order.status
+            
+            super().save(*args, **kwargs)
+            
+            # Trigger notification when order status changes
+            if self.status != old_status:
+                from .notification_service import CustomerNotificationTriggers
+                CustomerNotificationTriggers.notify_order_status_update(
+                    customer=self.customer,
+                    order=self,
+                    old_status=old_status,
+                    new_status=self.status
+                )
+                
+                # Specific notifications for shipped/delivered
+                if self.status == 'Shipped':
+                    CustomerNotificationTriggers.notify_order_shipped(
+                        customer=self.customer,
+                        order=self
+                    )
+                elif self.status == 'Delivered':
+                    CustomerNotificationTriggers.notify_order_delivered(
+                        customer=self.customer,
+                        order=self
+                    )
+        else:
+            super().save(*args, **kwargs)
 
 
 class OrderItem(models.Model):
@@ -162,3 +214,43 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_name} - {self.order.order_number}"
+
+
+class CustomerNotification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('review_reply', 'Review Reply'),
+        ('order_status', 'Order Status Update'),
+        ('order_shipped', 'Order Shipped'),
+        ('order_delivered', 'Order Delivered'),
+        ('promotion', 'Special Promotion'),
+    )
+    
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='order_status')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.customer.username} - {self.message}"
+    
+    @property
+    def time(self):
+        return self.created_at.strftime('%H:%M')
+    
+    @property
+    def icon(self):
+        """Get appropriate icon based on notification type"""
+        icons = {
+            'review_reply': 'fas fa-comment',
+            'order_status': 'fas fa-shipping-fast',
+            'order_shipped': 'fas fa-truck',
+            'order_delivered': 'fas fa-check-circle',
+            'promotion': 'fas fa-percentage',
+        }
+        return icons.get(self.notification_type, 'fas fa-bell')

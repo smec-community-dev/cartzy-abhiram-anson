@@ -919,7 +919,7 @@
                                         Track Order
                                         </a>
                                     </td>
-                                    {% elif item.order.status == 'Delivered'%}
+                                    {% elif item.order.status == 'delivered'%}
                                     <td>
                                         <a href="{% url 'user_add_review' item.product.id %}" class="btn-track">
                                         <i class="fas fa-shipping-fast"></i>
