@@ -410,7 +410,7 @@ def user_update_account(request):
         
     return render(request, 'user/user_update_account.html', {'context':context})
 
-
+@role_required("customer", login_url="/login/")
 def generate_order_number():
     today = datetime.datetime.now().strftime("%Y%m%d")  
     random_number = random.randint(1000, 9999)
@@ -462,6 +462,7 @@ def user_view_order(request):
     return render(request, 'user/user_view_orders.html', context)
 
 @role_required("customer", login_url="/login/")
+
 def user_cancel_order(request, order_id):
     try:
         # Get the order item by ID and ensure it belongs to the current user
@@ -636,6 +637,7 @@ def user_add_new_address(request):
     return redirect('user_confirm_order', id=cart_id)
 
 @role_required("customer", login_url="/login/")
+
 def user_set_default_address(request):
     address_id = request.POST.get('address_id')
     try:
@@ -785,6 +787,7 @@ def create_buy_now_order(request):
 
 
 @role_required("customer", login_url="/login/")
+
 def create_order(request, id):
     user_id = request.user.id
     address_id = request.POST.get('selected_address')
