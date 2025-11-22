@@ -605,11 +605,11 @@
         <div class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <a href="{% url 'seller_dashboard' %}" class="nav-item">
+                <a href="{% url 'seller:seller_dashboard' %}" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'seller_products' %}" class="nav-item active">
+                <a href="{% url 'seller:seller_products' %}" class="nav-item active">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
@@ -705,15 +705,15 @@
                         </div>
                     </div>
                     <div class="product-actions">
-                        <a href="{% url 'seller_products' %}" class="btn-secondary-custom">
+                        <a href="{% url 'seller:seller_products' %}" class="btn-secondary-custom">
                             <i class="fas fa-arrow-left"></i>
                             Back to Products
                         </a>
-                        <a href="{% url 'update_product' product.id %}" class="btn-primary-custom">
+                        <a href="{% url 'seller:update_product' product.id %}" class="btn-primary-custom">
                             <i class="fas fa-edit"></i>
                             Edit Product
                         </a>
-                        <form action="{% url 'delete_product' product.id %}" method="POST" class="d-inline">
+                        <form action="{% url 'seller:delete_product' product.id %}" method="POST" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn-danger-custom" 
                                     onclick="return confirm('Are you sure you want to delete {{ product.name }}? This action cannot be undone.');">
