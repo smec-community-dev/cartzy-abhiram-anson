@@ -113,19 +113,26 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum, Avg
 import json
-
+from seller.models import Notification
 @login_required
 def seller_dashboard(request):
     try:
         # Import Review model
         from user.models import Review
-        
+        from seller.models import Notification
         # Get the seller profile for the current user
         seller_profile = SellerProfile.objects.get(user=request.user)
         
         print(f"\n=== DEBUGGING SELLER DASHBOARD ===")
         print(f"Seller Profile: {seller_profile}")
         print(f"Seller ID: {seller_profile.id}")
+        
+        # ========== ADD NOTIFICATIONS WITH 10-LIMIT ==========
+        notifications = Notification.objects.filter(
+            seller=request.user
+        ).order_by('-created_at')[:10]
+        print(f"Notifications count: {notifications.count()}")
+        # =====================================================
         
         # Basic stats
         total_products = Product.objects.filter(seller=seller_profile).count()
@@ -336,6 +343,10 @@ def seller_dashboard(request):
         print("Chart Data:", chart_data)
         
         context = {
+            # ========== ADD NOTIFICATIONS TO CONTEXT ==========
+            'notifications': notifications,
+            # ==================================================
+            
             'total_products': total_products,
             'in_stock_products': in_stock_products,
             'low_stock_products': low_stock_products,
@@ -354,6 +365,7 @@ def seller_dashboard(request):
     except SellerProfile.DoesNotExist:
         context = {
             'error': 'Seller profile not found. Please complete your seller profile setup.',
+            'notifications': [],  # ← Add empty notifications list
             'total_products': 0,
             'in_stock_products': 0,
             'low_stock_products': 0,
@@ -375,6 +387,7 @@ def seller_dashboard(request):
         
         context = {
             'error': f'An error occurred: {str(e)}',
+            'notifications': [],  # ← Add empty notifications list
             'total_products': 0,
             'in_stock_products': 0,
             'low_stock_products': 0,
@@ -915,3 +928,91 @@ def order_details(request, order_id):
         traceback.print_exc()
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
+@login_required
+def all_notifications(request):
+    """Page showing ALL notifications with pagination"""
+    from django.core.paginator import Paginator
+    
+    all_notifications = Notification.objects.filter(
+        seller=request.user
+    ).order_by('-created_at')
+    
+    # Handle clear actions
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'clear_all':
+            # Clear all notifications
+            all_notifications.delete()
+            messages.success(request, 'All notifications cleared successfully.')
+            return redirect('seller:all_notifications')
+        elif action == 'clear_read':
+            # Clear only read notifications
+            read_notifications = all_notifications.filter(is_read=True)
+            count = read_notifications.count()
+            read_notifications.delete()
+            messages.success(request, f'{count} read notifications cleared.')
+            return redirect('seller:all_notifications')
+    
+    # Paginate - show 20 per page
+    paginator = Paginator(all_notifications, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Counts for the template
+    total_count = all_notifications.count()
+    unread_count = all_notifications.filter(is_read=False).count()
+    read_count = total_count - unread_count
+    
+    context = {
+        'page_obj': page_obj,
+        'notifications': page_obj.object_list,
+        'total_count': total_count,
+        'unread_count': unread_count,
+        'read_count': read_count,
+    }
+    return render(request, 'seller/all_notifications.html', context)
+
+@login_required
+@require_http_methods(["DELETE"])
+def clear_notification(request, notification_id):
+    """Clear a single notification (AJAX)"""
+    try:
+        notification = Notification.objects.get(
+            id=notification_id, 
+            seller=request.user
+        )
+        notification.delete()
+        return JsonResponse({'success': True, 'message': 'Notification cleared'})
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Notification not found'}, status=404)
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Mark a notification as read (AJAX)"""
+    try:
+        notification = Notification.objects.get(
+            id=notification_id, 
+            seller=request.user
+        )
+        notification.is_read = True
+        notification.save()
+        
+        # Get updated counts
+        total_count = Notification.objects.filter(seller=request.user).count()
+        unread_count = Notification.objects.filter(seller=request.user, is_read=False).count()
+        read_count = total_count - unread_count
+        
+        return JsonResponse({
+            'success': True, 
+            'message': 'Notification marked as read',
+            'counts': {
+                'total': total_count,
+                'unread': unread_count,
+                'read': read_count
+            }
+        })
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Notification not found'}, status=404)

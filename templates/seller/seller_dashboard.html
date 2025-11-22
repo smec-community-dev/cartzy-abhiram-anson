@@ -789,6 +789,11 @@
                     <i class="fas fa-star"></i>
                     <span>Reviews</span>
                 </a>
+                <a href="/seller/notifications" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                
             </div>
             
             <div class="nav-section">
@@ -870,8 +875,8 @@
                         {% endif %}
                     </div>
                     <div class="see-all">
-                        <a href="/seller/notifications/">View all</a>
-                    </div>
+    <a href="{% url 'seller:all_notifications' %}">View all notifications</a>
+</div>
                 </div>
             </div>
         </div>
@@ -1382,6 +1387,144 @@
                     fetchChartData(parseInt(e.target.value));
                 });
             }
+        });
+
+        // WebSocket Notification Manager
+        class NotificationManager {
+            constructor(userId) {
+                this.userId = userId;
+                this.socket = null;
+                this.connect();
+            }
+
+            connect() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${this.userId}/`;
+                
+                this.socket = new WebSocket(wsUrl);
+
+                this.socket.onopen = (e) => {
+                    console.log('🔌 WebSocket connected successfully');
+                };
+
+                this.socket.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'notification') {
+                        this.handleRealTimeNotification(data.message);
+                    }
+                };
+
+                this.socket.onclose = (e) => {
+                    console.log('🔌 WebSocket disconnected. Reconnecting in 3 seconds...');
+                    setTimeout(() => this.connect(), 3000);
+                };
+
+                this.socket.onerror = (e) => {
+                    console.error('🔌 WebSocket error:', e);
+                };
+            }
+
+            handleRealTimeNotification(notification) {
+                console.log('📨 Real-time notification received:', notification);
+                
+                // Update badge count
+                this.updateBadge();
+                
+                // Show toast notification
+                this.showToast(notification);
+                
+                // Refresh dropdown if open
+                this.refreshDropdown();
+            }
+
+            updateBadge() {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    const currentCount = parseInt(badge.textContent) || 0;
+                    badge.textContent = currentCount + 1;
+                } else {
+                    const btn = document.getElementById('notifBtn');
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'notification-badge';
+                    newBadge.textContent = '1';
+                    btn.appendChild(newBadge);
+                }
+            }
+
+            showToast(notification) {
+                // Create and show a toast notification
+                const toast = document.createElement('div');
+                toast.className = 'notification-toast';
+                toast.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="${notification.icon}" style="color: #f92400;"></i>
+                        <div>
+                            <strong style="display: block; margin-bottom: 4px;">New Notification</strong>
+                            <span>${notification.message}</span>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: auto;">×</button>
+                `;
+                
+                // Add toast styles
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: white;
+                    padding: 15px;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                    border-left: 4px solid #f92400;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    z-index: 10000;
+                    max-width: 400px;
+                    animation: slideInRight 0.3s ease-out;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 5000);
+            }
+
+            refreshDropdown() {
+                const dropdown = document.getElementById('notifDropdown');
+                if (dropdown && dropdown.classList.contains('show')) {
+                    // You can reload notifications via AJAX here or just leave it
+                    // The next time they open dropdown, it will show updated list
+                    console.log('Dropdown is open - would refresh content');
+                }
+            }
+        }
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const userId = {{ request.user.id }};
+            window.notificationManager = new NotificationManager(userId);
         });
     </script>
 </body>

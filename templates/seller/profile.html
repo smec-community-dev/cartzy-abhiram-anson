@@ -509,13 +509,13 @@
         </div>
         
         <div class="sidebar-nav">
-            <div class="nav-section">
+             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <a href="{% url 'seller:seller_dashboard' %}" class="nav-item">
+                <a href="/seller/dashboard" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'seller:seller_products' %}" class="nav-item">
+                <a href="/seller/products" class="nav-item">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
@@ -527,6 +527,11 @@
                     <i class="fas fa-star"></i>
                     <span>Reviews</span>
                 </a>
+                <a href="/seller/notifications" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                
             </div>
             
             <div class="nav-section">
@@ -590,14 +595,7 @@
         <!-- Content Area -->
         <div class="content-area">
             <!-- Success/Error Messages -->
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+            
 
             <!-- Quick Stats -->
             <div class="stats-container">
