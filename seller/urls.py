@@ -14,5 +14,9 @@ urlpatterns = [
     path('profile/', views.seller_profile, name='seller_profile'),
     path('reviews/', views.seller_reviews, name='seller_reviews'),
     # path('reviews/<int:review_id>/reply/', views.reply_to_review, name='reply_to_review'),
-     path('orders/<int:order_id>/details/', views.order_details, name='order_details'),
+    path('orders/<int:order_id>/details/', views.order_details, name='order_details'),
+    path('notifications/', views.all_notifications, name='all_notifications'),
+    path('notifications/<int:notification_id>/clear/', views.clear_notification, name='clear_notification'),
+    path('notifications/<int:notification_id>/mark-read/', views.mark_notification_read, name='mark_notification_read'),
+  
 ]

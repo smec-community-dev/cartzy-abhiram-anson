@@ -787,7 +787,6 @@ def create_buy_now_order(request):
 
 
 @role_required("customer", login_url="/login/")
-
 def create_order(request, id):
     user_id = request.user.id
     address_id = request.POST.get('selected_address')
@@ -822,11 +821,13 @@ def create_order(request, id):
     )
     
     # Create order items and update product stock
+    order_items = []  # Store created order items
     for order_item in items_to_order:
         item = order_item['item']
         quantity = order_item['quantity']
         
-        OrderItem.objects.create(
+        # Create order item and store it
+        order_item_obj = OrderItem.objects.create(
             product_name=item.product.name, 
             product_sku=item.product.sku, 
             quantity=quantity, 
@@ -834,11 +835,23 @@ def create_order(request, id):
             order_id=order.id, 
             product_id=item.product.id
         )
+        order_items.append(order_item_obj)
         
         # Reduce the product stock
         product = item.product
         product.stock -= quantity
         product.save()
+    
+
+    try:
+        from seller.utils import create_order_notification
+        # Pass the order_items list to avoid the empty items issue
+        create_order_notification(order, order_items)
+        print(f"WebSocket notifications created for order #{order.order_number}")
+    except Exception as e:
+        print(f" Error creating notifications: {e}")
+        import traceback
+        traceback.print_exc()
     
     # Delete the cart after order is created
     cart.delete()

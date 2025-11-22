@@ -79,4 +79,37 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"Image - {self.product.name}"
 
-   
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('order', 'New Order'),
+        ('review', 'New Review'),
+        ('low_stock', 'Low Stock'),
+    )
+    
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='order')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.seller.username} - {self.message}"
+    
+    @property
+    def time(self):
+        return self.created_at.strftime('%H:%M')
+    
+    @property
+    def icon(self):
+        """Get appropriate icon based on notification type"""
+        icons = {
+            'order': 'fas fa-shopping-bag',
+            'review': 'fas fa-star',
+            'low_stock': 'fas fa-exclamation-triangle',
+        }
+        return icons.get(self.notification_type, 'fas fa-bell')
