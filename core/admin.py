@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Category
+from .models import Category, User
+
+admin.site.register(User)
 
 @admin.register(Category)
 class CatAdmin(admin.ModelAdmin):

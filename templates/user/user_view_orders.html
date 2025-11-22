@@ -560,24 +560,218 @@
         background: #f0e6ff;
         color: #6600cc;
     }
+    
     /* Force center the page header */
-.container-fluid.page-header.py-5 {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    min-height: 200px !important;
-}
+    .container-fluid.page-header.py-5 {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        min-height: 200px !important;
+    }
 
-.container-fluid.page-header.py-5 h1 {
-    margin-bottom: 20px !important;
-}
+    .container-fluid.page-header.py-5 h1 {
+        margin-bottom: 20px !important;
+    }
 
-.container-fluid.page-header.py-5 .breadcrumb {
-    justify-content: center !important;
-    margin: 0 !important;
-}
+    .container-fluid.page-header.py-5 .breadcrumb {
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+    
+    /* No orders message */
+    .no-orders-message {
+        text-align: center;
+        padding: 60px 20px;
+        font-size: 18px;
+        color: #555;
+    }
+    
+    /* Hidden rows for filtering */
+    .order-row {
+        transition: all 0.3s ease;
+    }
+    
+    .order-row.hidden {
+        display: none;
+    }
+    
+    /* Full width dropdown when no orders */
+    .no-orders .status-filter-container {
+        width: 100%;
+        justify-content: center;
+        margin: 40px 0;
+    }
+    
+    .no-orders .status-filter-dropdown {
+        width: 300px;
+    }
+    
+    .no-orders .status-filter-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+    
+    .no-orders .status-filter-dropdown-content {
+        width: 100%;
+        min-width: unset;
+    }
+
+    /* Custom Modal Styles */
+    .custom-modal .modal-content {
+        border-radius: 18px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .custom-modal .modal-header {
+        border-bottom: 1px solid #f5f5f7;
+        padding: 25px 30px;
+    }
+
+    .custom-modal .modal-body {
+        padding: 30px;
+    }
+
+    .custom-modal .modal-footer {
+        border-top: 1px solid #f5f5f7;
+        padding: 20px 30px;
+    }
+
+    .tracking-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .tracking-step {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 12px;
+        background: #fafafa;
+        transition: all 0.3s ease;
+    }
+
+    .tracking-step.active {
+        background: #fff5f5;
+        border-left: 4px solid #F92400;
+    }
+
+    .tracking-step.completed {
+        background: #f0f9f0;
+        border-left: 4px solid #28a745;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .step-icon.active {
+        background: #F92400;
+        color: white;
+    }
+
+    .step-icon.completed {
+        background: #28a745;
+        color: white;
+    }
+
+    .step-icon.pending {
+        background: #6c757d;
+        color: white;
+    }
+
+    .step-info {
+        flex: 1;
+    }
+
+    .step-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #1d1d1f;
+    }
+
+    .step-description {
+        font-size: 0.875rem;
+        color: #86868b;
+        margin: 0;
+    }
+
+    .step-date {
+        font-size: 0.75rem;
+        color: #86868b;
+    }
+
+    .confirmation-icon {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .confirmation-icon i {
+        font-size: 4rem;
+        color: #dc3545;
+    }
+
+    .confirmation-text {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .confirmation-text h4 {
+        color: #1d1d1f;
+        margin-bottom: 10px;
+    }
+
+    .confirmation-text p {
+        color: #86868b;
+        margin: 0;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-modal-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .btn-modal-confirm {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .btn-modal-close {
+        background: #800000;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
 </style>
 <body>
 
@@ -596,17 +790,7 @@
     {% include "user/header_nologin.html" %}
 {% endif %}
 
-    <!-- Secondary Header with Account Dashboard - CENTERED -->
-    <div class="secondary-header">
-        <nav class="secondary-nav">
-            <ul class="secondary-nav-menu">
-                <li><a href="{% url 'user_view_account' %}"><i class="fas fa-user-circle"></i> <span>Profile</span></a></li>
-                <li><a href="{% url 'user_view_order' %}" class="active"><i class="fas fa-shopping-bag"></i> <span>Orders</span></a></li>
-                <li><a href="{% url 'user_add_addresses' %}"><i class="fas fa-map-marker-alt"></i> <span>Addresses</span></a></li>
-    
-            </ul>
-        </nav>
-    </div>
+
 
     <!-- Single Page Header start -->
 <div class="container-fluid page-header py-5" style="display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; text-align: center !important; min-height: 200px !important;">
@@ -617,11 +801,21 @@
     </ol>
 </div>
     <!-- Single Page Header End -->
+         <!-- Secondary Header with Account Dashboard - CENTERED --><br>
+    <div class="secondary-header">
+        <nav class="secondary-nav">
+            <ul class="secondary-nav-menu">
+                <li><a href="{% url 'user_view_account' %}"><i class="fas fa-user-circle"></i> <span>Profile</span></a></li>
+                <li><a href="{% url 'user_view_order' %}" class="active"><i class="fas fa-shopping-bag"></i> <span>Orders</span></a></li>
+                <li><a href="{% url 'user_add_addresses' %}"><i class="fas fa-map-marker-alt"></i> <span>Addresses</span></a></li>
+            </ul>
+        </nav>
+    </div>
 
     <!-- Cart Card -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="content-card">
+            <div class="content-card" id="ordersCard">
                 <div class="card-header-custom">
                     <div class="header-title">
                         <h2>My Orders</h2>
@@ -632,16 +826,16 @@
                     <div class="status-filter-container">
                         <span class="status-filter-label">Filter by status:</span>
                         <div class="status-filter-dropdown">
-                            <a href="#" class="status-filter-btn">
+                            <a class="status-filter-btn" id="statusFilterBtn">
                                 All Orders <i class="fas fa-chevron-down"></i>
                             </a>
                             <div class="status-filter-dropdown-content">
-                                <a href="?status=all" class="status-filter-option active">All Orders</a>
-                                <a href="?status=ordered" class="status-filter-option">Ordered</a>
-                                <a href="?status=shipped" class="status-filter-option">Shipped</a>
-                                <a href="?status=arrived" class="status-filter-option">Arrived</a>
-                                <a href="?status=canceled" class="status-filter-option">Canceled</a>
-                                <a href="?status=returned" class="status-filter-option">Returned</a>
+                                <a class="status-filter-option active" data-status="all">All Orders</a>
+                                <a href="#" class="status-filter-option" data-status="pending">Ordered</a>
+                                <a href="#" class="status-filter-option" data-status="shipped">Shipped</a>
+                                <a href="#" class="status-filter-option" data-status="delivered">Delivered</a>
+                                <a href="#" class="status-filter-option" data-status="cancelled">Canceled</a>
+                                <a href="#" class="status-filter-option" data-status="returned">Returned</a>
                             </div>
                         </div>
                     </div>
@@ -661,7 +855,7 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>                           
+                        <tbody id="ordersTableBody">                           
                             {% if not found %}
                                 <tr>
                                     <td colspan="9" style="text-align: center; padding: 60px 20px;">
@@ -674,68 +868,67 @@
                                     </td>
                                 </tr>
                             {% else %}
-                            {% for item in orderitems %}
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        {% if item.product.images.first %}
-                                        <img src="{{ item.product.images.first.image.url }}" class="product-image" alt="{{ item.product.name }}">
-                                        {% else %}
-                                        <img src="https://via.placeholder.com/80" class="product-image" alt="{{ item.product.name }}">
-                                        {% endif %}
-                                        <div class="product-info">
-                                            <h6>{{ item.product.name }}</h6>
-                                            <small>{{ item.product.brand }}</small>
+                                {% for item in orderitems %}
+                                <tr class="order-row" data-status="{{ item.order.status|lower }}">
+                                    <td>
+                                        <div class="product-cell">
+                                            {% if item.product.images.first %}
+                                            <img src="{{ item.product.images.first.image.url }}" class="product-image" alt="{{ item.product.name }}">
+                                            {% else %}
+                                            <img src="https://via.placeholder.com/80" class="product-image" alt="{{ item.product.name }}">
+                                            {% endif %}
+                                            <div class="product-info">
+                                                <h6>{{ item.product.name }}</h6>
+                                                <small>{{ item.product.brand }}</small>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                 <td>
-                                        <span class="quantity-text">{{ item.order.created_at }}</span>
-                                </td>
-                                
-                                 <td>
-                                        <span class="quantity-text">{{ item.quantity }}</span>
-                                </td>
-                                 <td>
-                                        <span class="quantity-text">₹{{ item.price }}</span>
-                                </td>
-                                 <td>
-                                        <span class="quantity-text">₹{{ item.subtotal }}</span>
-                                </td>
-                                <td>
-                                        <span class="quantity-text">Cash on Delivery</span>
-                                </td>
-                                 <td>
-                                        <span class="status-badge status-{{ item.order.status|lower }}">{{ item.order.status }}</span>
-                                </td>
-                                
-                                {% if item.order.status == 'pending' or item.order.status == 'processing' %} 
-                               <td>                                
-                                    <div class="action-buttons">
-                                    <a href="{% url 'user_remove_cart_item' item.id %}" class="btn-cancel">
-                                    <i class="fas fa-times-circle"></i>
-                                    Cancel Order
-                                    </a>
-                                    </div>
-                                </td>
-                                {% elif item.order.status == 'Shipped'%}
-                                <td>
-                                    <a href="#" class="btn-track">
-                                    <i class="fas fa-shipping-fast"></i>
-                                    Track Order
-                                    </a>
-                                </td>
-                                {% elif item.order.status == 'Delivered'%}
-                                <td>
-                                    <a href="{% url 'user_add_review' item.product.id %}" class="btn-track">
-                                    <i class="fas fa-shipping-fast"></i>
-                                    Add Review
-                                    </a>
-                                </td>
-                                {% endif %}
-
-                            </tr>
-                            {% endfor %}
+                                    </td>
+                                     <td>
+                                            <span class="quantity-text">{{ item.order.created_at }}</span>
+                                    </td>
+                                    
+                                     <td>
+                                            <span class="quantity-text">{{ item.quantity }}</span>
+                                    </td>
+                                     <td>
+                                            <span class="quantity-text">₹{{ item.price }}</span>
+                                    </td>
+                                     <td>
+                                            <span class="quantity-text">₹{{ item.subtotal }}</span>
+                                    </td>
+                                    <td>
+                                            <span class="quantity-text">Cash on Delivery</span>
+                                    </td>
+                                     <td>
+                                            <span class="status-badge status-{{ item.order.status|lower }}">{{ item.order.status }}</span>
+                                    </td>
+                                    
+                                    {% if item.order.status == 'pending' or item.order.status == 'processing' %} 
+                                   <td>                                
+                                        <div class="action-buttons">
+                                        <a href="#" class="btn-cancel cancel-order-btn" data-order-id="{{ item.id }}" data-product-name="{{ item.product.name }}">
+                                        <i class="fas fa-times-circle"></i>
+                                        Cancel Order
+                                        </a>
+                                        </div>
+                                    </td>
+                                    {% elif item.order.status == 'shipped'%}
+                                    <td>
+                                        <a href="#" class="btn-track track-order-btn" data-order-id="{{ item.id }}" data-product-name="{{ item.product.name }}">
+                                        <i class="fas fa-shipping-fast"></i>
+                                        Track Order
+                                        </a>
+                                    </td>
+                                    {% elif item.order.status == 'Delivered'%}
+                                    <td>
+                                        <a href="{% url 'user_add_review' item.product.id %}" class="btn-track">
+                                        <i class="fas fa-shipping-fast"></i>
+                                        Add Review
+                                        </a>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
                             {% endif %}
                         </tbody>
                     </table>
@@ -745,15 +938,123 @@
                 <div class="card-footer-custom">
                     <div>
                         <i class="fas fa-info-circle"></i>
-                        Items in your cart are reserved for you
+                        Items you ordered are seen here.
                     </div>
-                    
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
     <!-- Cart Card End -->
+
+    <!-- Cancel Order Confirmation Modal -->
+    <div class="modal fade custom-modal" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="confirmation-text">
+                        <h4>Are you sure?</h4>
+                        <p>You are about to cancel your order for <strong id="cancelProductName"></strong>. This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">No, Keep Order</button>
+                        <button type="button" class="btn btn-modal-confirm" id="confirmCancelBtn">
+                            Yes, Cancel Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Track Order Modal -->
+    <div class="modal fade custom-modal" id="trackOrderModal" tabindex="-1" aria-labelledby="trackOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trackOrderModalLabel">Track Your Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="order-info mb-4">
+                        <h6 id="trackProductName" class="mb-2"></h6>
+                        <p class="text-muted mb-0">Order ID: <span id="trackOrderId"></span></p>
+                    </div>
+                    
+                    <div class="tracking-steps">
+                        <div class="tracking-step completed">
+                            <div class="step-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Order Placed</div>
+                                <p class="step-description">Your order has been successfully placed</p>
+                            </div>
+                            <div class="step-date">2 days ago</div>
+                        </div>
+                        
+                        <div class="tracking-step completed">
+                            <div class="step-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Order Confirmed</div>
+                                <p class="step-description">We've confirmed your order</p>
+                            </div>
+                            <div class="step-date">1 day ago</div>
+                        </div>
+                        
+                        <div class="tracking-step active">
+                            <div class="step-icon active">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Shipped</div>
+                                <p class="step-description">Your order is on the way</p>
+                            </div>
+                            <div class="step-date">Today</div>
+                        </div>
+                        
+                        <div class="tracking-step">
+                            <div class="step-icon pending">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Out for Delivery</div>
+                                <p class="step-description">Your order will be delivered soon</p>
+                            </div>
+                            <div class="step-date">Estimated: Tomorrow</div>
+                        </div>
+                        
+                        <div class="tracking-step">
+                            <div class="step-icon pending">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="step-info">
+                                <div class="step-title">Delivered</div>
+                                <p class="step-description">Your order has been delivered</p>
+                            </div>
+                            <div class="step-date">Not yet</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-modal-close" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% include 'user/footer.html' %}
 
@@ -768,5 +1069,118 @@
     
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
+
+    <!-- Order Filtering JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilterBtn = document.getElementById('statusFilterBtn');
+            const statusFilterOptions = document.querySelectorAll('.status-filter-option');
+            const orderRows = document.querySelectorAll('.order-row');
+            const ordersCard = document.getElementById('ordersCard');
+            const cancelOrderModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+            const trackOrderModal = new bootstrap.Modal(document.getElementById('trackOrderModal'));
+            
+            // Cancel order functionality
+         // Cancel order functionality
+const cancelOrderBtns = document.querySelectorAll('.cancel-order-btn');
+cancelOrderBtns.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const orderId = this.getAttribute('data-order-id');
+        const productName = this.getAttribute('data-product-name');
+        
+        // Set modal content
+        document.getElementById('cancelProductName').textContent = productName;
+        
+        // Set confirm button action WITH order_id parameter
+        document.getElementById('confirmCancelBtn').onclick = function() {
+            // Use the correct URL with order_id parameter
+            window.location.href = "{% url 'user_cancel_order' 0 %}".replace('0', orderId);
+        };
+        
+        // Show modal
+        cancelOrderModal.show();
+    });
+});
+            
+            // Track order functionality
+            const trackOrderBtns = document.querySelectorAll('.track-order-btn');
+            trackOrderBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const orderId = this.getAttribute('data-order-id');
+                    const productName = this.getAttribute('data-product-name');
+                    
+                    // Set modal content
+                    document.getElementById('trackProductName').textContent = productName;
+                    document.getElementById('trackOrderId').textContent = 'ORD-' + orderId;
+                    
+                    // Show modal
+                    trackOrderModal.show();
+                });
+            });
+            
+            // Function to filter orders by status
+            function filterOrders(status) {
+                let visibleCount = 0;
+                
+                orderRows.forEach(row => {
+                    if (status === 'all' || row.getAttribute('data-status') === status) {
+                        row.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+                
+                // Update the filter button text
+                const selectedOption = document.querySelector(`.status-filter-option[data-status="${status}"]`);
+                if (selectedOption) {
+                    statusFilterBtn.innerHTML = `${selectedOption.textContent} <i class="fas fa-chevron-down"></i>`;
+                    
+                    // Update active class
+                    statusFilterOptions.forEach(option => {
+                        option.classList.remove('active');
+                    });
+                    selectedOption.classList.add('active');
+                }
+                
+                // Show no orders message if no rows are visible
+                const noOrdersRow = document.querySelector('tbody tr:first-child');
+                if (noOrdersRow && !noOrdersRow.classList.contains('order-row')) {
+                    // This is the "no orders" message row
+                    if (visibleCount === 0 && orderRows.length > 0) {
+                        noOrdersRow.style.display = 'table-row';
+                    } else {
+                        noOrdersRow.style.display = 'none';
+                    }
+                }
+                
+                // Apply no-orders styling when no orders match filter
+                if (visibleCount === 0 && orderRows.length > 0) {
+                    ordersCard.classList.add('no-orders');
+                } else {
+                    ordersCard.classList.remove('no-orders');
+                }
+            }
+            
+            // Add click event listeners to filter options
+            statusFilterOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const status = this.getAttribute('data-status');
+                    filterOrders(status);
+                });
+            });
+            
+            // Initialize with "all" filter
+            filterOrders('all');
+            
+            // Apply no-orders styling initially if there are no orders at all
+            if (orderRows.length === 0) {
+                ordersCard.classList.add('no-orders');
+            }
+        });
+    </script>
 </body>
 </html>

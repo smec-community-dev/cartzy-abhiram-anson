@@ -763,22 +763,15 @@
         </div>
     </div>
     <!-- Spinner End -->
-
+{{ header_products|json_script:"header-products-data" }}
 {% if request.user.is_authenticated %}
     {% include "user/header_login.html" %}
 {% else %}
     {% include "user/header_nologin.html" %}
 {% endif %}
-<div class="secondary-header">
-        <nav class="secondary-nav">
-            <ul class="secondary-nav-menu">
-                <li><a href="{% url 'user_view_account' %}" class="active"><i class="fas fa-user-circle"></i> <span>Profile</span></a></li>
-                <li><a href="{% url 'user_view_order' %}" ><i class="fas fa-shopping-bag"></i> <span>Orders</span></a></li>
-                <li><a href="{% url 'user_add_addresses' %}"><i class="fas fa-map-marker-alt"></i> <span>Addresses</span></a></li>
+
         
-            </ul>
-        </nav>
-    </div>
+  
     <!-- Single Page Header start -->
     <div class="container-fluid page-header py-5">
         <h1 class="text-center text-white display-6 wow fadeInUp" data-wow-delay="0.1s">My Account</h1>
@@ -788,8 +781,17 @@
             <li class="breadcrumb-item active text-white">My Account</li>
         </ol>
     </div>
-    <!-- Single Page Header End -->
-
+    <!-- Single Page Header End --><br>
+     <div class="secondary-header">
+<nav class="secondary-nav">
+            <ul class="secondary-nav-menu">
+                <li><a href="{% url 'user_view_account' %}" class="active"><i class="fas fa-user-circle"></i> <span>Profile</span></a></li>
+                <li><a href="{% url 'user_view_order' %}" ><i class="fas fa-shopping-bag"></i> <span>Orders</span></a></li>
+                <li><a href="{% url 'user_add_addresses' %}"><i class="fas fa-map-marker-alt"></i> <span>Addresses</span></a></li>
+        
+            </ul>
+        </nav>
+          </div>
     <div class="account-container">
         <div class="account-content">
             

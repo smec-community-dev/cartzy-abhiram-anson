@@ -2,6 +2,12 @@ from django.urls import path
 from .import views
 
 urlpatterns=[
+    
+    
+    path('oauth/cancel/', views.OAuthCancelView.as_view(), name='oauth_cancel'),
+    path('oauth/error/', views.OAuthErrorView.as_view(), name='oauth_error'),
+    path('oauth/account-exists/', views.AccountExistsView.as_view(), name='account_exists'),
+    
     path('', views.home_view, name='home'),
     path('About', views.about_view, name='about_us'),
     path('UserReg/', views.user_reg_view, name='/register/'),
@@ -35,15 +41,19 @@ urlpatterns=[
     
     
     path('uservieworder', views.user_view_order, name='user_view_order'),
+    path('usercancelorder/<int:order_id>/', views.user_cancel_order, name='user_cancel_order'),
     path('useraddaddress', views.user_add_addresses, name='user_add_addresses'),
     
     path('useraddaddress', views.user_add_addresses, name='user_add_new_address'),
     path('useraddanaddress', views.user_add_new_address, name='user_add_an_address'),
     path('userchooseaddress/<int:id>/', views.user_choose_address, name='user_choose_address'),
     path('uupdateaddress', views.user_update_order_address, name='user_update_order_address'),
+      path('addresses/set-default/', views.user_set_default_address, name='user_set_default_address'),
+    path('addresses/delete/', views.user_delete_address, name='user_delete_address'),
     
     path('userorder/<int:id>/', views.create_order, name='user_create_order'),
-    
+    path('buy-now/<int:product_id>/', views.buy_now_direct, name='user_buy_now_direct'),
+   path('create-buy-now-order/', views.create_buy_now_order, name='user_create_buy_now_order'), 
     
     path('useraddreview/<int:id>/', views.user_add_review, name='user_add_review'),
     

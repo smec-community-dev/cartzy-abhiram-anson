@@ -127,19 +127,19 @@
         margin: 0 !important;
     }
 
-    /* Address Card Styles */
+    /* Professional Address Card Styles */
     .content-card {
         background: #ffffff;
-        border-radius: 18px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
         border: 1px solid rgba(0,0,0,0.04);
         overflow: hidden;
         margin-bottom: 32px;
     }
 
     .card-header-custom {
-        padding: 32px 40px;
-        border-bottom: 1px solid #f5f5f7;
+        padding: 24px 32px;
+        border-bottom: 1px solid #f0f0f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -148,14 +148,14 @@
     }
 
     .header-title h2 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 600;
         color: #1d1d1f;
         margin-bottom: 4px;
     }
 
     .header-title p {
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
         color: #86868b;
         margin: 0;
     }
@@ -164,61 +164,64 @@
         background: #F92400;
         color: #ffffff;
         border: none;
-        padding: 12px 28px;
-        border-radius: 980px;
-        font-size: 0.9375rem;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 0.875rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         text-decoration: none;
     }
 
     .btn-primary-custom:hover {
-        background: #a10000;
-        transform: scale(1.02);
-        box-shadow: 0 4px 16px rgba(128, 0, 0, 0.3);
+        background: #d81b00;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(249, 36, 0, 0.3);
     }
 
-    /* Address Cards Grid */
+    /* Professional Address Cards Grid */
     .addresses-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        gap: 24px;
-        padding: 32px 40px;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 20px;
+        padding: 32px;
     }
 
     .address-card {
         background: #ffffff;
-        border: 1px solid #f0f0f0;
-        border-radius: 12px;
-        padding: 24px;
-        transition: all 0.3s ease;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.2s ease;
         position: relative;
+        height: fit-content;
     }
 
     .address-card:hover {
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        border-color: #F92400;
-        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        border-color: #d0d0d0;
     }
 
     .address-card.default {
-        border: 2px solid #F92400;
-        background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+        border: 1px solid #F92400;
+        background: #fff;
+        box-shadow: 0 0 0 1px #F92400;
     }
 
     .address-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f5f5f5;
     }
 
     .address-name {
-        font-size: 1.125rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #1d1d1f;
         margin: 0;
@@ -227,103 +230,87 @@
     .default-badge {
         background: #F92400;
         color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
         font-weight: 500;
-    }
-
-    .address-type {
-        color: #86868b;
-        font-size: 0.875rem;
-        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .address-details {
         color: #555;
-        line-height: 1.6;
-        margin-bottom: 20px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        font-size: 0.875rem;
+    }
+
+    .address-details p {
+        margin-bottom: 4px;
     }
 
     .address-phone {
         color: #1d1d1f;
         font-weight: 500;
-        margin-bottom: 8px;
+        margin-bottom: 16px;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .address-phone i {
+        color: #F92400;
+        font-size: 0.8rem;
     }
 
     .address-actions {
         display: flex;
-        gap: 12px;
-        margin-top: 20px;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #f5f5f5;
     }
 
-    .btn-edit {
-        padding: 8px 16px;
-        border: 1px solid #F92400;
+    .btn-action {
+        padding: 6px 12px;
+        border: 1px solid #e0e0e0;
         background: transparent;
-        color: #F92400;
-        border-radius: 6px;
-        font-size: 0.875rem;
+        color: #555;
+        border-radius: 4px;
+        font-size: 0.75rem;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
+    }
+
+    .btn-action:hover {
+        background: #f8f9fa;
+        border-color: #d0d0d0;
     }
 
     .btn-edit:hover {
-        background: #F92400;
-        color: white;
-    }
-
-    .btn-delete {
-        padding: 8px 16px;
-        border: 1px solid #dc3545;
-        background: transparent;
-        color: #dc3545;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+        color: #F92400;
+        border-color: #F92400;
     }
 
     .btn-delete:hover {
-        background: #dc3545;
-        color: white;
-    }
-
-    .btn-set-default {
-        padding: 8px 16px;
-        border: 1px solid #28a745;
-        background: transparent;
-        color: #28a745;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+        color: #dc3545;
+        border-color: #dc3545;
     }
 
     .btn-set-default:hover {
-        background: #28a745;
-        color: white;
+        color: #28a745;
+        border-color: #28a745;
     }
 
-    /* Add New Address Card */
+    /* Professional Add New Address Card */
     .add-address-card {
-        
-        border: 2px dashed #ddd;
+        border: 1px dashed #d0d0d0;
         background: #fafafa;
         display: flex;
         flex-direction: column;
@@ -331,101 +318,190 @@
         justify-content: center;
         text-align: center;
         cursor: pointer;
-        transition: all 0.3s ease;
-        min-height: 200px;
+        transition: all 0.2s ease;
+        min-height: 180px;
     }
 
     .add-address-card:hover {
         border-color: #F92400;
         background: #fff5f5;
+        transform: translateY(-1px);
     }
 
     .add-icon {
-        font-size: 2rem;
+        font-size: 1.5rem;
         color: #F92400;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
 
     .add-text {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #F92400;
         font-weight: 500;
     }
 
-    /* Empty State */
+    /* Professional Empty State */
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 48px 20px;
         color: #86868b;
+        grid-column: 1 / -1;
     }
 
     .empty-icon {
-        font-size: 3rem;
-        color: #ddd;
-        margin-bottom: 16px;
+        font-size: 2.5rem;
+        color: #e0e0e0;
+        margin-bottom: 12px;
     }
 
-    /* Modal Styles */
+    .empty-state h3 {
+        font-size: 1.125rem;
+        color: #555;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* Professional Modal Styles */
     .modal-content {
-        border-radius: 12px;
+        border-radius: 8px;
         border: none;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
     }
 
     .modal-header {
         background: #F92400;
         color: white;
-        border-radius: 12px 12px 0 0;
+        border-radius: 8px 8px 0 0;
         border: none;
-        padding: 20px 30px;
+        padding: 16px 24px;
     }
 
     .modal-title {
         font-weight: 600;
+        font-size: 1.125rem;
     }
 
     .modal-body {
-        padding: 30px;
+        padding: 24px;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .form-label {
         font-weight: 500;
-        color: #555;
-        margin-bottom: 8px;
+        color: #333;
+        margin-bottom: 6px;
+        font-size: 0.875rem;
     }
 
     .form-control {
         border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 12px;
-        font-size: 0.9375rem;
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-size: 0.875rem;
         transition: all 0.2s;
     }
 
     .form-control:focus {
         border-color: #F92400;
-        box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1);
+        box-shadow: 0 0 0 2px rgba(249, 36, 0, 0.1);
     }
 
     .btn-close {
         filter: invert(1);
+        opacity: 0.8;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    .form-check-input:checked {
+        background-color: #F92400;
+        border-color: #F92400;
+    }
+
+    /* Delete Confirmation Modal */
+    .confirmation-modal .modal-body {
+        text-align: center;
+        padding: 40px 30px;
+    }
+
+    .confirmation-icon {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+
+    .confirmation-text h4 {
+        color: #1d1d1f;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .confirmation-text p {
+        color: #86868b;
+        margin-bottom: 0;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 25px;
+    }
+
+    .btn-modal-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .btn-modal-confirm {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
     }
 
     @media (max-width: 768px) {
         .addresses-grid {
             grid-template-columns: 1fr;
             padding: 20px;
+            gap: 16px;
         }
         
         .address-card {
-            padding: 20px;
+            padding: 16px;
         }
         
         .address-actions {
+            flex-wrap: wrap;
+        }
+        
+        .card-header-custom {
+            padding: 20px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-buttons {
             flex-direction: column;
         }
     }
@@ -447,7 +523,18 @@
     {% include "user/header_nologin.html" %}
 {% endif %}
 
-    <!-- Secondary Header with Account Dashboard - CENTERED -->
+   
+
+    <!-- Single Page Header start -->
+    <div class="container-fluid page-header py-5" style="display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; text-align: center !important; min-height: 200px !important;">
+        <h1 class="text-white display-6 wow fadeInUp" data-wow-delay="0.1s" style="margin-bottom: 20px !important;">My Addresses</h1>
+        <ol class="breadcrumb wow fadeInUp" data-wow-delay="0.3s" style="justify-content: center !important; margin: 0 !important;">
+            <li class="breadcrumb-item"><a href="{% url 'user_home' %}">Home</a></li>
+            <li class="breadcrumb-item active text-white">My Addresses</li>
+        </ol>
+    </div>
+    <!-- Single Page Header End -->
+      <!-- Secondary Header with Account Dashboard - CENTERED --><br>
     <div class="secondary-header">
         <nav class="secondary-nav">
             <ul class="secondary-nav-menu">
@@ -459,16 +546,6 @@
         </nav>
     </div>
 
-    <!-- Single Page Header start -->
-    <div class="container-fluid page-header py-5" style="display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; text-align: center !important; min-height: 200px !important;">
-        <h1 class="text-white display-6 wow fadeInUp" data-wow-delay="0.1s" style="margin-bottom: 20px !important;">My Addresses</h1>
-        <ol class="breadcrumb wow fadeInUp" data-wow-delay="0.3s" style="justify-content: center !important; margin: 0 !important;">
-            <li class="breadcrumb-item"><a href="{% url 'user_home' %}">Home</a></li>
-            <li class="breadcrumb-item active text-white">My Addresses</li>
-        </ol>
-    </div>
-    <!-- Single Page Header End -->
-
     <!-- Addresses Card -->
     <div class="container-fluid py-5">
         <div class="container py-5">
@@ -478,8 +555,6 @@
                         <h2>My Addresses</h2>
                         <p>Manage your delivery addresses</p>
                     </div>
-                    
-                    
                 </div>
 
                 <div class="addresses-grid">
@@ -487,13 +562,11 @@
                         {% for address in addresses %}
                         <div class="address-card {% if address.is_default %}default{% endif %}">
                             <div class="address-header">
-                                <h3 class="address-name">{{ address.name }}</h3>
+                                <h3 class="address-name">{{ address.full_name }}</h3>
                                 {% if address.is_default %}
                                 <span class="default-badge">Default</span>
                                 {% endif %}
                             </div>
-                            
-                            <div class="address-type">{{ address.address_type }}</div>
                             
                             <div class="address-details">
                                 <p>{{ address.street }}</p>
@@ -506,15 +579,19 @@
                             </div>
                             
                             <div class="address-actions">
-                                <a href="#" class="btn-edit" data-bs-toggle="modal" data-bs-target="#editAddressModal{{ address.id }}">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
+ 
                                 {% if not address.is_default %}
-                                <a href="#" class="btn-set-default">
-                                    <i class="fas fa-star"></i> Set Default
-                                </a>
+                                <form method="POST" action="{% url 'user_set_default_address' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="address_id" value="{{ address.id }}">
+                                    <button type="submit" class="btn-action btn-set-default">
+                                        <i class="fas fa-star"></i> Set Default
+                                    </button>
+                                </form>
                                 {% endif %}
-                                <a href="#" class="btn-delete">
+                                <a href="#" class="btn-action btn-delete delete-address-btn" 
+                                   data-address-id="{{ address.id }}" 
+                                   data-address-name="{{ address.full_name }}">
                                     <i class="fas fa-trash"></i> Delete
                                 </a>
                             </div>
@@ -552,7 +629,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" >
+                    <form method="POST" action="{% url 'user_add_new_address' %}">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6">
@@ -599,22 +676,12 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Country *</label>
-                                    <input type="text" class="form-control" name="new_country" required>
+                                    <input type="text" class="form-control" name="new_country" value="India" required>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="row">
-                            <!-- <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label">Address Type</label>
-                                    <select class="form-control" name="address_type">
-                                        <option value="Home">Home</option>
-                                        <option value="Work">Work</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div> -->
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="form-check mt-4">
@@ -628,8 +695,37 @@
                         </div>
                         
                         <div class="d-flex gap-3 mt-4">
-                            <a hre="{% url 'user_add_new_address' %}"><button type="submit" class="btn-primary-custom">Save Address</button></a>
+                            <button type="submit" class="btn-primary-custom">Save Address</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Address Confirmation Modal -->
+    <div class="modal fade confirmation-modal" id="deleteAddressModal" tabindex="-1" aria-labelledby="deleteAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAddressModalLabel" style="color:white;">Delete Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="confirmation-text">
+                        <h4>Are you sure?</h4>
+                        <p>You are about to delete the address for <strong id="deleteAddressName"></strong>. This action cannot be undone.</p>
+                    </div>
+                    <form method="POST" action="{% url 'user_delete_address' %}" id="deleteAddressForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="address_id" id="deleteAddressId">
+                        <div class="modal-buttons">
+                            <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-modal-confirm">Delete Address</button>
                         </div>
                     </form>
                 </div>
@@ -650,5 +746,38 @@
     
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
+
+    <!-- Address Management JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteAddressModal = new bootstrap.Modal(document.getElementById('deleteAddressModal'));
+            const deleteAddressBtns = document.querySelectorAll('.delete-address-btn');
+            
+            // Delete address functionality
+            deleteAddressBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const addressId = this.getAttribute('data-address-id');
+                    const addressName = this.getAttribute('data-address-name');
+                    
+                    // Set modal content
+                    document.getElementById('deleteAddressName').textContent = addressName;
+                    document.getElementById('deleteAddressId').value = addressId;
+                    
+                    // Show modal
+                    deleteAddressModal.show();
+                });
+            });
+            
+            // Auto-close success messages after 5 seconds
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
 </body>
 </html>

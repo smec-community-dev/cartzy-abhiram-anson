@@ -7,14 +7,66 @@ from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, O
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from seller.models import Product, ProductImage
+from seller.models import Product, ProductImage, SellerProfile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from decorators.decorators import role_required
+from django.shortcuts import get_object_or_404
+
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib import messages
+
+class OAuthCancelView(View):
+    def get(self, request):
+        return render(request, 'oauth/cancel.html')
+
+class OAuthErrorView(View):
+    def get(self, request):
+        error_message = request.GET.get('error', 'An unknown error occurred.')
+        return render(request, 'oauth/error.html', {'error_message': error_message})
+
+class AccountExistsView(View):
+    def get(self, request):
+        email = request.GET.get('email', '')
+        return render(request, 'oauth/account_exists.html', {'email': email})
+
+def set_google_customer(request):
+    request.session["google_role"] = "customer"
+    return redirect("/accounts/google/login/")
+
+
+def set_google_seller(request):
+    request.session["google_role"] = "seller"
+    return redirect("/accounts/google/login/")
+
+def role_redirect(request):
+    user = request.user
+    role = request.session.get("google_role", "customer")
+
+    # Assign role only first time
+    if not user.role:
+        user.role = role
+        user.save()
+
+    # Create profile if not exists
+    if role == "customer":
+        CustomerProfile.objects.get_or_create(user=user)
+        return redirect("user_home")
+
+    elif role == "seller":
+        SellerProfile.objects.get_or_create(user=user)
+        return redirect("seller_home")
+
+    return redirect("/")
 
 def header_products(request):
     products = list(Product.objects.all().values('id', 'name', 'price', 'images'))
     return {
         'header_products': products
     }
+    
+    
+    
 def home_view(request):
     return render(request, 'user/index.html')
 
@@ -62,7 +114,7 @@ def logout_view(request):
     logout(request)
     return redirect('home')
     
-
+@role_required("customer", login_url="/login/")
 def user_home_view(request):
     return render(request, 'user/user_home.html')
 
@@ -161,6 +213,7 @@ def user_view_product_details(request, id):
     
     return render(request, 'user/user_view_single_products.html', context)
 
+@role_required("customer", login_url="/login/")
 def user_add_to_cart(request, id):
     if not request.user.is_authenticated:
         messages.error(request, "Please login to add items to cart.")
@@ -217,6 +270,7 @@ def user_add_to_cart(request, id):
     
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+@role_required("customer", login_url="/login/")
 def user_view_cart(request):
     user_id=request.user.id
     try:
@@ -245,6 +299,7 @@ def user_view_cart(request):
         print("HEllo")
     return render(request, 'user/user_view_cart.html',{'context':context})
 
+@role_required("customer", login_url="/login/")
 def user_remove_cart_item(request, id):
     cartitem=CartItem.objects.get(id=id)
     cart=cartitem.cart
@@ -253,20 +308,21 @@ def user_remove_cart_item(request, id):
         cart.delete()
     return redirect('user_view_cart')
     
-
+@role_required("customer", login_url="/login/")
 def user_add_to_wishlist(request, id):
     user_id=request.user.id
     product_id=id
     if not Wishlist.objects.filter(product_id=product_id, customer_id=user_id):
         Wishlist.objects.create(customer_id=user_id, product_id=product_id)
     return redirect (request.META.get('HTTP_REFERER', '/'))
-    
+@role_required("customer", login_url="/login/")    
 def user_view_wishlist(request):
     user_id=request.user.id
     wish=Wishlist.objects.filter(customer_id=user_id)
 
     return render(request, 'user/user_view_wishlist.html', {'wish':wish})
 
+@role_required("customer", login_url="/login/")
 def user_remove_wishlist_item(request, id):
     try:
         # Get the wishlist item
@@ -285,7 +341,7 @@ def user_remove_wishlist_item(request, id):
     
     return redirect('user_view_wishlist')
 
-
+@role_required("customer", login_url="/login/")
 def user_view_account(request):
     user_id=request.user.id
     user=User.objects.get(id=user_id)
@@ -302,8 +358,8 @@ def user_view_account(request):
     }
     return render(request, 'user/user_view_account.html', {'context':context})
 
+@role_required("customer", login_url="/login/")
 def user_update_account(request):
-    print("HI")
     user_id=request.user.id
     
     user=User.objects.get(id=user_id)
@@ -354,6 +410,7 @@ def user_update_account(request):
         
     return render(request, 'user/user_update_account.html', {'context':context})
 
+
 def generate_order_number():
     today = datetime.datetime.now().strftime("%Y%m%d")  
     random_number = random.randint(1000, 9999)
@@ -387,7 +444,7 @@ def generate_order_number():
 #         return redirect("/userupdateaccount")
 #     return render(request, 'user/user_home.html')
 
-
+@role_required("customer", login_url="/login/")
 def user_view_order(request):
     user_id=request.user.id
     try:
@@ -404,10 +461,33 @@ def user_view_order(request):
         }
     return render(request, 'user/user_view_orders.html', context)
 
+@role_required("customer", login_url="/login/")
+def user_cancel_order(request, order_id):
+    try:
+        # Get the order item by ID and ensure it belongs to the current user
+        order_item = OrderItem.objects.get(
+            id=order_id, 
+            order__customer=request.user  # Changed from order__user to order__customer
+        )
+        
+        # Check if order can be cancelled
+        if order_item.order.status in ['pending', 'processing']:  # Note: Capitalized statuses
+            # Update order status to cancelled
+            order_item.order.status = 'cancelled'  # Note: Capitalized
+            order_item.order.save()
+            
+            messages.success(request, f'Order for {order_item.product_name} has been cancelled successfully.')
+        else:
+            messages.error(request, 'This order cannot be cancelled.')
+            
+    except OrderItem.DoesNotExist:
+        messages.error(request, 'Order not found or you do not have permission to cancel this order.')
+    
+    return redirect('user_view_order')
 
+@role_required("customer", login_url="/login/")
 def user_add_addresses(request):
     user_id=request.user.id
-    print("HI")
     address=Address.objects.filter(customer_id=user_id)
     if request.method=="POST":
         new_name=request.POST['new_name']
@@ -429,7 +509,7 @@ def user_add_addresses(request):
 
 
 
-
+@role_required("customer", login_url="/login/")
 def user_confirm_order(request, id):
     user_id=request.user.id
     user=User.objects.get(id=user_id)
@@ -460,6 +540,7 @@ def user_confirm_order(request, id):
         
     return render(request, 'user/user_confirm_oder.html',context )
 
+@role_required("customer", login_url="/login/")
 def user_choose_address(request):
     user_id=request.user.id
     address=Address.objects.filter(customer_id=request.user.id)
@@ -493,7 +574,7 @@ def user_choose_address(request):
         return redirect('user_choose_address')  
     return render(request, 'user/user_choose_address.html',{'addresses':address})
 
-    
+@role_required("customer", login_url="/login/")   
 def user_update_order_address(request):
     if request.method=='POST':
         user_id=request.user.id
@@ -516,7 +597,7 @@ def user_update_order_address(request):
     
     return redirect('user_confirm_order', id=cart_id)
 
-
+@role_required("customer", login_url="/login/")
 def user_add_new_address(request):
     
     if request.method == 'POST':
@@ -554,6 +635,156 @@ def user_add_new_address(request):
 
     return redirect('user_confirm_order', id=cart_id)
 
+@role_required("customer", login_url="/login/")
+def user_set_default_address(request):
+    address_id = request.POST.get('address_id')
+    try:
+        # Set all addresses to non-default first
+        Address.objects.filter(customer=request.user).update(is_default=False)
+        
+        # Set the selected address as default
+        address = Address.objects.get(id=address_id, customer=request.user)
+        address.is_default = True
+        address.save()
+        
+        messages.success(request, 'Default address updated successfully.')
+    except Address.DoesNotExist:
+        messages.error(request, 'Address not found.')
+    
+    return redirect('user_add_addresses')
+
+
+@role_required("customer", login_url="/login/")
+def user_delete_address(request):
+    address_id = request.POST.get('address_id')
+    try:
+        address = Address.objects.get(id=address_id, customer=request.user)
+        
+        # Don't allow deleting the default address if it's the only one
+        if address.is_default and Address.objects.filter(customer=request.user).count() == 1:
+            messages.error(request, 'Cannot delete your only address. Please add another address first.')
+        else:
+            address.delete()
+            messages.success(request, 'Address deleted successfully.')
+            
+    except Address.DoesNotExist:
+        messages.error(request, 'Address not found.')
+    
+    return redirect('user_add_addresses')
+#--------------------------------------------------------------------------------------------
+@role_required("customer", login_url="/login/")
+def buy_now_direct(request, product_id):
+    try:
+        # Get the product
+        product = Product.objects.get(id=product_id)
+        user_id = request.user.id
+        
+        # Get quantity from form (default to 1)
+        quantity = int(request.POST.get('quantity', 1))
+        
+        # Validate stock
+        if quantity > product.stock:
+            messages.error(request, f"Only {product.stock} items available in stock.")
+            return redirect('user_view_product_details', id=product_id)
+        
+        if product.stock <= 0:
+            messages.error(request, "This product is out of stock.")
+            return redirect('user_view_product_details', id=product_id)
+        
+        # Get user addresses
+        all_addresses = Address.objects.filter(customer_id=user_id)
+        default_address = all_addresses.filter(is_default=True).first()
+        
+        if not default_address and all_addresses.exists():
+            default_address = all_addresses.first()
+        
+        # Calculate totals
+        subtotal = product.price * quantity
+        shipping = 50  # Same as your cart shipping
+        grand_total = subtotal + shipping
+        
+        context = {
+            'product': product,  # Single product for buy now
+            'quantity': quantity,
+            'cartitems': [],  # Empty list since it's not from cart
+            'subtotal': subtotal,
+            'shipping': shipping,
+            'grand_total': grand_total,
+            'user': request.user,
+            'customer_profile': getattr(request.user, 'customer_profile', None),
+            'address': default_address,
+            'all_addresses': all_addresses,
+            'is_buy_now': True,  # Flag to identify buy now flow
+        }
+        
+        return render(request, 'user/user_confirm_oder.html', context)
+        
+    except Product.DoesNotExist:
+        messages.error(request, "Product not found.")
+        return redirect('user_home')
+    except Exception as e:
+        messages.error(request, "An error occurred. Please try again.")
+        return redirect('user_view_product_details', id=product_id)
+    
+    
+@role_required("customer", login_url="/login/")
+def create_buy_now_order(request):
+    if request.method == 'POST':
+        try:
+            user_id = request.user.id
+            product_id = request.POST.get('product_id')
+            quantity = int(request.POST.get('quantity', 1))
+            address_id = request.POST.get('selected_address')
+            
+            # Get product and validate
+            product = Product.objects.get(id=product_id)
+            address = Address.objects.get(id=address_id, customer_id=user_id)
+            
+            # Validate stock
+            if quantity > product.stock:
+                messages.error(request, f"Only {product.stock} items available in stock.")
+                return redirect('user_view_product_details', id=product_id)
+            
+            # Generate order number
+            order_no = generate_order_number()
+            total_amount = product.price * quantity
+            
+            # Create the order
+            order = Order.objects.create(
+                order_number=order_no, 
+                status='pending', 
+                total_amount=total_amount, 
+                address=address, 
+                customer_id=user_id
+            )
+            
+            # Create order item
+            OrderItem.objects.create(
+                product_name=product.name, 
+                product_sku=product.sku, 
+                quantity=quantity, 
+                price=product.price, 
+                order=order, 
+                product=product
+            )
+            
+            # Update product stock
+            product.stock -= quantity
+            product.save()
+            
+            messages.success(request, f"Order #{order_no} placed successfully!")
+            return redirect('user_home')
+            
+        except (Product.DoesNotExist, Address.DoesNotExist) as e:
+            messages.error(request, "Invalid product or address.")
+            return redirect('user_home')
+        except Exception as e:
+            messages.error(request, "An error occurred while processing your order.")
+            return redirect('user_home')
+#--------------------------------------------------------------------------------------------
+
+
+@role_required("customer", login_url="/login/")
 def create_order(request, id):
     user_id = request.user.id
     address_id = request.POST.get('selected_address')
@@ -581,7 +812,7 @@ def create_order(request, id):
     # Create the order
     order = Order.objects.create(
         order_number=order_no, 
-        status='Delivered', 
+        status='pending', 
         total_amount=tot, 
         address_id=address_id, 
         customer_id=user_id
@@ -612,6 +843,7 @@ def create_order(request, id):
     messages.success(request, f"Order #{order_no} placed successfully!")
     return redirect('user_home')
 
+@role_required("customer", login_url="/login/")
 def user_add_review(request, id):
     product = Product.objects.get(id=id)
     customer = request.user.id

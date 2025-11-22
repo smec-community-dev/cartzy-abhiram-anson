@@ -569,27 +569,46 @@
                 <!-- Left Section: Product Summary + Order Summary -->
                 <div class="left-section">
                     <!-- Product Summary -->
-                    <div class="content-card">
-                        <h3 class="section-title">Product(s) Summary</h3>
-                        
-                        <div class="product-list">
-                            {% for i in cartitems %}
-                            <div class="product-item">
-                                <div class="product-image">
-                                    <img src="{{ i.product.images.first.image.url }}" alt="{{ i.product.name }}">
-                                </div>
-                                <div class="product-details">
-                                    <div class="product-name">{{ i.product.brand }} {{ i.product.name }}</div>
-                                    <div class="product-specs">{{ i.product.description }}</div>
-                                    <div class="product-price-quantity">
-                                        <div class="product-price">₹{{ i.product.price }}</div>
-                                        <div class="product-quantity">Qty: {{ i.quantity }}</div>
-                                    </div>
-                                </div>
-                            </div> 
-                            {% endfor %}                                                
-                        </div>
+                   <!-- Product Summary -->
+<div class="content-card">
+    <h3 class="section-title">Product(s) Summary</h3>
+    
+    <div class="product-list">
+        {% if is_buy_now %}
+            <!-- Buy Now: Single Product -->
+            <div class="product-item">
+                <div class="product-image">
+                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                </div>
+                <div class="product-details">
+                    <div class="product-name">{{ product.brand }} {{ product.name }}</div>
+                    <div class="product-specs">{{ product.description }}</div>
+                    <div class="product-price-quantity">
+                        <div class="product-price">₹{{ product.price }}</div>
+                        <div class="product-quantity">Qty: {{ quantity }}</div>
                     </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Cart: Multiple Products -->
+            {% for i in cartitems %}
+            <div class="product-item">
+                <div class="product-image">
+                    <img src="{{ i.product.images.first.image.url }}" alt="{{ i.product.name }}">
+                </div>
+                <div class="product-details">
+                    <div class="product-name">{{ i.product.brand }} {{ i.product.name }}</div>
+                    <div class="product-specs">{{ i.product.description }}</div>
+                    <div class="product-price-quantity">
+                        <div class="product-price">₹{{ i.product.price }}</div>
+                        <div class="product-quantity">Qty: {{ i.quantity }}</div>
+                    </div>
+                </div>
+            </div> 
+            {% endfor %}
+        {% endif %}                                            
+    </div>
+</div>
                     
                     <!-- Order Summary -->
                     <div class="content-card">
@@ -675,22 +694,37 @@
                         </div>
                         
                         <!-- Action Buttons -->
-                         <form method="POST" action="{% url 'user_create_order' cart.id %}">
-                        <div class="action-buttons">
-                                {% csrf_token %}
+<form method="POST" action="{% if is_buy_now %}{% url 'user_create_buy_now_order' %}{% else %}{% url 'user_create_order' cart.id %}{% endif %}">
+    <div class="action-buttons">
+        {% csrf_token %}
+        
+        {% if is_buy_now %}
+            <!-- Hidden fields for Buy Now -->
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="{{ quantity }}">
+        {% endif %}
+        
+        <input type="hidden" name="selected_address" value="{{ address.id }}">
 
-                            <button id="confirm-order-btn" class="btn-primary-custom">
-                                 <input type="hidden" name="selected_address" value="{{ address.id }}">
-                                Confirm Order & Proceed to Payment
-                                <i class="fas fa-arrow-right ms-2"></i>
-                            </button>
-                            
-                            <a href="#" class="btn-secondary-custom">
-                                <i class="fas fa-arrow-left me-2"></i>
-                                Back to Cart
-                            </a>
-                        </div>
-                        </form>
+        <button id="confirm-order-btn" class="btn-primary-custom">
+            {% if is_buy_now %}
+                Buy Now & Confirm Order
+            {% else %}
+                Confirm Order & Proceed to Payment
+            {% endif %}
+            <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+        
+        <a href="{% if is_buy_now %}{% url 'user_view_product_details' id=product.id %}{% else %}{% url 'user_view_cart' %}{% endif %}" class="btn-secondary-custom">
+            <i class="fas fa-arrow-left me-2"></i>
+            {% if is_buy_now %}
+                Back to Product
+            {% else %}
+                Back to Cart
+            {% endif %}
+        </a>
+    </div>
+</form>
                     </div>
                 </div>
             </div>
@@ -731,7 +765,13 @@
                             <div class="address-actions">
                                 <form method="POST" action="{% url 'user_update_order_address' %}" style="margin: 0;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="cart_id" value="{{ cart.id }}">
+                                    {% if is_buy_now %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <input type="hidden" name="quantity" value="{{ quantity }}">
+    <input type="hidden" name="is_buy_now" value="true">
+{% else %}
+    <input type="hidden" name="cart_id" value="{{ cart.id }}">
+{% endif %}
                                     <input type="hidden" name="selected_address" value="{{ addr.id }}">
                                     <button type="submit" class="btn-use-address">
                                         <i class="fas me-2"></i>
@@ -770,7 +810,13 @@
                 <div class="modal-body">
                     <form method="POST" action="{% url 'user_add_an_address' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="cart_id" value="{{ cart.id }}">
+                        {% if is_buy_now %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <input type="hidden" name="quantity" value="{{ quantity }}">
+    <input type="hidden" name="is_buy_now" value="true">
+{% else %}
+    <input type="hidden" name="cart_id" value="{{ cart.id }}">
+{% endif %}
                         <input type="hidden" name="redirect_to" value="confirm_order">
                         
                         <div class="row">

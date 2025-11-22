@@ -113,6 +113,7 @@
 
 
 <body>
+    {% load socialaccount %}
     <!-- Topbar Start -->
     <div class="container-fluid px-5 d-none border-bottom d-lg-block">
         <div class="row gx-0 align-items-center">
@@ -171,15 +172,10 @@
                     <div class="collapse navbar-collapse" id="navbarCollapse">
                         <div class="navbar-nav ms-auto py-0">
                             <a href="{% url 'home' %}" class="nav-item nav-link " style="color:white">Home</a>
+                            <a href="{% url 'seller:seller_login' %}" class="nav-item nav-link " style="color:white">Login as a seller!</a>
+                            <a href="{% url 'seller:seller_register' %}" class="nav-item nav-link " style="color:white">Become a seller!</a>
                             
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" style="color:white">Register</a>
-                                <div class="dropdown-menu m-0">
-                                    <a href="{% url '/register/' %}" class="dropdown-item">Customer Register</a>
-                                    <a href="cart.html" class="dropdown-item">Become a Seller</a>
-                                    
-                                </div>
-                            </div>
+                            
                             
                             </div>
                         <a   class="btn btn-secondary rounded-pill py-2 px-4 px-lg-3 mb-3 mb-md-3 mb-lg-0"><i
@@ -209,9 +205,9 @@
                     <input type="password" name= 'password' placeholder="Enter password" required>
                 </div>
 
-                <button class="login-btn">Login</button>
+                <button class="login-btn">Login as a Customer!</button>
 <div class="google-login" style="margin: 20px 0; text-align: center;">
-    <a href="" 
+    <a href="{% provider_login_url 'google' %}" 
        style="display: inline-flex; align-items: center; justify-content: center; 
               background: #fff; color: #757575; border: 0px solid #ddd; 
               border-radius: 3px; padding: 12px 20px; text-decoration: none; 
@@ -231,4 +227,23 @@
 
 </body>
 {% include 'user/footer.html' %}
+<script>
+    // Handle OAuth errors from URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const error = urlParams.get('error');
+
+if (error) {
+    switch(error) {
+        case 'access_denied':
+            window.location.href = "{% url 'oauth_cancel' %}";
+            break;
+        case 'account_exists':
+            const email = urlParams.get('email');
+            window.location.href = `{% url 'account_exists' %}?email=${email}`;
+            break;
+        default:
+            window.location.href = `{% url 'oauth_error' %}?error=${error}`;
+    }
+}
+</script>
 </html>

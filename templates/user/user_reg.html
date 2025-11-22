@@ -117,7 +117,7 @@
 </head>
 
 <body>
-
+    {% load socialaccount %}
      <!-- Topbar Start -->
     <div class="container-fluid px-5 d-none border-bottom d-lg-block">
         <div class="row gx-0 align-items-center">
@@ -250,7 +250,7 @@
 
                 <button class="register-btn">Register</button>
                     <div class="google-login" style="margin: 20px 0; text-align: center;">
-                        <a href="" 
+                        <a href="{% provider_login_url 'google' %}" 
                         style="display: inline-flex; align-items: center; justify-content: center; 
                                 background: #fff; color: #757575; border: 0px solid #ddd; 
                                 border-radius: 3px; padding: 12px 20px; text-decoration: none; 
