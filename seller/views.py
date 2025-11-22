@@ -512,106 +512,174 @@ def update_product(request, product_id):
     categories = Category.objects.all()
 
     if request.method == "POST":
+        # Get form data
         name = request.POST["name"]
         description = request.POST["description"]
         category_id = request.POST["category"]
         brand = request.POST.get("brand", "")
         price = request.POST["price"]
         stock = request.POST["stock"]
+        
+        # Handle is_active toggle
+        is_active = 'is_active' in request.POST
+        
+        # Get image management data
+        current_main_image = request.POST.get("current_main_image", "")
+        images_to_remove = request.POST.get("images_to_remove", "")
+        
+        print(f"Form data - is_active: {is_active}, current_main_image: {current_main_image}, images_to_remove: {images_to_remove}")
 
+        # Update product basic info
         category = Category.objects.get(id=category_id)
-
         product.name = name
         product.description = description
         product.category = category
         product.brand = brand
         product.price = price
         product.stock = stock
+        product.is_active = is_active
         product.save()
 
+        # Handle image removal
+        if images_to_remove:
+            remove_ids = [int(id) for id in images_to_remove.split(',') if id.strip()]
+            ProductImage.objects.filter(id__in=remove_ids, product=product).delete()
+            print(f"Removed images: {remove_ids}")
+
+        # Handle main image update
+        # First, clear all existing main images
+        ProductImage.objects.filter(product=product, is_main=True).update(is_main=False)
+        
+        # Check if main image is a new image or existing image
+        if current_main_image:
+            if current_main_image.startswith('new_'):
+                # New image will be set as main after upload
+                pass
+            elif current_main_image.isdigit():
+                # Set existing image as main
+                ProductImage.objects.filter(id=int(current_main_image), product=product).update(is_main=True)
+                print(f"Set existing image as main: {current_main_image}")
+
+        # Handle new image uploads
         new_images = request.FILES.getlist("images[]")
-        main_index = int(request.POST.get("main_image", 0))
+        if new_images:
+            # Find which new image should be main
+            main_image_index = -1
+            if current_main_image and current_main_image.startswith('new_'):
+                # Extract index from new image ID (e.g., "new_123456789_0" -> index 0)
+                try:
+                    main_image_index = int(current_main_image.split('_')[2])
+                except (IndexError, ValueError):
+                    main_image_index = 0
+            
+            for i, img in enumerate(new_images):
+                is_main = (i == main_image_index)
+                ProductImage.objects.create(
+                    product=product,
+                    image=img,
+                    is_main=is_main
+                )
+                if is_main:
+                    print(f"Set new image as main: index {i}")
+            
+            print(f"Added {len(new_images)} new images")
 
-        for i, img in enumerate(new_images):
-            ProductImage.objects.create(
-                product=product,
-                image=img,
-                is_main=(i == main_index)
-            )
+        return redirect("/seller/products")
 
-        return redirect("/seller/dashboard")
-
+    # For GET request, pass main image ID to template
+    main_image = images.filter(is_main=True).first()
+    main_image_id = main_image.id if main_image else ""
+    
     return render(request, "seller/update_product.html", {
         "product": product,
         "images": images,
         "categories": categories,
+        "main_image_id": main_image_id,
     })
 
 
 @login_required
 def delete_product(request, product_id):
     seller = request.user.seller_profile
-
     product = Product.objects.filter(id=product_id, seller=seller).first()
+    
     if not product:
         messages.error(request, "Product not found or unauthorized.")
-        return redirect("/seller/dashboard")
+        return redirect("seller:seller_products")
 
-    product.delete()
-    messages.success(request, "Product deleted successfully!")
-
-    return redirect("/seller/dashboard")
-
-
-def main_image(self):
-    return self.images.filter(is_main=True).first()
-
+    if request.method == 'POST':
+        # Always use soft delete - just deactivate, don't change stock
+        product.is_active = False
+        product.save()
+        
+        messages.success(request, f'"{product.name}" has been deactivated and hidden from customers.')
+        return redirect("seller:seller_products")
+    
+    # If it's a GET request (shouldn't happen with modal), redirect back
+    messages.warning(request, "Invalid request method.")
+    return redirect("seller:seller_products")
 
 @login_required
 def seller_products(request):
     seller = request.user.seller_profile
     
+    # Get all products for the current seller with optimizations
     products = Product.objects.filter(seller=seller).select_related('category').prefetch_related('images')
     
+    # Get filter parameters from request
     category_filter = request.GET.get('category', '')
-    status_filter = request.GET.get('status', '')
-    sort_by = request.GET.get('sort', 'name')
+    stock_status_filter = request.GET.get('stock_status', '')
+    sort_by = request.GET.get('sort_by', 'name')
     
+    product_status = request.GET.get('product_status', '')
+    if product_status == 'active':
+        products = products.filter(is_active=True)
+    elif product_status == 'inactive':
+        products = products.filter(is_active=False)
+    
+    # Apply category filter
     if category_filter:
         products = products.filter(category_id=category_filter)
     
-    if status_filter:
-        if status_filter == 'in_stock':
-            products = products.filter(stock__gt=10)
-        elif status_filter == 'low_stock':
-            products = products.filter(stock__gt=0, stock__lte=10)
-        elif status_filter == 'out_of_stock':
-            products = products.filter(stock=0)
+    # Apply stock status filter
+    if stock_status_filter == 'in_stock':
+        products = products.filter(stock__gt=10)
+    elif stock_status_filter == 'low_stock':
+        products = products.filter(stock__gt=0, stock__lte=10)
+    elif stock_status_filter == 'out_of_stock':
+        products = products.filter(stock=0)
     
+    # Apply sorting
     if sort_by == 'price':
         products = products.order_by('price')
     elif sort_by == 'stock':
         products = products.order_by('stock')
     elif sort_by == 'date':
-        products = products.order_by('-created_at') 
-    else:  
+        products = products.order_by('-created_at')
+    else:  # default sort by name
         products = products.order_by('name')
     
-    total_products = products.count()
-    in_stock_products = products.filter(stock__gt=10).count()
-    low_stock_products = products.filter(stock__gt=0, stock__lte=10).count()
-    out_of_stock_products = products.filter(stock=0).count()
+    # Get stats (using original unfiltered queryset for accurate counts)
+    total_products = Product.objects.filter(seller=seller).count()
+    in_stock_products = Product.objects.filter(seller=seller, stock__gt=10).count()
+    low_stock_products = Product.objects.filter(seller=seller, stock__gt=0, stock__lte=10).count()
+    out_of_stock_products = Product.objects.filter(seller=seller, stock=0).count()
     
+    # Get all categories
     categories = Category.objects.all()
     
-    paginator = Paginator(products, 10)  
+    # Pagination
+    paginator = Paginator(products, 10)  # Show 10 products per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-   
+    # Add main image to each product for template
     for p in page_obj:
         main_img = p.images.filter(is_main=True).first()
         p.main_image_obj = main_img if main_img else p.images.first()
+
+    for p in page_obj:
+        p.is_inactive = not p.is_active
 
     context = {
         'products': page_obj,
@@ -620,13 +688,12 @@ def seller_products(request):
         'low_stock_products': low_stock_products,
         'out_of_stock_products': out_of_stock_products,
         'categories': categories,
-        'category_filter': category_filter,
-        'status_filter': status_filter,
-        'sort_by': sort_by,
+        'selected_category': category_filter,
+        'selected_stock_status': stock_status_filter,
+        'selected_sort': sort_by,
     }
     
     return render(request, 'seller/products.html', context)
-
 
 @login_required
 def product_detail(request, product_id):

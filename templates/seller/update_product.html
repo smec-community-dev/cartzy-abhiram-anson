@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Product</title>
+    <title>Update Product - Seller Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -18,65 +18,189 @@
             background: #f5f5f7;
             color: #1d1d1f;
             line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
         }
 
-        /* Header */
-        .hero-header {
-            background: linear-gradient(135deg, #000000 0%, #1d1d1f 100%);
-            padding: 80px 20px 100px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e7;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
         }
 
-        .hero-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%);
-            pointer-events: none;
+        .sidebar-header {
+            padding: 32px 24px 24px;
+            border-bottom: 1px solid #f5f5f7;
         }
 
-        .hero-header h1 {
-            font-size: 3.5rem;
+        .sidebar-header h2 {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
+            color: #1d1d1f;
+            margin-bottom: 4px;
         }
 
-        .hero-header p {
-            font-size: 1.25rem;
-            color: #a1a1a6;
-            font-weight: 400;
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #86868b;
+        }
+
+        .sidebar-nav {
+            padding: 24px 0;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0 24px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #1d1d1f;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .nav-item.active {
+            background: rgba(249, 36, 0, 0.05);
+            color: #f92400;
+            border-left-color: #f92400;
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+
+        .nav-item span {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #f5f5f7;
+            background: #fafafa;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f92400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-details h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 2px;
+        }
+
+        .user-details p {
+            font-size: 0.8125rem;
+            color: #86868b;
         }
 
         /* Main Content */
         .main-content {
-            max-width: 1000px;
-            margin: -60px auto 80px;
-            padding: 0 20px;
-            position: relative;
-            z-index: 10;
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
         }
 
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e7;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .page-title p {
+            font-size: 0.9375rem;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 32px;
+        }
+
+        /* Content Cards */
         .content-card {
             background: #ffffff;
             border-radius: 18px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             border: 1px solid rgba(0,0,0,0.04);
             overflow: hidden;
-            position: relative;
-            z-index: 10;
+            margin-bottom: 32px;
         }
 
         .card-header-custom {
             padding: 32px 40px;
             border-bottom: 1px solid #f5f5f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .header-title h2 {
@@ -92,9 +216,63 @@
             margin: 0;
         }
 
+        .btn-primary-custom {
+            background: #f92400;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: #9e1d06;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(249, 36, 0, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+            padding: 12px 28px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #0071e3;
+            color: #ffffff;
+            transform: scale(1.02);
+        }
+
         /* Form Styles */
         .form-container {
             padding: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-full-width {
+            grid-column: 1 / -1;
         }
 
         .form-group {
@@ -123,8 +301,8 @@
 
         .form-control-custom:focus {
             outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+            border-color: #f92400;
+            box-shadow: 0 0 0 4px rgba(249, 36, 0, 0.1);
         }
 
         .form-control-custom::placeholder {
@@ -151,8 +329,8 @@
 
         .form-select-custom:focus {
             outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+            border-color: #f92400;
+            box-shadow: 0 0 0 4px rgba(249, 36, 0, 0.1);
         }
 
         textarea.form-control-custom {
@@ -167,122 +345,274 @@
             display: block;
         }
 
-        /* File Upload Custom */
-        .file-upload-wrapper {
-            position: relative;
-        }
-
-        .file-upload-custom {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #d2d2d7;
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #fafafa;
             border-radius: 12px;
+            border: 1px solid #f5f5f7;
+        }
+
+        .toggle-label {
             font-size: 0.9375rem;
+            font-weight: 600;
             color: #1d1d1f;
-            background: #ffffff;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
+            flex: 1;
         }
 
-        .file-upload-custom:focus {
-            outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        .toggle-description {
+            font-size: 0.8125rem;
+            color: #86868b;
+            margin-top: 4px;
         }
 
-        /* File Upload Styling */
-        .file-upload-custom::-webkit-file-upload-button {
-            visibility: hidden;
-            width: 0;
-        }
-
-        .file-upload-custom::before {
-            content: 'Choose Files';
+        .toggle-switch {
+            position: relative;
             display: inline-block;
-            background: #f5f5f7;
-            border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            padding: 6px 12px;
-            outline: none;
-            white-space: nowrap;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
             cursor: pointer;
-            color: #1d1d1f;
-            font-size: 0.875rem;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d2d2d7;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #34c759;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Image Upload Styles */
+        .upload-area {
+            border: 2px dashed #d2d2d7;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #f92400;
+            background: #fff;
+        }
+
+        .upload-area.dragover {
+            border-color: #f92400;
+            background: rgba(249, 36, 0, 0.05);
+        }
+
+        .upload-area p {
+            margin-bottom: 8px;
+            color: #86868b;
+            font-size: 0.9375rem;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            background: #f92400;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 500;
-            margin-right: 12px;
+            font-size: 0.875rem;
             transition: all 0.2s;
         }
 
-        .file-upload-custom:hover::before {
-            background: #e8e8ed;
+        .upload-btn:hover {
+            background: #9e1d06;
         }
 
-        .file-upload-custom:active::before {
-            background: #d2d2d7;
+        .hidden {
+            display: none !important;
         }
 
-        /* Buttons */
-        .btn-primary-custom {
-            background: #0071e3;
-            color: #ffffff;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 980px;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-primary-custom:hover {
-            background: #0077ed;
-            transform: scale(1.02);
-            box-shadow: 0 4px 16px rgba(0,113,227,0.3);
-        }
-
-        .btn-primary-custom:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary-custom {
-            background: transparent;
-            color: #0071e3;
-            border: 1px solid #0071e3;
-            padding: 14px 32px;
-            border-radius: 980px;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-secondary-custom:hover {
-            background: #0071e3;
-            color: #ffffff;
-            transform: scale(1.02);
-        }
-
-        .btn-secondary-custom:active {
-            transform: scale(0.98);
-        }
-
-        /* Grid Layout */
-        .form-grid {
+        .image-previews {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
         }
 
-        .form-full-width {
-            grid-column: 1 / -1;
+        .image-preview {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .image-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .image-preview.selected {
+            border: 3px solid #f92400;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .main-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #f92400;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Current Images Section - Now Interactive */
+        .current-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #f5f5f7;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .image-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .image-item.selected {
+            border: 3px solid #f92400;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item.main::after {
+            content: 'MAIN';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #f92400;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .image-item .current-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .image-item .current-remove-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Button Container */
+        .button-container {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* Required Field */
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
         }
 
         /* Animations */
@@ -302,271 +632,531 @@
         }
 
         /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+        }
+
         @media (max-width: 768px) {
-            .hero-header h1 {
-                font-size: 2.5rem;
+            body {
+                flex-direction: column;
             }
-
-            .hero-header p {
-                font-size: 1rem;
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
             }
-
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
             .form-grid {
                 grid-template-columns: 1fr;
             }
-
+            
             .card-header-custom,
             .form-container {
                 padding: 24px;
             }
-
-            .main-content {
-                margin: -40px auto 60px;
+            
+            .content-area {
+                padding: 20px;
             }
-
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
             .btn-primary-custom,
             .btn-secondary-custom {
                 width: 100%;
                 justify-content: center;
             }
-        }
-
-        /* Helper Text */
-        .required-field::after {
-            content: " *";
-            color: #dc3545;
-        }
-
-        /* Current Images Section */
-        .current-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 16px;
-            margin-top: 12px;
-            padding: 16px;
-            background: #fafafa;
-            border-radius: 12px;
-            border: 1px solid #f5f5f7;
-        }
-
-        .image-item {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 1;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .image-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .image-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-item.main::after {
-            content: 'MAIN';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: #0071e3;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            box-shadow: 0 2px 8px rgba(0,113,227,0.4);
-        }
-
-        .image-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #1d1d1f;
-            margin-bottom: 8px;
-        }
-
-        /* Button Container */
-        .button-container {
-            margin-top: 32px;
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Empty Images State */
-        .no-images {
-            padding: 40px;
-            text-align: center;
-            color: #86868b;
-            font-size: 0.875rem;
+            
+            .image-previews {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Hero Header -->
-    <div class="hero-header">
-        <h1>Update Product</h1>
-        <p>Modify the details below to update your product</p>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Seller Dashboard</h2>
+            <p>Manage your business</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="/seller/dashboard" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/seller/products" class="nav-item active">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="/seller/orders" class="nav-item">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="/seller/reviews" class="nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Reviews</span>
+                </a>
+                <a href="/seller/notifications" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analytics</div>
+                <a href="/seller/sales" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Sales Analytics</span>
+                </a>
+                <a href="/seller/customers" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="/seller/inventory" class="nav-item">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Inventory</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <a href="/seller/profile" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="/seller/settings" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Store Settings</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+                </div>
+                <div class="user-details">
+                    <h4>{{ request.user.get_full_name }}</h4>
+                    <p>Seller Account</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="content-card">
-            <div class="card-header-custom">
-                <div class="header-title">
-                    <h2>Product Information</h2>
-                    <p>Update the necessary details for your product listing</p>
-                </div>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Update Product</h1>
+                <p>Modify your product details and information</p>
             </div>
+            <div class="top-bar-actions">
+                <!-- Optional: Add notification button or other actions -->
+            </div>
+        </div>
 
-            <div class="form-container">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="header-title">
+                        <h2>Product Information</h2>
+                        <p>Update the necessary details for your product listing</p>
+                    </div>
+                </div>
 
-                    <div class="form-grid">
-                        <!-- Left Column -->
-                        <div>
-                            <div class="form-group">
-                                <label class="form-label required-field">Product Name</label>
-                                <input type="text" name="name" class="form-control-custom" value="{{ product.name }}" required>
-                            </div>
+                <div class="form-container">
+                    <form id="productForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
 
-                            <div class="form-group">
-                                <label class="form-label">Brand (Optional)</label>
-                                <input type="text" name="brand" class="form-control-custom" value="{{ product.brand }}">
-                                <div class="form-text">Leave blank if no specific brand</div>
-                            </div>
+                        <!-- Hidden fields for current image management -->
+                        <input type="hidden" name="current_main_image" id="currentMainImage" value="{{ main_image_id }}">
+                        <input type="hidden" name="images_to_remove" id="imagesToRemove" value="">
 
-                            <div class="form-group">
-                                <label class="form-label required-field">Price (₹)</label>
-                                <input type="number" name="price" class="form-control-custom" value="{{ product.price }}" min="0" step="0.01" required>
-                            </div>
+                        <div class="form-grid">
+                            <!-- Left Column -->
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label required-field">Product Name</label>
+                                    <input type="text" name="name" class="form-control-custom" value="{{ product.name }}" required>
+                                </div>
 
-                            <div class="form-group">
-                                <label class="form-label required-field">Stock Quantity</label>
-                                <input type="number" name="stock" class="form-control-custom" value="{{ product.stock }}" min="0" required>
-                            </div>
-                        </div>
+                                <div class="form-group">
+                                    <label class="form-label">Brand (Optional)</label>
+                                    <input type="text" name="brand" class="form-control-custom" value="{{ product.brand }}">
+                                    <div class="form-text">Leave blank if no specific brand</div>
+                                </div>
 
-                        <!-- Right Column -->
-                        <div>
-                            <div class="form-group">
-                                <label class="form-label required-field">Category</label>
-                                <select name="category" class="form-select-custom" required>
-                                    {% for cat in categories %}
-                                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>
-                                            {{ cat.name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label class="form-label required-field">Price (₹)</label>
+                                    <input type="number" name="price" class="form-control-custom" value="{{ product.price }}" min="0" step="0.01" required>
+                                </div>
 
-                            <!-- Current Images -->
-                            <div class="form-group">
-                                <label class="form-label">Current Images</label>
-                                {% if images %}
-                                <div class="current-images">
-                                    {% for img in images %}
-                                        <div class="image-item {% if img.is_main %}main{% endif %}">
-                                            <img src="{{ img.image.url }}" alt="Product Image">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Stock Quantity</label>
+                                    <input type="number" name="stock" class="form-control-custom" value="{{ product.stock }}" min="0" required>
+                                </div>
+
+                                <!-- Product Status Toggle -->
+                                <div class="form-group">
+                                    <div class="toggle-group">
+                                        <div>
+                                            <div class="toggle-label">Make Active</div>
+                                            <div class="toggle-description">
+                                                {% if product.is_active %}
+                                                    Product is currently visible to customers
+                                                {% else %}
+                                                    Product is currently hidden from customers<br>
+                                                    turn this on and update product to make active.
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                    {% endfor %}
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %}>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        Toggle to show or hide this product from your store. 
+                                        {% if not product.is_active %}
+                                            <strong class="text-warning">This product is currently hidden.</strong>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                {% else %}
-                                <div class="current-images">
-                                    <div class="no-images">No images uploaded yet</div>
-                                </div>
-                                {% endif %}
-                                <div class="form-text">These are the current product images</div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label">Upload More Images (Optional)</label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="images[]" class="form-control-custom file-upload-custom" multiple accept="image/*">
+                            <!-- Right Column -->
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label required-field">Category</label>
+                                    <select name="category" class="form-select-custom" required>
+                                        {% for cat in categories %}
+                                            <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>
+                                                {{ cat.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
-                                <div class="form-text">Add new images to your product. Leave empty to keep current images.</div>
+
+                                <!-- Current Images - Now Interactive -->
+                                <div class="form-group">
+                                    <label class="form-label">Current Images</label>
+                                    {% if images %}
+                                    <div class="current-images" id="currentImages">
+                                        {% for img in images %}
+                                            <div class="image-item {% if img.is_main %}main selected{% endif %}" 
+                                                 data-image-id="{{ img.id }}"
+                                                 onclick="setCurrentMainImage('{{ img.id }}')">
+                                                <img src="{{ img.image.url }}" alt="Product Image">
+                                                {% if img.is_main %}
+                                                    <div class="main-badge">MAIN</div>
+                                                {% endif %}
+                                                <div class="current-remove-btn" onclick="removeCurrentImage(event, '{{ img.id }}')">×</div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text">Click on any image to set it as main. Click × to remove images.</div>
+                                    {% else %}
+                                    <div class="current-images">
+                                        <div class="no-images">No images uploaded yet</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Image Upload Section -->
+                                <div class="form-group">
+                                    <label class="form-label">Add More Images (Optional)</label>
+                                    
+                                    <div class="upload-area" id="uploadArea">
+                                        <p>Drag & Drop your images here</p>
+                                        <p>or</p>
+                                        <div class="upload-btn">Browse Files</div>
+                                        <input type="file" name="images[]" id="imageUpload" class="hidden" multiple accept="image/*">
+                                    </div>
+                                    
+                                    <div class="form-text">You can select multiple images. First image will be used as main by default.</div>
+                                    
+                                    <div class="image-previews" id="imagePreviews">
+                                        <!-- Image previews will be dynamically added here -->
+                                    </div>
+                                    
+                                    <div class="hidden" id="mainImageField">
+                                        <input type="hidden" name="main_image" id="mainImageInput" value="0">
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label">Main Image Index (For New Uploads)</label>
-                                <input type="number" name="main_image" class="form-control-custom" value="0" min="0">
-                                <div class="form-text">Specify which new image should be the main display (0 = first image, 1 = second, etc.)</div>
+                            <!-- Full Width Description -->
+                            <div class="form-full-width">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Product Description</label>
+                                    <textarea name="description" class="form-control-custom" rows="5" required>{{ product.description }}</textarea>
+                                    <div class="form-text">Describe your product's features, specifications, and benefits</div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Full Width Description -->
-                        <div class="form-full-width">
-                            <div class="form-group">
-                                <label class="form-label required-field">Product Description</label>
-                                <textarea name="description" class="form-control-custom" rows="5" required>{{ product.description }}</textarea>
-                                <div class="form-text">Describe your product's features, specifications, and benefits</div>
-                            </div>
+                        <!-- Action Buttons -->
+                        <div class="button-container">
+                            <a href="/seller/products" class="btn-secondary-custom">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Products
+                            </a>
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save"></i>
+                                Update Product
+                            </button>
                         </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="form-full-width button-container">
-                        <a href="/seller/dashboard" class="btn-secondary-custom">
-                            <i class="fas fa-arrow-left"></i>
-                            Back to Dashboard
-                        </a>
-                        <button type="submit" class="btn-primary-custom">
-                            <i class="fas fa-save"></i>
-                            Update Product
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Add some interactive enhancements
-        document.addEventListener('DOMContentLoaded', function() {
-            // File input enhancement
-            const fileInput = document.querySelector('input[type="file"]');
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    const files = e.target.files;
-                    const fileText = files.length > 1 ? 
-                        `${files.length} files selected` : 
-                        files.length === 1 ? files[0].name : 'No files selected';
-                    
-                    console.log(fileText);
-                });
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const imageUpload = document.getElementById('imageUpload');
+    const currentImagesContainer = document.getElementById('currentImages');
+    const currentMainImageInput = document.getElementById('currentMainImage');
+    const imagesToRemoveInput = document.getElementById('imagesToRemove');
+    const form = document.getElementById('productForm');
+    
+    let uploadedImages = [];
+    let imagesToRemove = [];
 
-            // Price input formatting
-            const priceInput = document.querySelector('input[name="price"]');
-            if (priceInput) {
-                priceInput.addEventListener('blur', function(e) {
-                    if (this.value) {
-                        this.value = parseFloat(this.value).toFixed(2);
-                    }
-                });
+    // Initialize current main image if exists
+    const existingMainImage = document.querySelector('.image-item.main');
+    if (existingMainImage) {
+        currentMainImageInput.value = existingMainImage.dataset.imageId;
+    }
+    
+    // Function to set current image as main
+    window.setCurrentMainImage = function(imageId) {
+        // Update the hidden input
+        currentMainImageInput.value = imageId;
+        
+        // Update UI - remove selected class from all, add to clicked one
+        const currentImages = document.querySelectorAll('#currentImages .image-item');
+        currentImages.forEach(img => {
+            img.classList.remove('selected', 'main');
+            const badge = img.querySelector('.main-badge');
+            if (badge) badge.remove();
+        });
+        
+        // Add selected class and main badge to clicked image
+        const clickedImage = document.querySelector(`[data-image-id="${imageId}"]`);
+        if (clickedImage) {
+            clickedImage.classList.add('selected', 'main');
+            const mainBadge = document.createElement('div');
+            mainBadge.className = 'main-badge';
+            mainBadge.textContent = 'MAIN';
+            clickedImage.appendChild(mainBadge);
+        }
+    };
+    
+    // Function to remove current image
+    window.removeCurrentImage = function(event, imageId) {
+        event.stopPropagation(); // Prevent triggering the main image selection
+        
+        if (confirm('Are you sure you want to remove this image?')) {
+            // Add to removal list
+            imagesToRemove.push(imageId);
+            imagesToRemoveInput.value = imagesToRemove.join(',');
+            
+            // Remove from UI
+            const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (imageElement) {
+                imageElement.remove();
             }
-
-            // Smooth scroll for form validation errors
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('invalid', function(e) {
-                    e.preventDefault();
-                    const firstInvalid = form.querySelector(':invalid');
-                    if (firstInvalid) {
-                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        firstInvalid.focus();
-                    }
-                }, true);
+            
+            // If we removed the main image, set a new main image
+            if (imageId === currentMainImageInput.value) {
+                const remainingImages = document.querySelectorAll('#currentImages .image-item:not([data-is-new])');
+                if (remainingImages.length > 0) {
+                    const newMainImageId = remainingImages[0].dataset.imageId;
+                    setCurrentMainImage(newMainImageId);
+                } else {
+                    currentMainImageInput.value = '';
+                }
+            }
+        }
+    };
+    
+    // Click on upload area to trigger file input
+    uploadArea.addEventListener('click', function() {
+        imageUpload.click();
+    });
+    
+    // Handle file selection
+    imageUpload.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function() {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    // Handle the selected files
+    function handleFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            // Check if file is an image
+            if (!file.type.match('image.*')) {
+                alert('Please upload only image files.');
+                continue;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const imageData = {
+                    src: e.target.result,
+                    file: file,
+                    isMain: false
+                };
+                
+                uploadedImages.push(imageData);
+                addImageToCurrentImages(imageData, uploadedImages.length - 1);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Reset the file input to allow selecting the same file again
+        imageUpload.value = '';
+    }
+    
+    // Add new image to current images section
+    function addImageToCurrentImages(imageData, index) {
+        const imageId = `new_${Date.now()}_${index}`;
+        
+        const imageItem = document.createElement('div');
+        imageItem.className = 'image-item';
+        imageItem.dataset.imageId = imageId;
+        imageItem.dataset.isNew = 'true';
+        imageItem.dataset.fileIndex = index;
+        
+        imageItem.innerHTML = `
+            <img src="${imageData.src}" alt="New product image">
+            <div class="current-remove-btn" onclick="removeNewImage(event, '${imageId}', ${index})">×</div>
+        `;
+        
+        // Click to set as main image - OPTIONAL
+        imageItem.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('current-remove-btn')) {
+                // Set this new image as main immediately
+                setCurrentMainImage(imageId);
             }
         });
+        
+        currentImagesContainer.appendChild(imageItem);
+    }
+    
+    // Function to remove new image
+    window.removeNewImage = function(event, imageId, fileIndex) {
+        event.stopPropagation();
+        
+        if (confirm('Are you sure you want to remove this image?')) {
+            // Remove from uploadedImages array
+            uploadedImages.splice(fileIndex, 1);
+            
+            // Remove from UI
+            const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (imageElement) {
+                imageElement.remove();
+            }
+            
+            // If we removed the main image, clear the main image selection
+            if (imageId === currentMainImageInput.value) {
+                currentMainImageInput.value = '';
+                
+                // If there are existing images, set the first one as main
+                const existingImages = document.querySelectorAll('#currentImages .image-item:not([data-is-new])');
+                if (existingImages.length > 0) {
+                    setCurrentMainImage(existingImages[0].dataset.imageId);
+                }
+            }
+            
+            // Update data-file-index for remaining new images
+            const newImages = document.querySelectorAll('#currentImages .image-item[data-is-new="true"]');
+            newImages.forEach((img, index) => {
+                const oldIndex = parseInt(img.dataset.fileIndex);
+                if (oldIndex > fileIndex) {
+                    img.dataset.fileIndex = oldIndex - 1;
+                }
+            });
+        }
+    };
+    
+    // Form submission - SIMPLIFIED: Let the form submit normally
+    form.addEventListener('submit', function(e) {
+        console.log('Form submission started');
+        
+        // Add new images to the original file input
+        const dataTransfer = new DataTransfer();
+        uploadedImages.forEach(imageData => {
+            dataTransfer.items.add(imageData.file);
+        });
+        imageUpload.files = dataTransfer.files;
+        
+        console.log('Files to upload:', imageUpload.files.length);
+        console.log('Images to remove:', imagesToRemoveInput.value);
+        console.log('Current main image:', currentMainImageInput.value);
+        console.log('Is active:', document.querySelector('input[name="is_active"]').checked);
+        
+        // Let the form submit normally - all data will be included
+    });
+
+    // Price input formatting
+    const priceInput = document.querySelector('input[name="price"]');
+    if (priceInput) {
+        priceInput.addEventListener('blur', function(e) {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+    }
+
+    // Debug: Log form changes
+    form.addEventListener('change', function(e) {
+        console.log('Form changed:', e.target.name, e.target.value, e.target.checked);
+    });
+});
     </script>
 </body>
 </html>

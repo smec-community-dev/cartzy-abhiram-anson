@@ -141,7 +141,7 @@ def user_category_view(request):
 
 def user_view_all_products(request):
     # Get all products
-    products = Product.objects.all()
+    products = Product.objects.filter(is_active=True)
     
     # Price filtering
     min_price = request.GET.get('min_price')
@@ -178,7 +178,7 @@ def user_view_all_products(request):
     return render(request, 'user/user_view_products.html', context)
 
 def user_view_products(request, id):
-    products_list = Product.objects.filter(category_id=id)
+    products_list = Product.objects.filter(category_id=id, is_active =True)
     
     # Also change this to 2 or 3
     paginator = Paginator(products_list, 2)  # ← Change to 2 or 3
@@ -194,7 +194,7 @@ def user_view_products(request, id):
     return render(request, 'user/user_view_products.html', {'products': products})
 
 def user_view_product_details(request, id):
-    product_details = Product.objects.get(id=id)
+    product_details = get_object_or_404(Product, id=id, is_active=True)
     images = ProductImage.objects.filter(product=product_details)
     
     # Check if the current user has already reviewed this product
