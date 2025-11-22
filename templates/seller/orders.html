@@ -837,15 +837,15 @@
         <div class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-section-title">Main</div>
-                <a href="{% url 'seller_dashboard' %}" class="nav-item">
+                <a href="{% url 'seller:seller_dashboard' %}" class="nav-item">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'seller_products' %}" class="nav-item">
+                <a href="{% url 'seller:seller_products' %}" class="nav-item">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
-                <a href="{% url 'seller_orders' %}" class="nav-item active">
+                <a href="{% url 'seller:seller_orders' %}" class="nav-item active">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Orders</span>
                 </a>
@@ -873,7 +873,7 @@
             
             <div class="nav-section">
                 <div class="nav-section-title">Settings</div>
-                <a href="{% url 'seller_profile' %}" class="nav-item">
+                <a href="{% url 'seller:seller_profile' %}" class="nav-item">
                     <i class="fas fa-user"></i>
                     <span>Profile</span>
                 </a>
@@ -963,7 +963,7 @@
                                 Search
                             </button>
                             {% if status_filter or search_query %}
-                            <a href="{% url 'seller_orders' %}" class="btn-secondary-custom" style="margin-top: 24px; margin-left: 8px;">
+                            <a href="{% url 'seller:seller_orders' %}" class="btn-secondary-custom" style="margin-top: 24px; margin-left: 8px;">
                                 <i class="fas fa-times"></i>
                                 Clear
                             </a>
