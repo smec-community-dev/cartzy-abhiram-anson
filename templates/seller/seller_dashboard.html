@@ -271,7 +271,7 @@
 
         .notification-item i {
             font-size: 1rem;
-            color: #86868b;
+            color: #f92400;
             margin-top: 2px;
             width: 16px;
             text-align: center;
@@ -1390,142 +1390,254 @@
         });
 
         // WebSocket Notification Manager
-        class NotificationManager {
-            constructor(userId) {
-                this.userId = userId;
-                this.socket = null;
-                this.connect();
+    class NotificationManager {
+    constructor(userId) {
+        this.userId = userId;
+        this.socket = null;
+        this.totalNotificationCount = 0; // Track total count
+        this.connect();
+    }
+
+    connect() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${this.userId}/`;
+        
+        this.socket = new WebSocket(wsUrl);
+
+        this.socket.onopen = (e) => {
+            console.log('🔌 WebSocket connected successfully');
+            // Initialize total count from existing badge or notifications
+            this.initializeTotalCount();
+        };
+
+        this.socket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.type === 'notification') {
+                this.handleRealTimeNotification(data.message);
             }
+        };
 
-            connect() {
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/ws/notifications/${this.userId}/`;
-                
-                this.socket = new WebSocket(wsUrl);
+        this.socket.onclose = (e) => {
+            console.log('🔌 WebSocket disconnected. Reconnecting in 3 seconds...');
+            setTimeout(() => this.connect(), 3000);
+        };
 
-                this.socket.onopen = (e) => {
-                    console.log('🔌 WebSocket connected successfully');
-                };
+        this.socket.onerror = (e) => {
+            console.error('🔌 WebSocket error:', e);
+        };
+    }
 
-                this.socket.onmessage = (e) => {
-                    const data = JSON.parse(e.data);
-                    if (data.type === 'notification') {
-                        this.handleRealTimeNotification(data.message);
-                    }
-                };
+    initializeTotalCount() {
+        // Get initial count from existing badge or notifications
+        const badge = document.querySelector('.notification-badge');
+        const notificationList = document.querySelector('.notification-list');
+        
+        if (badge && badge.textContent !== '10+') {
+            this.totalNotificationCount = parseInt(badge.textContent) || 0;
+        } else if (notificationList) {
+            const existingNotifications = notificationList.querySelectorAll('.notification-item').length;
+            this.totalNotificationCount = existingNotifications;
+        }
+    }
 
-                this.socket.onclose = (e) => {
-                    console.log('🔌 WebSocket disconnected. Reconnecting in 3 seconds...');
-                    setTimeout(() => this.connect(), 3000);
-                };
+    handleRealTimeNotification(notification) {
+        console.log('📨 Real-time notification received:', notification);
+        
+        // Increment total count
+        this.totalNotificationCount += 1;
+        
+        // Add to dropdown instantly
+        this.addToDropdown(notification);
+        
+       
+        this.showSubtleIndicator();
+    }
 
-                this.socket.onerror = (e) => {
-                    console.error('🔌 WebSocket error:', e);
-                };
-            }
+    addToDropdown(notification) {
+        const dropdown = document.getElementById('notifDropdown');
+        if (!dropdown) return;
 
-            handleRealTimeNotification(notification) {
-                console.log('📨 Real-time notification received:', notification);
-                
-                // Update badge count
-                this.updateBadge();
-                
-                // Show toast notification
-                this.showToast(notification);
-                
-                // Refresh dropdown if open
-                this.refreshDropdown();
-            }
+        const notificationList = dropdown.querySelector('.notification-list');
+        if (!notificationList) return;
 
-            updateBadge() {
-                const badge = document.querySelector('.notification-badge');
-                if (badge) {
-                    const currentCount = parseInt(badge.textContent) || 0;
-                    badge.textContent = currentCount + 1;
-                } else {
-                    const btn = document.getElementById('notifBtn');
-                    const newBadge = document.createElement('span');
-                    newBadge.className = 'notification-badge';
-                    newBadge.textContent = '1';
-                    btn.appendChild(newBadge);
-                }
-            }
-
-            showToast(notification) {
-                // Create and show a toast notification
-                const toast = document.createElement('div');
-                toast.className = 'notification-toast';
-                toast.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="${notification.icon}" style="color: #f92400;"></i>
-                        <div>
-                            <strong style="display: block; margin-bottom: 4px;">New Notification</strong>
-                            <span>${notification.message}</span>
-                        </div>
-                    </div>
-                    <button onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: auto;">×</button>
-                `;
-                
-                // Add toast styles
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: white;
-                    padding: 15px;
-                    border-radius: 12px;
-                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                    border-left: 4px solid #f92400;
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    z-index: 10000;
-                    max-width: 400px;
-                    animation: slideInRight 0.3s ease-out;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                `;
-                
-                document.body.appendChild(toast);
-                
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    if (toast.parentElement) {
-                        toast.remove();
-                    }
-                }, 5000);
-            }
-
-            refreshDropdown() {
-                const dropdown = document.getElementById('notifDropdown');
-                if (dropdown && dropdown.classList.contains('show')) {
-                    // You can reload notifications via AJAX here or just leave it
-                    // The next time they open dropdown, it will show updated list
-                    console.log('Dropdown is open - would refresh content');
-                }
-            }
+        // Create new notification item
+        const notificationItem = this.createNotificationItem(notification);
+        
+        // Add to top of the list
+        const firstItem = notificationList.firstElementChild;
+        if (firstItem) {
+            notificationList.insertBefore(notificationItem, firstItem);
+        } else {
+            notificationList.appendChild(notificationItem);
         }
 
-        // Add CSS animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        // Remove "no notifications" message if it exists
+        const noNotifications = notificationList.querySelector('.no-notifications');
+        if (noNotifications) {
+            noNotifications.remove();
+        }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const userId = {{ request.user.id }};
-            window.notificationManager = new NotificationManager(userId);
-        });
+      
+        this.maintainDropdownLimit(notificationList);
+
+        
+        this.updateBadgeAndViewAll();
+
+        console.log(' Notification added to dropdown instantly');
+    }
+
+    maintainDropdownLimit(notificationList) {
+        const allNotifications = notificationList.querySelectorAll('.notification-item');
+        
+        // Remove notifications beyond the 10th item
+        if (allNotifications.length > 10) {
+            const notificationsToRemove = Array.from(allNotifications).slice(10);
+            
+            notificationsToRemove.forEach(notification => {
+                notification.remove();
+            });
+            
+            console.log(`Removed ${notificationsToRemove.length} notifications to maintain 10-item limit`);
+        }
+    }
+
+    updateBadgeAndViewAll() {
+        const badge = document.querySelector('.notification-badge');
+        const viewAllLink = document.querySelector('.see-all a');
+        
+        // Update or create badge with "10+" format
+        if (!badge) {
+            const btn = document.querySelector('.notification-btn');
+            const newBadge = document.createElement('span');
+            newBadge.className = 'notification-badge';
+            
+            if (this.totalNotificationCount > 10) {
+                newBadge.textContent = '10+';
+                newBadge.style.fontSize = '0.6rem';
+                newBadge.style.padding = '4px 6px';
+            } else {
+                newBadge.textContent = this.totalNotificationCount;
+            }
+            
+            btn.appendChild(newBadge);
+        } else {
+            if (this.totalNotificationCount > 10) {
+                badge.textContent = '10+';
+                badge.style.fontSize = '0.6rem';
+                badge.style.padding = '4px 6px';
+            } else {
+                badge.textContent = this.totalNotificationCount;
+                badge.style.fontSize = '';
+                badge.style.padding = '';
+            }
+        }
+        
+        // Update "View all" link
+        if (viewAllLink) {
+            if (this.totalNotificationCount > 10) {
+                viewAllLink.textContent = `View all (10+)`;
+            } else {
+                viewAllLink.textContent = `View all (${this.totalNotificationCount})`;
+            }
+        }
+    }
+
+    createNotificationItem(notification) {
+        const item = document.createElement('div');
+        item.className = 'notification-item';
+        item.setAttribute('data-notif-id', notification.id);
+        
+        // Determine icon color based on notification type
+        let iconColor = '#f92400'; // green for orders
+        if (notification.type === 'review') iconColor = '##f92400';
+        if (notification.type === 'order_cancelled') iconColor = '#f92400';
+        if (notification.type === 'low_stock') iconColor = '#f92400';
+
+        item.innerHTML = `
+            <i class="${notification.icon}" style="color: ${iconColor}"></i>
+            <div class="notification-text">
+                <p>${notification.message}</p>
+                <span class="time">Just now</span>
+            </div>
+        `;
+
+        return item;
+    }
+
+    showSubtleIndicator() {
+        // Create a subtle flash effect on the notification bell
+        const bell = document.querySelector('.notification-btn');
+        if (bell) {
+            bell.style.transform = 'scale(1.1)';
+            bell.style.transition = 'transform 0.3s ease';
+            
+            setTimeout(() => {
+                bell.style.transform = 'scale(1)';
+            }, 300);
+
+            // Add a subtle pulse animation to the badge
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                badge.style.animation = 'pulse 0.5s ease-in-out';
+                setTimeout(() => {
+                    badge.style.animation = '';
+                }, 500);
+            }
+        }
+    }
+
+    updateViewAllLink() {
+        // This is now handled in updateBadgeAndViewAll()
+    }
+
+    refreshDropdown() {
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            console.log('Dropdown is open - content updated in real-time');
+        }
+    }
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(249, 36, 0, 0.7);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(249, 36, 0, 0);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(249, 36, 0, 0);
+        }
+    }
+    
+    .notification-item {
+        animation: slideInRight 0.3s ease-out;
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = {{ request.user.id }};
+    window.notificationManager = new NotificationManager(userId);
+});
     </script>
 </body>
 </html>

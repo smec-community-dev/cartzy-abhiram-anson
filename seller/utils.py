@@ -183,3 +183,58 @@ def create_cancellation_notification(order, order_item=None):
         traceback.print_exc()
 
 
+
+# In seller/utils.py
+def create_buy_now_notification(order, order_items):
+    """Create notification for instant Buy Now orders"""
+    try:
+        # Group items by seller (same as regular orders)
+        seller_data = {}
+        
+        for item in order_items:
+            try:
+                product = item.product
+                if hasattr(product, 'seller') and product.seller:
+                    seller = product.seller.user
+                    if seller not in seller_data:
+                        seller_data[seller] = []
+                    
+                    seller_data[seller].append({
+                        'name': product.name,
+                        'quantity': item.quantity,
+                        'price': float(item.price)
+                    })
+            except Exception as e:
+                print(f"Error processing buy now item: {e}")
+        
+        # Create notifications for each seller
+        for seller, items in seller_data.items():
+            try:
+                total_amount = sum(item['price'] * item['quantity'] for item in items)
+                
+                # Create buy now specific message
+                if len(items) == 1:
+                    message = f'Instant Buy Now: {items[0]["name"]} - ₹{total_amount}'
+                else:
+                    message = f'Instant Buy Now: {len(items)} items - ₹{total_amount}'
+                
+                print(f"Creating Buy Now notification: {message}")
+                
+                # Save to database
+                notification = Notification.objects.create(
+                    seller=seller,
+                    message=message,
+                    notification_type='order',  # Still use 'order' type
+                    order=order
+                )
+                
+                # Send via WebSocket
+                send_websocket_notification(seller.id, notification)
+                
+            except Exception as e:
+                print(f"Error creating buy now notification: {e}")
+                
+    except Exception as e:
+        print(f"Error in create_buy_now_notification: {e}")
+        import traceback
+        traceback.print_exc()
