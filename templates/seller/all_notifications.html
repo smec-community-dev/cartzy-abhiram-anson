@@ -321,6 +321,7 @@
             transform: scale(1.02);
             box-shadow: 0 4px 16px rgba(249, 36, 0, 0.3);
         }
+        
 
         .btn-outline-custom {
             background: transparent;
@@ -336,6 +337,7 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            box-sizing: border-box;
         }
 
         .btn-outline-custom:hover {
@@ -442,6 +444,7 @@
             gap: 8px;
             align-items: center;
         }
+        
 
         .btn-action {
             background: transparent;
@@ -479,12 +482,12 @@
             padding: 80px 20px;
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            color: #d2d2d7;
-            margin-bottom: 24px;
-            opacity: 0.5;
-        }
+        .empty-state > i {
+    font-size: 4rem;
+    color: #d2d2d7;
+    margin-bottom: 24px;
+    opacity: 0.5;
+}
 
         .empty-state h4 {
             font-size: 1.5rem;
@@ -657,6 +660,7 @@
                 padding: 20px;
             }
         }
+        
     </style>
 </head>
 <body>
@@ -857,13 +861,13 @@
                     {% else %}
                         <!-- Empty State -->
                         <div class="empty-state">
-                            <i class="fas fa-bell-slash"></i>
-                            <h4>No notifications yet</h4>
-                            <p>You'll see notifications here when you receive new orders or updates.</p>
-                            <a href="{% url 'seller:seller_dashboard' %}" class="btn-primary-custom">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                            </a>
-                        </div>
+    <i class="fas fa-bell-slash"></i>
+    <h4>No notifications yet</h4>
+    <p>You'll see notifications here when you receive new orders or updates.</p>
+    <button onclick="window.location.href='{% url 'seller:seller_dashboard' %}'" class="btn-primary-custom">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </button>
+</div>
                     {% endif %}
                 </div>
 
@@ -1020,85 +1024,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update notification counts dynamically
     function updateNotificationCounts(unreadDelta = 0, readDelta = 0, totalDelta = 0) {
-        // Update stats cards
-        const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
-        const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
-        const readElement = document.querySelector('.stat-card:nth-child(3) .stat-value');
-        
-        if (totalElement) {
-            let totalCount = parseInt(totalElement.textContent) || 0;
-            totalCount += totalDelta;
-            totalElement.textContent = totalCount;
-        }
-        
-        if (unreadElement) {
-            let unreadCount = parseInt(unreadElement.textContent) || 0;
-            unreadCount += unreadDelta;
-            unreadElement.textContent = Math.max(0, unreadCount); // Ensure not negative
-        }
-        
-        if (readElement) {
-            let readCount = parseInt(readElement.textContent) || 0;
-            readCount += readDelta;
-            readElement.textContent = Math.max(0, readCount); // Ensure not negative
-        }
-        
-        // Update dropdown clear buttons
-        updateClearButtons();
-        
-        // Update notification badge in top bar
-        updateTopBarBadge();
+    // Update stats cards - FIXED: Only 2 cards exist, not 3
+    const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+    const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+    
+    if (totalElement) {
+        let totalCount = parseInt(totalElement.textContent) || 0;
+        totalCount += totalDelta;
+        totalElement.textContent = totalCount;
     }
+    
+    if (unreadElement) {
+        let unreadCount = parseInt(unreadElement.textContent) || 0;
+        unreadCount += unreadDelta;
+        unreadElement.textContent = Math.max(0, unreadCount);
+    }
+    
+    // Update dropdown clear buttons
+    updateClearButtons();
+    
+    // Update notification badge in top bar
+    updateTopBarBadge();
+}
 
     // Update the clear buttons text with new counts
     function updateClearButtons() {
-        const unreadCount = parseInt(document.querySelector('.stat-card:nth-child(2) .stat-value').textContent) || 0;
-        const readCount = parseInt(document.querySelector('.stat-card:nth-child(3) .stat-value').textContent) || 0;
-        const totalCount = parseInt(document.querySelector('.stat-card:nth-child(1) .stat-value').textContent) || 0;
-        
-        // Update clear read button
-        const clearReadButton = document.querySelector('input[name="action"][value="clear_read"]').closest('button');
-        if (clearReadButton) {
-            clearReadButton.innerHTML = `<i class="fas fa-eye me-2"></i>Clear Read (${readCount})`;
-        }
-        
-        // Update clear all button
-        const clearAllButton = document.querySelector('input[name="action"][value="clear_all"]').closest('button');
-        if (clearAllButton) {
-            clearAllButton.innerHTML = `<i class="fas fa-trash me-2"></i>Clear All (${totalCount})`;
-        }
-        
-        // Hide clear dropdown if no notifications
-        const dropdown = document.querySelector('.dropdown');
-        if (totalCount === 0 && dropdown) {
-            dropdown.style.display = 'none';
-        }
+    const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+    const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+    
+    const totalCount = totalElement ? parseInt(totalElement.textContent) || 0 : 0;
+    const unreadCount = unreadElement ? parseInt(unreadElement.textContent) || 0 : 0;
+    
+    // Calculate read count: total - unread
+    const readCount = totalCount - unreadCount;
+    
+    // Update clear read button
+    const clearReadButton = document.querySelector('input[name="action"][value="clear_read"]')?.closest('button');
+    if (clearReadButton) {
+        clearReadButton.innerHTML = `<i class="fas fa-eye me-2"></i>Clear Read (${readCount})`;
     }
+    
+    // Update clear all button
+    const clearAllButton = document.querySelector('input[name="action"][value="clear_all"]')?.closest('button');
+    if (clearAllButton) {
+        clearAllButton.innerHTML = `<i class="fas fa-trash me-2"></i>Clear All (${totalCount})`;
+    }
+    
+    // Hide clear dropdown if no notifications
+    const dropdown = document.querySelector('.dropdown');
+    if (totalCount === 0 && dropdown) {
+        dropdown.style.display = 'none';
+    }
+}
 
     // Update the notification badge in the top bar
     function updateTopBarBadge() {
-        const unreadCount = parseInt(document.querySelector('.stat-card:nth-child(2) .stat-value').textContent) || 0;
-        const badge = document.querySelector('.notification-badge');
-        
-        if (unreadCount > 0) {
-            if (badge) {
-                badge.textContent = unreadCount;
-            } else {
-                // Create badge if it doesn't exist
-                const btn = document.querySelector('.notification-btn');
+    const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+    const unreadCount = unreadElement ? parseInt(unreadElement.textContent) || 0 : 0;
+    const badge = document.querySelector('.notification-badge');
+    
+    if (unreadCount > 0) {
+        if (badge) {
+            badge.textContent = unreadCount;
+        } else {
+            // Create badge if it doesn't exist
+            const btn = document.querySelector('.notification-btn');
+            if (btn) {
                 const newBadge = document.createElement('span');
                 newBadge.className = 'notification-badge';
                 newBadge.textContent = unreadCount;
                 btn.appendChild(newBadge);
             }
-        } else {
-            // Remove badge if no unread notifications
-            if (badge) {
-                badge.remove();
-            }
+        }
+    } else {
+        // Remove badge if no unread notifications
+        if (badge) {
+            badge.remove();
         }
     }
-
+}
     // Utility functions
     function getCookie(name) {
         let cookieValue = null;
