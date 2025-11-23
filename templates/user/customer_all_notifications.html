@@ -28,7 +28,7 @@
 </head>
 
 <style>
-    /* Main Layout */
+    /* Your existing CSS remains the same */
     .notifications-container {
         display: flex;
         gap: 32px;
@@ -488,7 +488,7 @@
     }
 </style>
 
-<body>
+<body data-user-id="{{ request.user.id }}">
 
     <!-- Spinner Start -->
     <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -542,14 +542,18 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h3 class="section-title mb-0">Recent Notifications</h3>
                             <div class="action-buttons">
+                                {% if read_count > 0 %}
                                 <button type="button" class="btn-secondary-custom btn-large" data-bs-toggle="modal" data-bs-target="#clearReadModal">
                                     <i class="fas fa-broom me-2"></i>
                                     Clear Read ({{ read_count }})
                                 </button>
+                                {% endif %}
+                                {% if total_count > 0 %}
                                 <button type="button" class="btn-danger-custom btn-large" data-bs-toggle="modal" data-bs-target="#clearAllModal">
                                     <i class="fas fa-trash me-2"></i>
                                     Clear All ({{ total_count }})
                                 </button>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -562,6 +566,7 @@
                                     </div>
                                     <div class="notification-content">
                                         <div class="notification-message">
+                                            <strong>{{ notification.title }}</strong><br>
                                             {{ notification.message }}
                                         </div>
                                         <div class="notification-meta">
@@ -570,14 +575,9 @@
                                                 {{ notification.created_at|timesince }} ago
                                             </span>
                                             {% if notification.order %}
-                                            <a href="{% url 'order_details' notification.order.id %}" class="text-primary">
-                                                <i class="fas fa-shopping-bag me-1"></i>View Order
-                                            </a>
-                                            {% endif %}
-                                            {% if notification.review %}
-                                            <a href="{% url 'product_details' notification.review.product.id %}" class="text-primary">
-                                                <i class="fas fa-star me-1"></i>View Review
-                                            </a>
+                                            <span class="text-primary">
+                                                <i class="fas fa-shopping-bag me-1"></i>Order #{{ notification.order.order_number }}
+                                            </span>
                                             {% endif %}
                                         </div>
                                         <div class="notification-actions">
@@ -783,150 +783,290 @@
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
 
-    <!-- Add search products data -->
-    {{ header_products|json_script:"header-products-data" }}
+<script>
+// Global variable for current notification ID
+let currentNotificationId = null;
+
+// Connect to WebSocket for real-time notifications
+function connectWebSocket(userId) {
+    const userSocket = new WebSocket(
+        `ws://${window.location.host}/ws/user/notifications/${userId}/`
+    );
+
+    userSocket.onopen = function(e) {
+        console.log('✅ WebSocket connected successfully for user:', userId);
+    };
+
+    userSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.notification) {
+            addNewNotification(data.notification);
+            updateNotificationCounts();
+        }
+    };
+
+    userSocket.onclose = function(e) {
+        console.log('WebSocket closed, reconnecting...');
+        setTimeout(function() {
+            connectWebSocket(userId);
+        }, 3000);
+    };
+
+    userSocket.onerror = function(e) {
+        console.error('WebSocket error:', e);
+    };
+}
+
+// Add new notification to the list without refresh
+function addNewNotification(notification) {
+    const notificationList = document.querySelector('.notification-list');
+    const emptyState = document.querySelector('.empty-state');
     
-    <script>
-        // Store the current notification ID for single deletion
-        let currentNotificationId = null;
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    const notificationElement = document.createElement('div');
+    notificationElement.className = `notification-item unread`;
+    notificationElement.setAttribute('data-notification-id', notification.id);
+    notificationElement.innerHTML = `
+        <div class="notification-icon">
+            <i class="${getNotificationIcon(notification.type)}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-message">
+                <strong>${notification.title}</strong><br>
+                ${notification.message}
+            </div>
+            <div class="notification-meta">
+                <span class="notification-time">
+                    <i class="fas fa-clock me-1"></i>
+                    Just now
+                </span>
+                ${notification.order_id ? 
+                    `<span class="text-primary">
+                        <i class="fas fa-shopping-bag me-1"></i>Order #${notification.order_id}
+                    </span>` : ''
+                }
+            </div>
+            <div class="notification-actions">
+                <button class="btn-primary-custom mark-as-read-btn" data-notification-id="${notification.id}">
+                    <i class="fas fa-check me-1"></i>
+                    Mark as Read
+                </button>
+                <button class="btn-secondary-custom clear-notification-btn" data-notification-id="${notification.id}">
+                    <i class="fas fa-times me-1"></i>
+                    Clear
+                </button>
+            </div>
+        </div>
+    `;
+    
+    if (notificationList.firstChild) {
+        notificationList.insertBefore(notificationElement, notificationList.firstChild);
+    } else {
+        notificationList.appendChild(notificationElement);
+    }
+    
+    // Attach event listeners
+    attachEventListeners(notificationElement);
+    updateCountsImmediately();
+}
 
-        // Set up modal event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Single notification clear modal
-            const clearSingleModal = document.getElementById('clearSingleModal');
-            if (clearSingleModal) {
-                clearSingleModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    currentNotificationId = button.getAttribute('data-notification-id');
-                });
-            }
-
-            // Animate notification items
-            const notifications = document.querySelectorAll('.notification-item');
-            notifications.forEach((item, index) => {
-                setTimeout(() => {
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-            
-            // Animate stat cards
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'scale(1)';
-                }, 300 + (index * 150));
-            });
+// Attach event listeners to notification buttons
+function attachEventListeners(notificationElement) {
+    // Mark as Read button
+    const markAsReadBtn = notificationElement.querySelector('.mark-as-read-btn');
+    if (markAsReadBtn) {
+        markAsReadBtn.addEventListener('click', function() {
+            const notificationId = this.getAttribute('data-notification-id');
+            console.log('Mark as Read clicked for:', notificationId);
+            markAsRead(notificationId);
         });
+    }
+    
+    // Clear button
+    const clearBtn = notificationElement.querySelector('.clear-notification-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            const notificationId = this.getAttribute('data-notification-id');
+            console.log('Clear clicked for:', notificationId);
+            showClearModal(notificationId);
+        });
+    }
+}
 
-        // Notification actions
-        function markAsRead(notificationId) {
-            fetch(`/user/notifications/${notificationId}/read/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
-            });
+// Mark as Read function
+function markAsRead(notificationId) {
+    console.log('Marking as read:', notificationId);
+    
+    fetch(`/user/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Mark as Read response:', data);
+        if (data.success) {
+            // Find the notification element
+            const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationElement) {
+                // Remove unread styling
+                notificationElement.classList.remove('unread');
+                
+                // Remove the Mark as Read button
+                const markAsReadBtn = notificationElement.querySelector('.mark-as-read-btn');
+                if (markAsReadBtn) {
+                    markAsReadBtn.remove();
+                }
+                
+                console.log('✅ Notification marked as read in UI');
+            }
+            updateNotificationCounts();
+        } else {
+            console.error('Failed to mark as read:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error marking as read:', error);
+    });
+}
 
-        function clearSingleNotification() {
-            if (!currentNotificationId) return;
+// Show Clear Modal
+function showClearModal(notificationId) {
+    currentNotificationId = notificationId;
+    console.log('Showing clear modal for:', notificationId);
+    
+    // Use Bootstrap modal
+    const modalElement = document.getElementById('clearSingleModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    } else {
+        console.error('Clear modal not found');
+    }
+}
+
+// Clear Single Notification
+function clearSingleNotification() {
+    if (!currentNotificationId) {
+        console.error('No notification ID to clear');
+        return;
+    }
+    
+    console.log('Clearing notification:', currentNotificationId);
+    
+    fetch(`/user/notifications/${currentNotificationId}/clear/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Clear response:', data);
+        if (data.success) {
+            // Remove notification from UI
+            const notificationElement = document.querySelector(`[data-notification-id="${currentNotificationId}"]`);
+            if (notificationElement) {
+                notificationElement.remove();
+                console.log('✅ Notification removed from UI');
+            }
             
-            fetch(`/user/notifications/${currentNotificationId}/clear/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close the modal and reload
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('clearSingleModal'));
-                    modal.hide();
-                    location.reload();
-                }
-            });
-        }
-
-        // Search functionality (same as your header)
-        const products = JSON.parse(document.getElementById('header-products-data').textContent);
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-
-        if (searchInput && searchResults) {
-            function filterProducts(query) {
-                if (!query) return [];
-                return products.filter(product => 
-                    product.name.toLowerCase().includes(query.toLowerCase()) ||
-                    product.brand.toLowerCase().includes(query.toLowerCase())
-                );
+            updateNotificationCounts();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('clearSingleModal'));
+            if (modal) {
+                modal.hide();
             }
-
-            function displayResults(results) {
-                searchResults.innerHTML = '';
-                
-                if (results.length === 0) {
-                    searchResults.innerHTML = '<div class="no-results">No products found</div>';
-                    searchResults.style.display = 'block';
-                    return;
-                }
-                
-                results.forEach(product => {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'search-result-item';
-                    resultItem.innerHTML = `
-                        <img src="${product.image_url}" alt="${product.name}">
-                        <div class="product-info">
-                            <div class="product-name">${product.name}</div>
-                            <div class="product-brand" style="color: #666; font-size: 0.8rem;">${product.brand}</div>
-                            <div class="product-price">$${product.price}</div>
-                        </div>
-                    `;
-                    
-                    resultItem.addEventListener('click', () => {
-                        window.location.href = `/productdetails/${product.id}`;
-                    });
-                    
-                    searchResults.appendChild(resultItem);
-                });
-                
-                searchResults.style.display = 'block';
-            }
-
-            searchInput.addEventListener('input', function() {
-                const query = this.value.trim();
-                const results = filterProducts(query);
-                displayResults(results);
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                    searchResults.style.display = 'none';
-                }
-            });
-
-            searchResults.addEventListener('mouseenter', function() {
-                this.style.display = 'block';
-            });
-
-            searchInput.addEventListener('blur', function() {
-                setTimeout(() => {
-                    if (!searchResults.matches(':hover')) {
-                        searchResults.style.display = 'none';
-                    }
-                }, 200);
-            });
+        } else {
+            console.error('Failed to clear notification:', data.error);
         }
-    </script>
+    })
+    .catch(error => {
+        console.error('Error clearing notification:', error);
+    });
+}
+
+// Update counts without API call (for immediate feedback)
+function updateCountsImmediately() {
+    const totalCountElement = document.querySelector('.stat-card.total .stat-number');
+    const unreadCountElement = document.querySelector('.stat-card.unread .stat-number');
+    const readCountElement = document.querySelector('.stat-card.read .stat-number');
+    
+    if (totalCountElement) {
+        totalCountElement.textContent = parseInt(totalCountElement.textContent) + 1;
+    }
+    if (unreadCountElement) {
+        unreadCountElement.textContent = parseInt(unreadCountElement.textContent) + 1;
+    }
+    if (readCountElement) {
+        readCountElement.textContent = parseInt(totalCountElement.textContent) - parseInt(unreadCountElement.textContent);
+    }
+}
+
+// Update notification counts in real-time
+function updateNotificationCounts() {
+    fetch('/user/notifications/unread-count/')
+        .then(response => response.json())
+        .then(data => {
+            const totalCountElement = document.querySelector('.stat-card.total .stat-number');
+            const unreadCountElement = document.querySelector('.stat-card.unread .stat-number');
+            const readCountElement = document.querySelector('.stat-card.read .stat-number');
+            
+            if (totalCountElement && unreadCountElement && readCountElement) {
+                unreadCountElement.textContent = data.unread_count;
+                readCountElement.textContent = parseInt(totalCountElement.textContent) - data.unread_count;
+            }
+            
+            const headerBadge = document.querySelector('.notification-badge');
+            if (headerBadge) {
+                headerBadge.textContent = data.unread_count;
+                headerBadge.style.display = data.unread_count > 0 ? 'flex' : 'none';
+            }
+        });
+}
+
+// Get icon based on notification type
+function getNotificationIcon(type) {
+    const iconMap = {
+        'order_placed': 'fas fa-shopping-bag',
+        'order_confirmed': 'fas fa-check-circle',
+        'order_shipped': 'fas fa-shipping-fast',
+        'order_delivered': 'fas fa-box-open',
+        'order_cancelled': 'fas fa-times-circle',
+        'seller_reply': 'fas fa-reply',
+        'promotion': 'fas fa-tag',
+        'info': 'fas fa-info-circle'
+    };
+    return iconMap[type] || 'fas fa-bell';
+}
+
+// Get CSRF Token
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
+
+// Connect WebSocket when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = {{ request.user.id }};
+    if (userId) {
+        connectWebSocket(userId);
+    } else {
+        console.error('User ID not found');
+    }
+    
+    // Attach event listeners to existing notifications
+    document.querySelectorAll('.notification-item').forEach(item => {
+        attachEventListeners(item);
+    });
+});
+</script>
 </body>
 </html>

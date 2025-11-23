@@ -3,7 +3,7 @@ from django.contrib import messages
 import random
 from django.shortcuts import render, redirect
 from core.models import User
-from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, OrderItem, Review, ReviewImage
+from .models import CustomerProfile, Cart, CartItem, Wishlist, Address, Order, OrderItem, Review, ReviewImage, CustomerNotification
 from core.models import Category
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -996,3 +996,109 @@ def product_details(request, product_id):
     }
     
     return render(request, 'user/product_details.html', context)
+
+
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+def get_notification_icon(notification_type):
+    """Get appropriate icon for notification type"""
+    icon_map = {
+        'order_placed': 'fas fa-shopping-bag',
+        'order_confirmed': 'fas fa-check-circle',
+        'order_shipped': 'fas fa-shipping-fast',
+        'order_delivered': 'fas fa-box-open',
+        'order_cancelled': 'fas fa-times-circle',
+        'seller_reply': 'fas fa-reply',
+        'promotion': 'fas fa-tag',
+        'info': 'fas fa-info-circle'
+    }
+    return icon_map.get(notification_type, 'fas fa-bell')
+
+@login_required
+def get_user_notifications(request):
+    """Get all notifications for the current user"""
+    notifications = CustomerNotification.objects.filter(user=request.user).order_by('-created_at')[:50]
+    
+    notifications_data = []
+    for notification in notifications:
+        notifications_data.append({
+            'id': notification.id,
+            'title': notification.title,
+            'message': notification.message,
+            'type': notification.notification_type,
+            'created_at': notification.created_at.isoformat(),
+            'is_read': notification.is_read,
+            'order_id': notification.order.id if notification.order else None
+        })
+    
+    return JsonResponse({'notifications': notifications_data})
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Mark a notification as read"""
+    try:
+        notification = CustomerNotification.objects.get(id=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'success': True})
+    except CustomerNotification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification not found'})
+
+@login_required
+def mark_all_notifications_read(request):
+    """Mark all notifications as read for the current user"""
+    CustomerNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'success': True})
+
+@login_required
+def get_unread_notification_count(request):
+    """Get count of unread notifications"""
+    count = CustomerNotification.objects.filter(user=request.user, is_read=False).count()
+    return JsonResponse({'unread_count': count})
+
+
+
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def user_all_notifications(request):
+    """User notifications page"""
+    # Get all notifications for the current user
+    notifications = CustomerNotification.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Get counts
+    total_count = notifications.count()
+    unread_count = notifications.filter(is_read=False).count()
+    read_count = total_count - unread_count
+    
+    # Add icons to each notification
+    for notification in notifications:
+        notification.icon = get_notification_icon(notification.notification_type)
+    
+    # Pagination
+    paginator = Paginator(notifications, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'notifications': page_obj,
+        'page_obj': page_obj,
+        'total_count': total_count,
+        'unread_count': unread_count,
+        'read_count': read_count,
+    }
+    
+    return render(request, 'user/customer_all_notifications.html', context)
+
+@login_required
+def clear_single_notification(request, notification_id):
+    """Clear a single notification"""
+    try:
+        notification = CustomerNotification.objects.get(id=notification_id, user=request.user)
+        notification.delete()
+        return JsonResponse({'success': True})
+    except CustomerNotification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification not found'})
