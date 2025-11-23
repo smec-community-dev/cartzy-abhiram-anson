@@ -59,20 +59,18 @@ class Review(models.Model):
         default=5,
         choices=[(1, '1 Star'), (2, '2 Stars'), (3, '3 Stars'), (4, '4 Stars'), (5, '5 Stars')]
     )
-    review_title=models.CharField(max_length=255,null=True)
-    review_text =models.CharField(max_length=255,null=True)
+    review_title = models.CharField(max_length=255, null=True)
+    review_text = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # Add these fields for seller functionality
-    seller_reply = models.TextField(blank=True, null=True)
     replied_at = models.DateTimeField(blank=True, null=True)
     is_verified_purchase = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['-created_at']
-        unique_together = ['customer', 'product']  # Prevent multiple reviews from same customer
+        unique_together = ['customer', 'product']
     
-    def _str_(self):
+    def __str__(self):
         return f"{self.customer.get_full_name()} - {self.product.name} - {self.rating} Stars"
     
     def get_customer_initials(self):
@@ -80,26 +78,8 @@ class Review(models.Model):
     
     def get_customer_full_name(self):
         return self.customer.get_full_name()
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        old_reply = None
-        if not is_new:
-            try:
-                old_review = Review.objects.get(pk=self.pk)
-                old_reply = old_review.seller_reply
-            except Review.DoesNotExist:
-                pass
-        
-        super().save(*args, **kwargs)
-        
-        # Trigger notification when seller replies to review
-        if not is_new and self.seller_reply and self.seller_reply != old_reply:
-            from .notification_service import CustomerNotificationTriggers
-            CustomerNotificationTriggers.notify_review_reply(
-                customer=self.customer,
-                review=self,
-                seller_reply=self.seller_reply
-            )
+    
+    # NO save method - use the default one
 
 class ReviewImage(models.Model):
     review = models.ForeignKey(
@@ -215,42 +195,28 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product_name} - {self.order.order_number}"
 
-
 class CustomerNotification(models.Model):
     NOTIFICATION_TYPES = (
-        ('review_reply', 'Review Reply'),
-        ('order_status', 'Order Status Update'),
+        ('order_placed', 'Order Placed'),
+        ('order_confirmed', 'Order Confirmed'),
         ('order_shipped', 'Order Shipped'),
         ('order_delivered', 'Order Delivered'),
-        ('promotion', 'Special Promotion'),
+        ('order_cancelled', 'Order Cancelled'),
+        ('seller_reply', 'Seller Reply'),
+        ('promotion', 'Promotion'),
+        ('info', 'Information')
     )
     
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,   on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
     message = models.TextField()
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='order_status')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='info')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, blank=True)
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.customer.username} - {self.message}"
-    
-    @property
-    def time(self):
-        return self.created_at.strftime('%H:%M')
-    
-    @property
-    def icon(self):
-        """Get appropriate icon based on notification type"""
-        icons = {
-            'review_reply': 'fas fa-comment',
-            'order_status': 'fas fa-shipping-fast',
-            'order_shipped': 'fas fa-truck',
-            'order_delivered': 'fas fa-check-circle',
-            'promotion': 'fas fa-percentage',
-        }
-        return icons.get(self.notification_type, 'fas fa-bell')
+        return f"{self.title} - {self.user.username}"

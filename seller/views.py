@@ -945,6 +945,15 @@ def add_seller_reply(request, review_id):
             seller=seller
         )
         
+        # Create notification for the user
+        try:
+            from user.utils import create_seller_reply_notification
+            create_seller_reply_notification(seller_reply)
+            print(f"Notification created for seller reply to review #{review_id}")
+        except Exception as e:
+            print(f"Error creating notification for seller reply: {e}")
+            # Don't fail the reply if notification fails
+        
         return JsonResponse({
             'success': True,
             'reply_text': seller_reply.reply_text,
