@@ -497,8 +497,21 @@
             font-size: 0.9rem;
         }
         
+        .reply-text {
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+        
+        .reply-date {
+            font-size: 0.8rem;
+            color: #86868b;
+            margin-top: 4px;
+        }
+        
         .reply-form {
             margin-top: 16px;
+            border-top: 1px solid #f5f5f7;
+            padding-top: 16px;
         }
         
         .reply-textarea {
@@ -509,6 +522,18 @@
             resize: vertical;
             min-height: 80px;
             font-family: inherit;
+            margin-bottom: 8px;
+        }
+        
+        .reply-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
         }
         
         .product-grid {
@@ -570,7 +595,10 @@
         }
         
         .rating-breakdown {
-            margin-top: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
         }
         
         .rating-bar {
@@ -635,6 +663,19 @@
             font-size: 1rem;
             color: #86868b;
             margin-bottom: 32px;
+        }
+        
+        /* Success and Error Messages */
+        .success-message {
+            color: #34c759;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 8px;
         }
         
         /* Pagination */
@@ -743,8 +784,11 @@
     </style>
 </head>
 <body>
+</head>
+<body>
     <!-- Sidebar -->
     <div class="sidebar">
+        <!-- Your existing sidebar code remains the same -->
         <div class="sidebar-header">
             <h2>Seller Dashboard</h2>
             <p>Manage your business</p>
@@ -827,10 +871,7 @@
                 <p>Manage and respond to customer reviews for your products</p>
             </div>
             <div class="top-bar-actions">
-                <!-- <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button> -->
+                <!-- Notification button if needed -->
             </div>
         </div>
 
@@ -993,149 +1034,548 @@
                     </div>
                 </div>
 
-                <!-- Reviews Column -->
-                <div class="content-card">
-                    <div class="card-header-custom">
-                        <div class="header-title">
-                            <h2>
-                                {% if selected_product %}
-                                Reviews for {{ selected_product.name }}
-                                {% else %}
-                                Product Reviews
-                                {% endif %}
-                            </h2>
-                            <p>
-                                {% if selected_product %}
-                                {{ product_reviews|length }} review{{ product_reviews|length|pluralize }}
-                                {% else %}
-                                Select a product to view reviews
-                                {% endif %}
-                            </p>
-                        </div>
-                        {% if selected_product %}
-                        <div class="rating-badge">
-                            <i class="fas fa-star"></i>
-                            {{ selected_product.avg_rating|floatformat:1 }} Average Rating
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div style="padding: 0 32px 32px;">
-                        {% if selected_product %}
-                            {% if product_reviews %}
-                            <div class="rating-breakdown">
-                                <h4 style="margin-bottom: 16px; font-size: 1rem;">Rating Distribution</h4>
-                                {% for rating in "54321" %}
-                                {% with rating_num=rating|add:"0" %}
-                                <div class="rating-bar">
-                                    <div class="rating-label">{{ rating }} Star{{ rating|pluralize }}</div>
-                                    <div class="rating-progress">
-                                        {% widthratio rating_distribution.rating_num product_reviews|length 100 as width %}
-                                        <div class="rating-fill" style="width: {{ width }}%;"></div>
-                                    </div>
-                                    <div class="rating-count">{{ rating_distribution.rating_num }}</div>
-                                </div>
-                                {% endwith %}
-                                {% endfor %}
-                            </div>
-
-                            <div style="margin: 24px 0;">
-                                <h4 style="margin-bottom: 16px; font-size: 1rem;">All Reviews</h4>
-                                <div class="reviews-list">
-                                    {% for review in product_reviews %}
-                                    <div class="review-card">
-                                        <div class="review-header">
-                                            <div class="reviewer-info">
-                                                <div class="reviewer-avatar">
-                                                    {{ review.customer.first_name|first }}{{ review.customer.last_name|first }}
-                                                </div>
-                                                <div class="review-meta">
-                                                    <div class="reviewer-name">{{ review.customer.get_full_name }}</div>
-                                                    <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
-                                                </div>
-                                            </div>
-                                            <div class="rating-stars">
-                                                {% with ''|center:5 as range %}
-                                                {% for i in range %}
-                                                    {% if forloop.counter <= review.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                {% endwith %}
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="review-content">
-                                            {{ review.comment|linebreaks }}
-                                        </div>
-                                        
-                                        <!-- Note: Since your Review model doesn't have seller_reply field, this section won't work -->
-                                        <!-- You'll need to implement the SellerReply model as discussed earlier -->
-                                        <div class="reply-form">
-                                            <form method="POST" >
-                                                {% csrf_token %}
-                                                <textarea name="reply" class="reply-textarea" placeholder="Write a response to this review..." required></textarea>
-                                                <button type="submit" class="btn-primary-custom" style="margin-top: 8px; padding: 8px 16px;">
-                                                    <i class="fas fa-reply"></i>
-                                                    Post Reply
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-comments"></i>
-                                <h4>No Reviews for This Product</h4>
-                                <p>This product doesn't have any reviews yet.</p>
-                            </div>
-                            {% endif %}
-                        {% else %}
-                        <div class="empty-state">
-                            <i class="fas fa-mouse-pointer"></i>
-                            <h4>Select a Product</h4>
-                            <p>Choose a product from the list to view and manage its reviews.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+                <!-- Reviews Column - FIXED & IMPROVED -->
+<div class="content-card">
+    <div class="card-header-custom">
+        <div class="header-title">
+            <h2>
+                {% if selected_product %}
+                Reviews for {{ selected_product.name }}
+                {% else %}
+                Product Reviews
+                {% endif %}
+            </h2>
+            <p>
+                {% if selected_product %}
+                {{ product_reviews|length }} review{{ product_reviews|length|pluralize }}
+                {% else %}
+                Select a product to view reviews
+                {% endif %}
+            </p>
         </div>
+        {% if selected_product %}
+        <div class="rating-badge">
+            <i class="fas fa-star"></i>
+            {{ selected_product.avg_rating|floatformat:1 }} Average Rating
+        </div>
+        {% endif %}
     </div>
 
-    <script>
-        function selectProduct(productId) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('product', productId);
-            window.location.href = url.toString();
+    <div style="padding: 0 32px 32px;">
+        {% if selected_product %}
+            {% if product_reviews %}
+            <div style="margin: 24px 0;">
+                <div class="reviews-list">
+                    {% for review in product_reviews %}
+                    <div class="review-card" id="review-{{ review.id }}">
+                        <!-- Review Header with Customer Info and Rating -->
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">
+                                    {{ review.customer.first_name|first|default:"C" }}{{ review.customer.last_name|first|default:"U" }}
+                                </div>
+                                <div class="review-meta">
+                                    <div class="reviewer-name">{{ review.customer.get_full_name|default:"Customer" }}</div>
+                                    <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span style="margin-left: 8px; font-size: 0.9rem; color: #1d1d1f; font-weight: 600;">{{ review.rating }}/5</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Customer Review Content - PROMINENTLY DISPLAYED -->
+                        <div class="customer-review-box">
+                            <div class="review-label">
+                                <i class="fas fa-comment-alt"></i> Customer Review
+                            </div>
+                            <div class="review-text">
+                                {% if review.review_text %}
+                                    {{ review.review_text|linebreaks }}
+                                {% else %}
+                                    <span class="no-comment">No written comment provided - rating only</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Seller Replies Section -->
+                        {% if review.seller_replies.all %}
+                        <div class="seller-replies-section">
+                            <div class="replies-label">
+                                <i class="fas fa-store"></i> Your Response{{ review.seller_replies.count|pluralize }}
+                            </div>
+                            {% for reply in review.seller_replies.all %}
+                            <div class="seller-reply">
+                                <div class="reply-text">{{ reply.reply_text|linebreaks }}</div>
+                                <div class="reply-date">
+                                    <i class="fas fa-clock"></i> Replied on {{ reply.replied_at|date:"M d, Y \a\t g:i A" }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Reply Form -->
+                        <div class="reply-form-section">
+                            {% if review.seller_replies.all %}
+                            <button class="btn-secondary-custom btn-sm toggle-reply-form" data-review-id="{{ review.id }}">
+                                <i class="fas fa-plus"></i> Add Another Response
+                            </button>
+                            {% endif %}
+                            
+                            <div class="reply-form" {% if review.seller_replies.all %}style="display: none;"{% endif %} id="reply-form-{{ review.id }}">
+                                <form class="reply-form-ajax" data-review-id="{{ review.id }}">
+                                    {% csrf_token %}
+                                    <label class="reply-form-label">
+                                        <i class="fas fa-reply"></i> Write your response
+                                    </label>
+                                    <textarea name="reply" class="reply-textarea" placeholder="Thank the customer, address their feedback, or provide helpful information..." required></textarea>
+                                    <div class="reply-actions">
+                                        <span class="char-count">0/500 characters</span>
+                                        <div>
+                                            <button type="button" class="btn-secondary-custom btn-sm cancel-reply" {% if not review.seller_replies.all %}style="display: none;"{% endif %}>
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="btn-primary-custom btn-sm">
+                                                <i class="fas fa-paper-plane"></i>
+                                                Post Response
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="reply-message" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <h4>No Reviews for This Product</h4>
+                <p>This product doesn't have any reviews yet.</p>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-mouse-pointer"></i>
+            <h4>Select a Product</h4>
+            <p>Choose a product from the list to view and manage its reviews.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Enhanced Review Styles */
+.review-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e5e5e7;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
+
+.review-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.review-meta {
+    flex: 1;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    color: #1d1d1f;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: #86868b;
+}
+
+.rating-stars {
+    color: #ffc107;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Customer Review Box - Prominent Display */
+.customer-review-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.review-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.review-text {
+    color: #1d1d1f;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.review-text p {
+    margin: 0;
+}
+
+.no-comment {
+    color: #86868b;
+    font-style: italic;
+}
+
+/* Seller Replies Section */
+.seller-replies-section {
+    margin-bottom: 20px;
+}
+
+.replies-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #34c759;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seller-reply {
+    background: linear-gradient(135deg, #e8f5e9 0%, #fff 100%);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-left: 4px solid #34c759;
+}
+
+.seller-reply .reply-text {
+    color: #1d1d1f;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.seller-reply .reply-text p {
+    margin: 0;
+}
+
+.seller-reply .reply-date {
+    font-size: 0.8rem;
+    color: #86868b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Reply Form Section */
+.reply-form-section {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+}
+
+.toggle-reply-form {
+    margin-bottom: 16px;
+}
+
+.reply-form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reply-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e5e5e7;
+    border-radius: 12px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    margin-bottom: 12px;
+}
+
+.reply-textarea:focus {
+    outline: none;
+    border-color: #0071e3;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+}
+
+.reply-textarea::placeholder {
+    color: #86868b;
+}
+
+.reply-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.reply-actions > div {
+    display: flex;
+    gap: 10px;
+}
+
+.char-count {
+    font-size: 0.8rem;
+    color: #86868b;
+}
+
+/* Messages */
+.success-message {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 3.5rem;
+    color: #d2d2d7;
+    margin-bottom: 20px;
+}
+
+.empty-state h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+    color: #86868b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .review-header {
+        flex-direction: column;
+    }
+    
+    .reply-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .reply-actions > div {
+        justify-content: flex-end;
+    }
+}
+</style>
+
+<script>
+    // Product selection function - MUST be global
+    function selectProduct(productId) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('product', productId);
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit for rating filter
+        const ratingSelect = document.querySelector('select[name="rating"]');
+        if (ratingSelect) {
+            ratingSelect.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
         }
 
-        // Add loading state for filters
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterForm = document.getElementById('filter-form');
-            const submitBtn = filterForm.querySelector('button[type="submit"]');
-            
-            filterForm.addEventListener('submit', function() {
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-                submitBtn.disabled = true;
+        // Toggle reply form visibility
+        document.querySelectorAll('.toggle-reply-form').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reviewId = this.dataset.reviewId;
+                const form = document.getElementById(`reply-form-${reviewId}`);
+                const isHidden = form.style.display === 'none';
                 
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }, 3000);
-            });
-
-            // Auto-submit when rating filter changes
-            const ratingSelect = filterForm.querySelector('select[name="rating"]');
-            ratingSelect.addEventListener('change', function() {
-                filterForm.submit();
+                form.style.display = isHidden ? 'block' : 'none';
+                this.innerHTML = isHidden 
+                    ? '<i class="fas fa-minus"></i> Cancel' 
+                    : '<i class="fas fa-plus"></i> Add Another Response';
             });
         });
-    </script>
+
+        // Character counter for textareas
+        document.querySelectorAll('.reply-textarea').forEach(textarea => {
+            const form = textarea.closest('.reply-form');
+            const counter = form ? form.querySelector('.char-count') : null;
+            
+            if (counter) {
+                textarea.addEventListener('input', function() {
+                    const count = this.value.length;
+                    counter.textContent = `${count}/500 characters`;
+                    counter.style.color = count > 500 ? '#dc3545' : '#86868b';
+                });
+            }
+        });
+
+        // Cancel reply buttons
+        document.querySelectorAll('.cancel-reply').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const form = this.closest('.reply-form');
+                const textarea = form.querySelector('.reply-textarea');
+                const toggleBtn = form.closest('.reply-form-section')?.querySelector('.toggle-reply-form');
+                const counter = form.querySelector('.char-count');
+                
+                textarea.value = '';
+                if (counter) counter.textContent = '0/500 characters';
+                
+                if (toggleBtn) {
+                    form.style.display = 'none';
+                    toggleBtn.innerHTML = '<i class="fas fa-plus"></i> Add Another Response';
+                }
+            });
+        });
+
+        // Handle form submissions
+        document.querySelectorAll('.reply-form-ajax').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleReplySubmit(this);
+            });
+        });
+    });
+
+    function handleReplySubmit(form) {
+        const reviewId = form.dataset.reviewId;
+        const textarea = form.querySelector('.reply-textarea');
+        const replyText = textarea.value.trim();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const messageDiv = form.closest('.reply-form').querySelector('.reply-message') || form.nextElementSibling;
+        const originalBtnText = submitBtn.innerHTML;
+        
+        if (!replyText) {
+            showMessage(messageDiv, 'Please enter a response', 'error');
+            return;
+        }
+        
+        if (replyText.length > 500) {
+            showMessage(messageDiv, 'Response must be 500 characters or less', 'error');
+            return;
+        }
+        
+        // Loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+        submitBtn.disabled = true;
+        
+        fetch(`/seller/reviews/${reviewId}/reply/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `reply=${encodeURIComponent(replyText)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage(messageDiv, 'Response posted successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showMessage(messageDiv, data.error || 'Failed to post response', 'error');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showMessage(messageDiv, 'Network error. Please try again.', 'error');
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        });
+    }
+
+    function showMessage(element, message, type) {
+        if (element) {
+            element.textContent = message;
+            element.style.display = 'block';
+            element.className = type === 'success' ? 'success-message' : 'error-message';
+        }
+    }
+</script>
 </body>
 </html>

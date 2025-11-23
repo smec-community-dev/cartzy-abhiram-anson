@@ -826,83 +826,137 @@ def seller_profile(request):
 from django.db.models import Avg, Count, Q
 from user.models import Review, Order, OrderItem  
 
-@login_required
+# In seller/views.py
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.db.models import Q, Avg, Count
+from django.core.paginator import Paginator
+from user.models import Review  # Import from user app
+from .models import SellerReply, Product, SellerProfile
+
 def seller_reviews(request):
     seller = request.user.seller_profile
-    
-    
-    products = Product.objects.filter(
+    search_query = request.GET.get('search', '')
+    rating_filter = request.GET.get('rating', '')
+    selected_product_id = request.GET.get('product', '')
+
+    # Get seller's products with reviews
+    products_with_reviews = Product.objects.filter(
         seller=seller,
         reviews__isnull=False
-    ).distinct().prefetch_related('reviews', 'images').annotate(
-        avg_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
-    ).order_by('-avg_rating')
+    ).distinct()
     
-   
-    search_query = request.GET.get('search', '')
+    # Apply search filter
     if search_query:
-        products = products.filter(
-            Q(name__icontains=search_query) |
+        products_with_reviews = products_with_reviews.filter(
+            Q(name__icontains=search_query) | 
             Q(sku__icontains=search_query)
         )
     
-    
-    rating_filter = request.GET.get('rating', '')
+    # Apply rating filter
     if rating_filter:
-        products = products.filter(avg_rating__gte=float(rating_filter))
+        min_rating = int(rating_filter)
+        products_with_reviews = products_with_reviews.filter(
+            reviews__rating__gte=min_rating
+        ).distinct()
     
+    # Calculate stats
+    total_reviews = Review.objects.filter(product__seller=seller).count()
+    average_rating = Review.objects.filter(
+        product__seller=seller
+    ).aggregate(Avg('rating'))['rating__avg'] or 0
     
-    selected_product_id = request.GET.get('product')
+    # Calculate response rate
+    replied_reviews = Review.objects.filter(
+        product__seller=seller,
+        seller_replies__isnull=False
+    ).count()
+    response_rate = round((replied_reviews / total_reviews * 100) if total_reviews > 0 else 0, 1)
+    
+    # Get selected product and its reviews
     selected_product = None
     product_reviews = []
-    rating_distribution = {}
     
     if selected_product_id:
         try:
-            selected_product = products.get(id=selected_product_id)
-            product_reviews = selected_product.reviews.all().select_related('customer').order_by('-created_at')
+            selected_product = Product.objects.get(
+                id=selected_product_id, 
+                seller=seller
+            )
+            product_reviews = Review.objects.filter(
+                product=selected_product
+            ).select_related('customer').prefetch_related('seller_replies').order_by('-created_at')
             
-           
-            for rating in range(1, 6):
-                rating_distribution[rating] = selected_product.reviews.filter(rating=rating).count()
         except Product.DoesNotExist:
-            pass
+            selected_product = None
     
-    
-    total_reviews = Review.objects.filter(product__seller=seller).count()
-    average_rating = Review.objects.filter(product__seller=seller).aggregate(
-        avg_rating=Avg('rating')
-    )['avg_rating'] or 0
-    
-    
-    replied_reviews = Review.objects.filter(product__seller=seller).exclude(seller_reply='').count()
-    response_rate = (replied_reviews / total_reviews * 100) if total_reviews > 0 else 0
-    
-    
-    paginator = Paginator(products, 12)
+    # Pagination for products
+    paginator = Paginator(products_with_reviews, 12)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    products = paginator.get_page(page_number)
     
-   
-    for product in page_obj:
-        main_img = product.images.filter(is_main=True).first()
-        product.main_image_obj = main_img if main_img else product.images.first()
+    # Add review counts, average ratings, and main image to products
+    for product in products:
+        product.review_count = product.reviews.count()
+        product_avg = product.reviews.aggregate(Avg('rating'))['rating__avg']
+        product.avg_rating = round(product_avg, 1) if product_avg else 0
+        
+        # Fix: Get main image properly and use consistent naming
+        product.main_image_obj = product.images.filter(is_main=True).first() or product.images.first()
     
     context = {
-        'products': page_obj,
+        'products': products,
         'selected_product': selected_product,
         'product_reviews': product_reviews,
         'total_reviews': total_reviews,
         'average_rating': round(average_rating, 1),
-        'rating_distribution': rating_distribution,
-        'response_rate': round(response_rate, 1),
+        'response_rate': response_rate,
         'search_query': search_query,
         'rating_filter': rating_filter,
         'selected_product_id': selected_product_id,
     }
     
     return render(request, 'seller/reviews.html', context)
+@require_POST
+@csrf_exempt
+@login_required
+def add_seller_reply(request, review_id):
+    try:
+        from user.models import Review
+        from .models import SellerReply
+        
+        review = Review.objects.get(id=review_id)
+        seller = request.user.seller_profile
+        
+        # Check if the review belongs to seller's product
+        if review.product.seller != seller:
+            return JsonResponse({'success': False, 'error': 'Unauthorized'})
+        
+        reply_text = request.POST.get('reply', '').strip()
+        
+        if not reply_text:
+            return JsonResponse({'success': False, 'error': 'Reply text is required'})
+        
+        # Create new reply (allows multiple replies)
+        seller_reply = SellerReply.objects.create(
+            review=review,
+            reply_text=reply_text,
+            seller=seller
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'reply_text': seller_reply.reply_text,
+            'replied_at': seller_reply.replied_at.strftime('%b %d, %Y'),
+            'seller_name': seller.user.get_full_name(),
+            'reply_id': seller_reply.id
+        })
+        
+    except Review.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Review not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
