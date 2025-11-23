@@ -116,3 +116,18 @@ class Notification(models.Model):
             'low_stock': 'fas fa-exclamation-triangle',
         }
         return icons.get(self.notification_type, 'fas fa-bell')
+    
+
+# seller/models.py
+class SellerReply(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='seller_replies')
+    reply_text = models.TextField()
+    replied_at = models.DateTimeField(auto_now_add=True)
+    seller = models.ForeignKey('SellerProfile', on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name_plural = "Seller Replies"
+        ordering = ['-replied_at']  
+
+    def __str__(self):
+        return f"Reply by {self.seller.user.get_full_name()} to review {self.review.id}"
