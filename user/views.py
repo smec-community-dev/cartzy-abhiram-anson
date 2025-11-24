@@ -775,7 +775,7 @@ def create_buy_now_order(request):
             # Create the order
             order = Order.objects.create(
                 order_number=order_no, 
-                status='delivered', 
+                status='Pending', 
                 total_amount=total_amount, 
                 address=address, 
                 customer_id=user_id
