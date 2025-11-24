@@ -1255,3 +1255,173 @@ def seller_google_login(request):
 def seller_google_callback(request):
     
     return redirect('/seller/dashboard/')
+
+
+from django.db.models import Count, Sum, Max
+from django.utils import timezone
+from datetime import timedelta
+from core.models import Order, OrderItem
+from core.models import User
+
+def seller_customers(request):
+    # Get the current seller
+    seller = request.user
+    
+    # Get all orders that have items from this seller
+    seller_orders = Order.objects.filter(
+        items__product__seller__user=seller
+    ).distinct()
+    
+    # Get unique customers who ordered from this seller
+    customer_ids = seller_orders.values_list('customer', flat=True).distinct()
+    customers_data = []
+    
+    for customer_id in customer_ids:
+        customer = User.objects.get(id=customer_id)
+        
+        # Get orders from this customer that have seller's items
+        customer_orders = seller_orders.filter(customer=customer)
+        
+        # Calculate customer metrics
+        total_orders = customer_orders.count()
+        total_value = sum(order.get_seller_subtotal(seller) for order in customer_orders)
+        last_order = customer_orders.aggregate(last_order=Max('created_at'))['last_order']
+        
+        # Determine customer type
+        if total_orders == 1:
+            customer_type = 'new'
+        elif total_orders > 3:
+            customer_type = 'loyal'
+        else:
+            customer_type = 'regular'
+        
+        # Check if customer is active (ordered in last 30 days)
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        is_active = customer_orders.filter(created_at__gte=thirty_days_ago).exists()
+        
+        customers_data.append({
+            'id': customer.id,
+            'name': f"{customer.first_name} {customer.last_name}".strip() or customer.username,
+            'email': customer.email,
+            'phone': getattr(customer, 'phone', 'N/A'),  # Add phone field to User model if needed
+            'profile_picture': getattr(customer, 'profile_picture', None),  # Add profile_picture field if needed
+            'join_date': customer.date_joined,
+            'total_orders': total_orders,
+            'total_value': total_value,
+            'last_order_date': last_order,
+            'customer_type': customer_type,
+            'is_active': is_active,
+        })
+    
+    # Apply filters
+    customer_type_filter = request.GET.get('customer_type', '')
+    order_value_filter = request.GET.get('order_value', '')
+    sort_by = request.GET.get('sort_by', 'name')
+    
+    # Filter by customer type
+    if customer_type_filter:
+        if customer_type_filter == 'new':
+            customers_data = [c for c in customers_data if c['total_orders'] == 1]
+        elif customer_type_filter == 'repeat':
+            customers_data = [c for c in customers_data if c['total_orders'] > 1]
+        elif customer_type_filter == 'inactive':
+            customers_data = [c for c in customers_data if not c['is_active']]
+    
+    # Filter by order value
+    if order_value_filter:
+        if order_value_filter == 'high':
+            customers_data = [c for c in customers_data if c['total_value'] >= 10000]
+        elif order_value_filter == 'medium':
+            customers_data = [c for c in customers_data if 5000 <= c['total_value'] < 10000]
+        elif order_value_filter == 'low':
+            customers_data = [c for c in customers_data if c['total_value'] < 5000]
+    
+    # Sort customers
+    if sort_by == 'orders':
+        customers_data.sort(key=lambda x: x['total_orders'], reverse=True)
+    elif sort_by == 'value':
+        customers_data.sort(key=lambda x: x['total_value'], reverse=True)
+    elif sort_by == 'recent':
+        customers_data.sort(key=lambda x: x['last_order_date'] or timezone.make_aware(timezone.datetime.min), reverse=True)
+    else:  # name
+        customers_data.sort(key=lambda x: x['name'])
+    
+    # Calculate statistics
+    total_customers = len(customers_data)
+    active_customers = len([c for c in customers_data if c['is_active']])
+    
+    # New customers this month
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+    new_customers_month = len([
+        c for c in customers_data 
+        if c['last_order_date'] and 
+        c['last_order_date'].month == current_month and 
+        c['last_order_date'].year == current_year and
+        c['total_orders'] == 1
+    ])
+    
+    # Repeat customers (ordered more than once)
+    repeat_customers = len([c for c in customers_data if c['total_orders'] > 1])
+    
+    # Get unique locations for filter (you'll need to add address to User model)
+    locations = []  # You can populate this from customer addresses
+    
+    context = {
+        'customers': customers_data,
+        'total_customers': total_customers,
+        'active_customers': active_customers,
+        'new_customers_month': new_customers_month,
+        'repeat_customers': repeat_customers,
+        'locations': locations,
+    }
+    
+    return render(request, 'seller/customers.html', context)
+
+
+
+@csrf_exempt
+def get_customer_orders(request, customer_id):
+    """API endpoint to get customer order details"""
+    if request.method == 'GET':
+        seller = request.user
+        
+        try:
+            customer = User.objects.get(id=customer_id, role='customer')
+            
+            # Get orders that have items from this seller and belong to this customer
+            orders = Order.objects.filter(
+                customer=customer,
+                items__product__seller__user=seller
+            ).distinct().prefetch_related('items')
+            
+            order_items = []
+            for order in orders:
+                # Get only the items from this seller in the order
+                seller_order_items = order.get_seller_items(seller)
+                
+                for item in seller_order_items:
+                    order_items.append({
+                        'productName': item.product_name,
+                        'orderNumber': order.order_number,
+                        'quantity': item.quantity,
+                        'price': str(item.price),
+                        'date': order.created_at.strftime('%b %d, %Y'),
+                        'status': order.status
+                    })
+            
+            return JsonResponse({
+                'success': True,
+                'orderItems': order_items
+            })
+            
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Customer not found'
+            }, status=404)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Method not allowed'
+    }, status=405)

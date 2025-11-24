@@ -13,6 +13,7 @@ urlpatterns = [
     path('orders/', views.seller_orders, name='seller_orders'),
     path('profile/', views.seller_profile, name='seller_profile'),
     path('reviews/', views.seller_reviews, name='seller_reviews'),
+    path('customers/', views.seller_customers, name='seller_customers'),
     # path('reviews/<int:review_id>/reply/', views.reply_to_review, name='reply_to_review'),
     path('orders/<int:order_id>/details/', views.order_details, name='order_details'),
     path('notifications/', views.all_notifications, name='all_notifications'),
@@ -22,5 +23,5 @@ urlpatterns = [
     path('orders/update-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
     path('google/login/', views.seller_google_login, name='seller_google_login'),
     path('google/callback/', views.seller_google_callback, name='seller_google_callback'),
-  
+    path('customer/<int:customer_id>/orders/', views.get_customer_orders, name='get_customer_orders'),
 ]

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Seller Dashboard</title>
+    <title>Customers - Seller Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -416,24 +416,24 @@
             background: #fafafa;
         }
 
-        .product-cell {
+        .customer-cell {
             display: flex;
             align-items: center;
             gap: 16px;
         }
 
-        .product-image {
+        .customer-avatar {
             width: 56px;
             height: 56px;
-            border-radius: 12px;
+            border-radius: 50%;
             object-fit: cover;
             border: 1px solid #f5f5f7;
         }
 
-        .product-placeholder {
+        .customer-placeholder {
             width: 56px;
             height: 56px;
-            border-radius: 12px;
+            border-radius: 50%;
             background: #f5f5f7;
             display: flex;
             align-items: center;
@@ -441,19 +441,19 @@
             color: #d2d2d7;
         }
 
-        .product-info h6 {
+        .customer-info h6 {
             font-size: 0.9375rem;
             font-weight: 500;
             color: #1d1d1f;
             margin-bottom: 2px;
         }
 
-        .product-info small {
+        .customer-info small {
             font-size: 0.8125rem;
             color: #86868b;
         }
 
-        .category-badge {
+        .customer-badge {
             background: #f5f5f7;
             color: #1d1d1f;
             padding: 6px 12px;
@@ -463,13 +463,13 @@
             display: inline-block;
         }
 
-        .price-text {
+        .value-text {
             font-weight: 600;
             color: #1d1d1f;
             font-size: 1rem;
         }
 
-        .stock-badge {
+        .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -479,22 +479,22 @@
             font-weight: 500;
         }
 
-        .stock-badge.in-stock {
+        .status-badge.active {
             background: #e8f5e9;
             color: #2e7d32;
         }
 
-        .stock-badge.out-stock {
+        .status-badge.inactive {
             background: #ffebee;
             color: #c62828;
         }
 
-        .stock-badge.low-stock {
+        .status-badge.new {
             background: #fff3e0;
             color: #ef6c00;
         }
 
-        .stock-badge i {
+        .status-badge i {
             font-size: 6px;
         }
 
@@ -556,11 +556,11 @@
         }
 
         .empty-state > i {
-    font-size: 4rem;
-    color: #d2d2d7;
-    margin-bottom: 24px;
-    opacity: 0.5;
-}
+            font-size: 4rem;
+            color: #d2d2d7;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
 
         .empty-state h4 {
             font-size: 1.5rem;
@@ -631,33 +631,7 @@
             border-color: #f92400;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stat-card {
-            animation: fadeInUp 0.6s ease-out backwards;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-        /* Stock warning */
-        .stock-warning {
-            color: #ff9500;
-        }
-
-        /* Delete Modal Styles */
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -665,7 +639,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
@@ -677,7 +651,9 @@
             border-radius: 18px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
             animation: modalSlideIn 0.3s ease-out;
         }
 
@@ -698,6 +674,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            border-radius: 18px 18px 0 0;
         }
 
         .modal-header h4 {
@@ -730,57 +710,136 @@
             padding: 24px 32px;
         }
 
-        .product-preview {
+        .customer-details {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 24px;
+            align-items: start;
+            margin-bottom: 32px;
+            padding: 24px;
             background: #fafafa;
             border-radius: 12px;
-            padding: 20px;
+        }
+
+        .customer-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e5e5e7;
+        }
+
+        .customer-avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d2d2d7;
+            font-size: 1.5rem;
+            border: 2px solid #e5e5e7;
+        }
+
+        .customer-details-info h5 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .customer-details-info p {
+            color: #86868b;
+            margin-bottom: 4px;
+        }
+
+        .order-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .order-items-table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .order-items-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f5f5f7;
+            font-size: 0.875rem;
+            color: #1d1d1f;
+        }
+
+        .order-items-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .order-items-table .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .order-items-table .product-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
             border: 1px solid #f5f5f7;
         }
 
-        .modal-footer {
-            padding: 20px 32px 24px;
-            border-top: 1px solid #f5f5f7;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border-radius: 980px;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-secondary {
-            background: #ffffff;
-            color: #1d1d1f;
-            border-color: #d2d2d7;
-        }
-
-        .btn-secondary:hover {
+        .order-items-table .product-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
             background: #f5f5f7;
-            border-color: #86868b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d2d2d7;
         }
 
-        .btn-danger {
-            background: #dc3545;
-            color: #ffffff;
-            border-color: #dc3545;
+        .no-orders {
+            text-align: center;
+            padding: 40px 20px;
+            color: #86868b;
         }
 
-        .btn-danger:hover {
-            background: #c82333;
-            border-color: #bd2130;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        .no-orders i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
 
         /* Responsive */
         @media (max-width: 1024px) {
@@ -844,14 +903,18 @@
                 min-width: 100%;
             }
 
+            .customer-details {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
             .modal-content {
-                margin: 20px;
-                max-width: none;
+                margin: 10px;
+                max-height: 90vh;
             }
 
             .modal-header,
-            .modal-body,
-            .modal-footer {
+            .modal-body {
                 padding: 20px;
             }
         }
@@ -872,7 +935,7 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/seller/products" class="nav-item active">
+                <a href="/seller/products" class="nav-item">
                     <i class="fas fa-box"></i>
                     <span>Products</span>
                 </a>
@@ -888,7 +951,7 @@
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
-                <a href="/seller/customers" class="nav-item">
+                <a href="/seller/customers" class="nav-item active">
                     <i class="fas fa-users"></i>
                     <span>Customers</span>
                 </a>
@@ -905,7 +968,7 @@
                     <i class="fas fa-user"></i>
                     <span>Profile</span>
                 </a>
-                
+    
             </div>
         </div>
         
@@ -927,8 +990,8 @@
         <!-- Top Bar -->
         <div class="top-bar">
             <div class="page-title">
-                <h1>Products Management</h1>
-                <p>View, manage, and update all your product listings</p>
+                <h1>Customer Management</h1>
+                <p>View and manage all customers who purchased from your store</p>
             </div>
             <div class="top-bar-actions">
                 <!-- <button class="notification-btn">
@@ -943,65 +1006,66 @@
             <!-- Stats Cards -->
             <div class="stats-container">
                 <div class="stat-card" style="--card-color: #0071e3;">
-                    <div class="stat-label">Total Products</div>
-                    <div class="stat-value">{{ total_products }}</div>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value">{{ total_customers }}</div>
                 </div>
 
                 <div class="stat-card" style="--card-color: #34c759;">
-                    <div class="stat-label">In Stock</div>
-                    <div class="stat-value">{{ in_stock_products }}</div>
+                    <div class="stat-label">Active Customers</div>
+                    <div class="stat-value">{{ active_customers }}</div>
                 </div>
 
                 <div class="stat-card" style="--card-color: #ff9500;">
-                    <div class="stat-label">Low Stock</div>
-                    <div class="stat-value">{{ low_stock_products }}</div>
+                    <div class="stat-label">New This Month</div>
+                    <div class="stat-value">{{ new_customers_month }}</div>
                 </div>
 
                 <div class="stat-card" style="--card-color: #af52de;">
-                    <div class="stat-label">Out of Stock</div>
-                    <div class="stat-value">{{ out_of_stock_products }}</div>
+                    <div class="stat-label">Repeat Customers</div>
+                    <div class="stat-value">{{ repeat_customers }}</div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <form id="filterForm" method="GET" action="{% url 'seller:seller_products' %}">
+            <form id="filterForm" method="GET" action="{% url 'seller:seller_customers' %}">
                 <div class="filters-container">
                     <div class="filter-row">
                         <div class="filter-group">
-                            <label class="filter-label">Category</label>
-                            <select name="category" class="filter-select">
-                                <option value="">All Categories</option>
-                                {% for category in categories %}
-                                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                                    {{ category.name }}
+                            <label class="filter-label">Customer Type</label>
+                            <select name="customer_type" class="filter-select">
+                                <option value="">All Customers</option>
+                                <option value="new" {% if request.GET.customer_type == 'new' %}selected{% endif %}>New Customers</option>
+                                <option value="repeat" {% if request.GET.customer_type == 'repeat' %}selected{% endif %}>Repeat Customers</option>
+                                <option value="inactive" {% if request.GET.customer_type == 'inactive' %}selected{% endif %}>Inactive Customers</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Order Value</label>
+                            <select name="order_value" class="filter-select">
+                                <option value="">All Values</option>
+                                <option value="high" {% if request.GET.order_value == 'high' %}selected{% endif %}>High Value (₹10,000+)</option>
+                                <option value="medium" {% if request.GET.order_value == 'medium' %}selected{% endif %}>Medium Value (₹5,000-₹10,000)</option>
+                                <option value="low" {% if request.GET.order_value == 'low' %}selected{% endif %}>Low Value (Below ₹5,000)</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Location</label>
+                            <select name="location" class="filter-select">
+                                <option value="">All Locations</option>
+                                {% for location in locations %}
+                                <option value="{{ location }}" {% if request.GET.location == location %}selected{% endif %}>
+                                    {{ location }}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="filter-group">
-                            <label class="filter-label">Stock Status</label>
-                            <select name="stock_status" class="filter-select">
-                                <option value="">All Status</option>
-                                <option value="in_stock" {% if request.GET.stock_status == 'in_stock' %}selected{% endif %}>In Stock</option>
-                                <option value="low_stock" {% if request.GET.stock_status == 'low_stock' %}selected{% endif %}>Low Stock</option>
-                                <option value="out_of_stock" {% if request.GET.stock_status == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label class="filter-label">Product Status</label>
-                            <select name="product_status" class="filter-select">
-                                <option value="">All Status</option>
-                                <option value="active" {% if request.GET.product_status == 'active' %}selected{% endif %}>Active</option>
-                                <option value="inactive" {% if request.GET.product_status == 'inactive' %}selected{% endif %}>Inactive</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
                             <label class="filter-label">Sort By</label>
                             <select name="sort_by" class="filter-select">
-                                <option value="name" {% if request.GET.sort_by == 'name' or not request.GET.sort_by %}selected{% endif %}>Product Name</option>
-                                <option value="price" {% if request.GET.sort_by == 'price' %}selected{% endif %}>Price</option>
-                                <option value="stock" {% if request.GET.sort_by == 'stock' %}selected{% endif %}>Stock Level</option>
-                                <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Date Added</option>
+                                <option value="name" {% if request.GET.sort_by == 'name' or not request.GET.sort_by %}selected{% endif %}>Customer Name</option>
+                                <option value="orders" {% if request.GET.sort_by == 'orders' %}selected{% endif %}>Total Orders</option>
+                                <option value="value" {% if request.GET.sort_by == 'value' %}selected{% endif %}>Total Value</option>
+                                <option value="recent" {% if request.GET.sort_by == 'recent' %}selected{% endif %}>Most Recent</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -1015,17 +1079,14 @@
                 </div>
             </form>
 
-            <!-- Products Card -->
+            <!-- Customers Card -->
             <div class="content-card">
                 <div class="card-header-custom">
                     <div class="header-title">
-                        <h2>All Products</h2>
-                        <p>Manage and update your product listings</p>
+                        <h2>All Customers</h2>
+                        <p>Customers who have purchased from your store</p>
                     </div>
-                    <a href="/seller/addproduct" class="btn-primary-custom">
-                        <i class="fas fa-plus-circle"></i>
-                        Add New Product
-                    </a>
+                    <!-- Export button removed as requested -->
                 </div>
 
                 <div class="table-container">
@@ -1033,105 +1094,95 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Status</th>
+                                <th>Customer</th>
+                                <th>Contact</th>
+                                <th>Total Orders</th>
+                                <th>Total Value</th>
+                                <th>Last Order</th>
+                                <th>Customer Type</th>
                                 <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for p in products %}
+                            {% for customer in customers %}
                             <tr>
                                 <td><strong>{{ forloop.counter }}</strong></td>
                                 <td>
-                                    <div class="product-cell">
-                                        {% if p.main_image_obj %}
-                                            <img src="{{ p.main_image_obj.image.url }}" class="product-image" alt="{{ p.name }}">
+                                    <div class="customer-cell">
+                                        {% if customer.profile_picture %}
+                                            <img src="{{ customer.profile_picture.url }}" class="customer-avatar" alt="{{ customer.name }}">
                                         {% else %}
-                                            <div class="product-placeholder">
-                                                <i class="fas fa-image"></i>
+                                            <div class="customer-placeholder">
+                                                <i class="fas fa-user"></i>
                                             </div>
                                         {% endif %}
-                                        <div class="product-info">
-                                            <h6>{{ p.name|truncatechars:30 }}</h6>
-                                            <small>ID: {{ p.id }}</small>
+                                        <div class="customer-info">
+                                            <h6>{{ customer.name }}</h6>
+                                            <small>Joined: {{ customer.join_date|date:"M d, Y" }}</small>
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="category-badge">{{ p.category }}</span></td>
-                                <td><span class="price-text">₹{{ p.price }}</span></td>
                                 <td>
-    <span class="{% if p.stock < 10 %}stock-warning{% endif %}" style="font-weight: 600;">
-        {{ p.stock }}
-    </span>
-    {% if p.stock < 10 and p.stock > 0 %}
-        <i class="fas fa-exclamation-triangle text-warning ms-1" title="Low Stock"></i>
-    {% endif %}
-</td>
-<td>
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        {% if p.stock > 10 %}
-            <span class="stock-badge in-stock">
-                <i class="fas fa-circle"></i>
-                In Stock
-            </span>
-        {% elif p.stock > 0 and p.stock <= 10 %}
-            <span class="stock-badge low-stock">
-                <i class="fas fa-circle"></i>
-                Low Stock
-            </span>
-        {% else %}
-            <span class="stock-badge out-stock">
-                <i class="fas fa-circle"></i>
-                Out of Stock
-            </span>
-        {% endif %}
-        
-        {% if not p.is_active %}
-            <span class="stock-badge" style="background: #6c757d; color: white;">
-                <i class="fas fa-eye-slash"></i>
-                Inactive
-            </span>
-        {% endif %}
-    </div>
-</td>
-
+                                    <div class="customer-info">
+                                        <h6>{{ customer.email }}</h6>
+                                        <small>{{ customer.phone }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="value-text">{{ customer.total_orders }}</span>
+                                    <br>
+                                    <small>orders</small>
+                                </td>
+                                <td>
+                                    <span class="value-text">₹{{ customer.total_value }}</span>
+                                    <br>
+                                    <small>total spent</small>
+                                </td>
+                                <td>
+                                    <span class="value-text">{{ customer.last_order_date|date:"M d, Y" }}</span>
+                                    <br>
+                                    <small>{{ customer.last_order_date|timesince }} ago</small>
+                                </td>
+                                <td>
+                                    {% if customer.total_orders == 1 %}
+                                        <span class="status-badge new">
+                                            <i class="fas fa-circle"></i>
+                                            New Customer
+                                        </span>
+                                    {% elif customer.total_orders > 3 %}
+                                        <span class="status-badge active">
+                                            <i class="fas fa-circle"></i>
+                                            Loyal Customer
+                                        </span>
+                                    {% else %}
+                                        <span class="customer-badge">Regular</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-view" onclick="window.location.href='{% url 'seller:product_detail' p.id %}'">
+                                        <button class="btn-view" onclick="viewCustomerDetails('{{ customer.id }}', '{{ customer.name }}', '{{ customer.email }}', '{{ customer.phone }}', '{{ customer.total_orders }}', '{{ customer.total_value }}')">
                                             <i class="fas fa-eye"></i>
                                             View
                                         </button>
-                                        <button class="btn-edit" onclick="window.location.href='{% url 'seller:update_product' p.id %}'">
-                                            <i class="fas fa-edit"></i>
-                                            Edit
-                                        </button>
-                                        <button class="btn-delete" onclick="openDeleteModal('{{ p.id }}', '{{ p.name }}', '₹{{ p.price }}', '{{ p.stock }}', '{{ p.order_count }}', '{{ p.main_image_obj.image.url }}')">
-                                            <i class="fas fa-trash-alt"></i>
-                                            Delete
+                                        <button class="btn-edit" onclick="contactCustomer('{{ customer.email }}')">
+                                            <i class="fas fa-envelope"></i>
+                                            Contact
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
-                                        <i class="fas fa-box-open"></i>
-                                        <h4>No Products Found</h4>
-                                        <p>{% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}No products match your current filters. Try adjusting your search criteria.{% else %}Start by adding your first product to showcase in your store.{% endif %}</p>
-                                        {% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}
+                                        <i class="fas fa-users"></i>
+                                        <h4>No Customers Found</h4>
+                                        <p>{% if request.GET.customer_type or request.GET.order_value or request.GET.location or request.GET.sort_by %}No customers match your current filters. Try adjusting your search criteria.{% else %}You haven't received any orders yet. Customers will appear here once they make purchases.{% endif %}</p>
+                                        {% if request.GET.customer_type or request.GET.order_value or request.GET.location or request.GET.sort_by %}
                                         <button type="button" class="btn-primary-custom" onclick="clearFilters()">
                                             <i class="fas fa-times"></i>
                                             Clear Filters
                                         </button>
-                                        {% else %}
-                                        <a href="/seller/addproduct" class="btn-primary-custom">
-                                            <i class="fas fa-plus"></i>
-                                            Add Your First Product
-                                        </a>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -1141,11 +1192,11 @@
                     </table>
                 </div>
 
-                {% if products %}
+                {% if customers %}
                 <div class="card-footer-custom">
                     <div>
-                        Showing <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}
-                        {% if request.GET.category or request.GET.stock_status or request.GET.product_status or request.GET.sort_by %}
+                        Showing <strong>{{ customers|length }}</strong> customer{{ customers|length|pluralize }}
+                        {% if request.GET.customer_type or request.GET.order_value or request.GET.location or request.GET.sort_by %}
                          (filtered)
                         {% endif %}
                     </div>
@@ -1158,19 +1209,19 @@
             </div>
 
             <!-- Pagination -->
-            {% if products.has_other_pages %}
+            {% if customers.has_other_pages %}
             <div class="pagination-container">
                 <ul class="pagination">
-                    {% if products.has_previous %}
+                    {% if customers.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ products.previous_page_number }}">
+                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ customers.previous_page_number }}">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
                     {% endif %}
 
-                    {% for i in products.paginator.page_range %}
-                    {% if products.number == i %}
+                    {% for i in customers.paginator.page_range %}
+                    {% if customers.number == i %}
                     <li class="page-item active">
                         <a class="page-link" href="#">{{ i }}</a>
                     </li>
@@ -1181,9 +1232,9 @@
                     {% endif %}
                     {% endfor %}
 
-                    {% if products.has_next %}
+                    {% if customers.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ products.next_page_number }}">
+                        <a class="page-link" href="?{% if request.GET %}{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ customers.next_page_number }}">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
@@ -1194,13 +1245,13 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal-overlay" style="display: none;">
+    <!-- Customer Details Modal -->
+    <div id="customerModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h4>
-                    <i class="fas fa-trash-alt text-danger me-2"></i>
-                    Delete Product
+                    <i class="fas fa-user me-2"></i>
+                    Customer Details
                 </h4>
                 <button class="modal-close" onclick="closeModal()">
                     <i class="fas fa-times"></i>
@@ -1208,116 +1259,205 @@
             </div>
             
             <div class="modal-body">
-                <!-- Product Preview -->
-                <div class="product-preview mb-4">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <img id="modalProductImage" src="" class="rounded" style="width: 80px; height: 80px; object-fit: cover; display: none;">
-                            <div id="modalProductPlaceholder" class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                <i class="fas fa-image text-muted fa-2x"></i>
-                            </div>
+                <div class="customer-details">
+                    <div>
+                        <div id="modalCustomerAvatar" class="customer-avatar-placeholder">
+                            <i class="fas fa-user"></i>
                         </div>
-                        <div class="col">
-                            <h5 id="modalProductName" class="mb-1"></h5>
-                            <p id="modalProductPrice" class="text-muted mb-1"></p>
-                            <p id="modalProductDetails" class="text-muted mb-0"></p>
-                        </div>
+                    </div>
+                    <div class="customer-details-info">
+                        <h5 id="modalCustomerName"></h5>
+                        <p id="modalCustomerEmail"></p>
+                        <p id="modalCustomerPhone"></p>
+                        <p><strong>Total Orders:</strong> <span id="modalCustomerOrders"></span></p>
+                        <p><strong>Total Value:</strong> ₹<span id="modalCustomerValue"></span></p>
                     </div>
                 </div>
 
-                <!-- Warning Message -->
-                <div class="alert alert-warning">
-                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notice</h6>
-                    <p id="modalOrderCount" class="mb-2"></p>
-                    <p class="mb-0">To preserve order history, the product will be:</p>
-                    <ul class="mb-0 mt-2">
-                        <li>Hidden from your product listings</li>
-                        <li>Kept in customer order history</li>
-                        <li>Marked as inactive (customers won't see it)</li>
-                    </ul>
+                <h5 class="mb-3">Order History</h5>
+                <div class="table-container">
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Order #</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalOrderItems">
+                            <!-- Order items will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">
-                    <i class="fas fa-times me-2"></i>Cancel
-                </button>
-                <form id="deleteForm" method="POST" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-eye-slash me-2"></i>Deactivate Product
-                    </button>
-                </form>
+                <div id="noOrdersMessage" class="no-orders" style="display: none;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h5>No Orders Found</h5>
+                    <p>This customer hasn't placed any orders yet.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Function to clear all filters
-        function clearFilters() {
-            window.location.href = "{% url 'seller:seller_products' %}";
-        }
+    // Function to clear all filters
+    function clearFilters() {
+        window.location.href = "{% url 'seller:seller_customers' %}";
+    }
 
-        // Auto-submit form when filters change
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterSelects = document.querySelectorAll('.filter-select');
-            
-            filterSelects.forEach(select => {
-                select.addEventListener('change', function() {
-                    document.getElementById('filterForm').submit();
-                });
+    // Auto-submit form when filters change
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterSelects = document.querySelectorAll('.filter-select');
+        
+        filterSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
             });
         });
+    });
 
-        // Show loading state when form is submitted
-        document.getElementById('filterForm').addEventListener('submit', function() {
-            // You can add a loading spinner here if needed
-            console.log('Applying filters...');
-        });
+    // View customer details - opens modal with order history
+    function viewCustomerDetails(customerId, customerName, customerEmail, customerPhone, totalOrders, totalValue) {
+        // Set customer details in modal
+        document.getElementById('modalCustomerName').textContent = customerName;
+        document.getElementById('modalCustomerEmail').textContent = customerEmail;
+        document.getElementById('modalCustomerPhone').textContent = customerPhone || 'Not provided';
+        document.getElementById('modalCustomerOrders').textContent = totalOrders;
+        document.getElementById('modalCustomerValue').textContent = totalValue;
+        
+        // Show loading state
+        const orderItemsContainer = document.getElementById('modalOrderItems');
+        const noOrdersMessage = document.getElementById('noOrdersMessage');
+        orderItemsContainer.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: #86868b;"></i>
+                    <p style="margin-top: 16px; color: #86868b;">Loading order history...</p>
+                </td>
+            </tr>
+        `;
+        noOrdersMessage.style.display = 'none';
+        
+        // Show modal
+        document.getElementById('customerModal').style.display = 'flex';
+        
+        // Fetch real order data from backend
+        fetchCustomerOrders(customerId);
+    }
 
-        // Delete Modal Functions
-        function openDeleteModal(productId, productName, productPrice, productStock, orderCount, productImage = null) {
-            // Set modal content
-            document.getElementById('modalProductName').textContent = productName;
-            document.getElementById('modalProductPrice').textContent = productPrice;
-            document.getElementById('modalProductDetails').textContent = `Stock: ${productStock} units`;
-            document.getElementById('modalOrderCount').textContent = `This product has ${orderCount || 0} order(s) in history.`;
-
-            // Handle product image
-            if (productImage) {
-                document.getElementById('modalProductImage').src = productImage;
-                document.getElementById('modalProductImage').style.display = 'block';
-                document.getElementById('modalProductPlaceholder').style.display = 'none';
+    // Fetch customer orders from backend
+    function fetchCustomerOrders(customerId) {
+        fetch(`/seller/customer/${customerId}/orders/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const orderItemsContainer = document.getElementById('modalOrderItems');
+            const noOrdersMessage = document.getElementById('noOrdersMessage');
+            
+            if (data.success && data.orderItems && data.orderItems.length > 0) {
+                orderItemsContainer.innerHTML = '';
+                noOrdersMessage.style.display = 'none';
+                
+                data.orderItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="product-cell">
+                                <div class="product-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div>${item.productName}</div>
+                            </div>
+                        </td>
+                        <td>${item.orderNumber}</td>
+                        <td>${item.quantity}</td>
+                        <td>₹${item.price}</td>
+                        <td>${item.date}</td>
+                        <td><span class="status-badge ${getStatusClass(item.status)}">${item.status}</span></td>
+                    `;
+                    orderItemsContainer.appendChild(row);
+                });
             } else {
-                document.getElementById('modalProductImage').style.display = 'none';
-                document.getElementById('modalProductPlaceholder').style.display = 'flex';
+                orderItemsContainer.innerHTML = '';
+                noOrdersMessage.style.display = 'block';
             }
-
-            // Set form action
-            const deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = `/seller/delete/${productId}`;
-
-            // Show modal
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
+        })
+        .catch(error => {
+            console.error('Error fetching customer orders:', error);
+            const orderItemsContainer = document.getElementById('modalOrderItems');
+            const noOrdersMessage = document.getElementById('noOrdersMessage');
+            
+            orderItemsContainer.innerHTML = '';
+            noOrdersMessage.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <h5>Error Loading Orders</h5>
+                <p>Unable to load order history. Please try again.</p>
+            `;
+            noOrdersMessage.style.display = 'block';
         });
+    }
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
+    // Helper function to get CSS class for order status
+    function getStatusClass(status) {
+        const statusClasses = {
+            'Delivered': 'active',
+            'Shipped': 'active',
+            'Processing': 'new',
+            'Pending': 'new',
+            'Cancelled': 'inactive'
+        };
+        return statusClasses[status] || 'new';
+    }
+
+    // Contact customer - opens Gmail with draft
+    function contactCustomer(customerEmail) {
+        const subject = encodeURIComponent('Regarding your orders from our store');
+        const body = encodeURIComponent(`Dear Customer,\n\nThank you for your recent purchases from our store. We appreciate your business and would love to hear about your experience.\n\nIf you have any questions or concerns about your orders, please don't hesitate to reach out.\n\nBest regards,\n${document.querySelector('.user-details h4').textContent}`);
+        
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${customerEmail}&su=${subject}&body=${body}`, '_blank');
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('customerModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('customerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-        });
-    </script>
+        }
+        return cookieValue;
+    }
+</script>
 </body>
 </html>
