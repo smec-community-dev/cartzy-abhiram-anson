@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Electro</title>
+    <style>
+        .confirmation-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .success-icon {
+            color: #28a745;
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .order-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .btn-continue {
+            background: #F92400;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn-continue:hover {
+            background: #ce2305;
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    {% include "user/header_login.html" %}
+
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="confirmation-container">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <h2>Order Confirmed!</h2>
+                <p>Thank you for your purchase. Your order has been successfully placed.</p>
+                
+                <div class="order-details">
+                    <h4>Order Details</h4>
+                    <div class="detail-item">
+                        <strong>Order Number:</strong> #{{ order.order_number }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Total Amount:</strong> ₹{{ order.total_amount }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Payment Method:</strong> {{ order.get_payment_method_display }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Payment Status:</strong> 
+                        <span style="color: {% if order.payment_status == 'PAID' %}#28a745{% else %}#ffc107{% endif %};">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Order Status:</strong> {{ order.status }}
+                    </div>
+                    {% if order.address %}
+                    <div class="detail-item">
+                        <strong>Shipping Address:</strong><br>
+                        {{ order.address.full_name }},<br>
+                        {{ order.address.street }},<br>
+                        {{ order.address.city }}, {{ order.address.state }} - {{ order.address.postal_code }}<br>
+                        {{ order.address.country }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <h5>Order Items:</h5>
+                <div class="order-details">
+                    {% for item in order_items %}
+                    <div class="detail-item">
+                        <strong>{{ item.product_name }}</strong><br>
+                        Quantity: {{ item.quantity }} × ₹{{ item.price }} = ₹{{ item.subtotal }}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <a href="{% url 'user_home' %}" class="btn-continue">
+                    Continue Shopping
+                </a>
+                <br>
+                <a href="{% url 'user_view_order' %}" style="color: #0066cc; text-decoration: none;">
+                    View All Orders
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% include 'user/footer.html' %}
+</body>
+</html>

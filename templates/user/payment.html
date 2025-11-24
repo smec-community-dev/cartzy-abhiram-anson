@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - Electro</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        .payment-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .payment-header {
+            color: #F92400;
+            margin-bottom: 20px;
+        }
+        .order-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .btn-pay {
+            background: #2d5baf;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .btn-pay:hover {
+            background: #1e4a9e;
+            transform: translateY(-2px);
+        }
+        .loading {
+            display: none;
+            color: #F92400;
+        }
+        .security-note {
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include "user/header_login.html" %}
+
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="payment-container">
+                <h2 class="payment-header">Secure Payment</h2>
+                <p>Complete your payment for Order #{{ order.order_number }}</p>
+                
+                <div class="order-details">
+                    <h4>Order Summary</h4>
+                    <p><strong>Amount:</strong> ₹{{ order.total_amount }}</p>
+                    <p><strong>Order ID:</strong> {{ order.order_number }}</p>
+                    <p><strong>Items:</strong> {{ order.items.count }} product(s)</p>
+                </div>
+
+                <button id="pay-btn" class="btn-pay">
+                    Pay Now ₹{{ order.total_amount }}
+                </button>
+                
+                <div id="loading" class="loading">
+                    <p><i class="fas fa-spinner fa-spin"></i> Processing payment...</p>
+                </div>
+
+                <p class="security-note">
+                    <i class="fas fa-lock"></i> Your payment is secured with Razorpay
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('pay-btn').addEventListener('click', function() {
+            const payBtn = this;
+            const loading = document.getElementById('loading');
+            
+            // Show loading
+            payBtn.style.display = 'none';
+            loading.style.display = 'block';
+            
+            const options = {
+                key: "{{ razorpay_key_id }}",
+                amount: "{{ amount|floatformat:0 }}00", // Convert to paise
+                currency: "{{ currency }}",
+                name: "CARTZY",
+                description: "Order #{{ order.order_number }}",
+                order_id: "{{ razorpay_order_id }}",
+                handler: function(response) {
+                    // Submit payment details to your server
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{% url 'razorpay_payment_success' %}";
+                    
+                    // Add CSRF token
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = 'csrfmiddlewaretoken';
+                    csrfToken.value = '{{ csrf_token }}';
+                    form.appendChild(csrfToken);
+                    
+                    // Add payment details
+                    const paymentId = document.createElement('input');
+                    paymentId.type = 'hidden';
+                    paymentId.name = 'razorpay_payment_id';
+                    paymentId.value = response.razorpay_payment_id;
+                    form.appendChild(paymentId);
+                    
+                    const orderId = document.createElement('input');
+                    orderId.type = 'hidden';
+                    orderId.name = 'razorpay_order_id';
+                    orderId.value = response.razorpay_order_id;
+                    form.appendChild(orderId);
+                    
+                    const signature = document.createElement('input');
+                    signature.type = 'hidden';
+                    signature.name = 'razorpay_signature';
+                    signature.value = response.razorpay_signature;
+                    form.appendChild(signature);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                },
+                prefill: {
+                    name: "{{ user.name }}",
+                    email: "{{ user.email }}",
+                    contact: "{{ user.phone }}"
+                },
+                theme: {
+                    color: "#F92400"
+                },
+                modal: {
+                    ondismiss: function() {
+                        // Show button again if modal is closed
+                        payBtn.style.display = 'block';
+                        loading.style.display = 'none';
+                    }
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.open();
+            
+            rzp.on('payment.failed', function(response) {
+                alert('Payment failed. Please try again.');
+                payBtn.style.display = 'block';
+                loading.style.display = 'none';
+                // Redirect to payment failed page
+                window.location.href = "{% url 'payment_failed' %}";
+            });
+        });
+
+        // Auto-open payment modal on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('pay-btn').click();
+        });
+    </script>
+
+    {% include 'user/footer.html' %}
+</body>
+</html>

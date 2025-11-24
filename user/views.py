@@ -1151,3 +1151,148 @@ def clear_single_notification(request, notification_id):
         return JsonResponse({'success': True})
     except CustomerNotification.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Notification not found'})
+
+import razorpay
+import os
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Order, OrderItem, Cart
+from decorators.decorators import role_required
+
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
+# Get Razorpay keys from environment
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
+# Initialize Razorpay client
+client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+@role_required("customer", login_url="/login/")
+def initiate_razorpay_payment(request, order_id):
+    """
+    1. Creates Razorpay order
+    2. Shows payment page
+    """
+    try:
+        order = Order.objects.get(id=order_id, customer=request.user)
+        
+        razorpay_order = client.order.create({
+            'amount': int(order.total_amount * 100),
+            'currency': 'INR',
+            'payment_capture': 1,
+        })
+        
+        order.razorpay_order_id = razorpay_order['id']
+        order.save()
+        
+        context = {
+            'order': order,
+            'razorpay_order_id': razorpay_order['id'],
+            'razorpay_key_id': RAZORPAY_KEY_ID,
+            'amount': order.total_amount,
+            'currency': 'INR',
+            'user': {
+                'name': f"{request.user.first_name} {request.user.last_name}",
+                'email': request.user.email,
+                'phone': getattr(request.user.customer_profile, 'phone', '')
+            }
+        }
+        
+        return render(request, 'user/payment.html', context)
+        
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('user_home')
+    except Exception as e:
+        print(f"Error initiating Razorpay payment: {e}")
+        messages.error(request, "Error initiating payment. Please try again.")
+        return redirect('user_home')
+
+@csrf_exempt
+def razorpay_payment_success(request):
+    """
+    3. Handles successful payment callback
+    """
+    if request.method == "POST":
+        try:
+            razorpay_payment_id = request.POST.get('razorpay_payment_id')
+            razorpay_order_id = request.POST.get('razorpay_order_id')
+            razorpay_signature = request.POST.get('razorpay_signature')
+            
+            # Verify payment signature
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_signature': razorpay_signature
+            }
+            
+            client.utility.verify_payment_signature(params_dict)
+            
+            # Update order status
+            order = Order.objects.get(razorpay_order_id=razorpay_order_id)
+            order.razorpay_payment_id = razorpay_payment_id
+            order.razorpay_signature = razorpay_signature
+            order.payment_status = 'PAID'
+            order.save()
+            
+            # Create notification
+            order_items = OrderItem.objects.filter(order=order)
+            try:
+                from seller.utils import create_order_notification
+                create_order_notification(order, list(order_items))
+            except Exception as e:
+                print(f"Error creating notification: {e}")
+            
+            # Delete cart
+            try:
+                cart = Cart.objects.get(customer=request.user)
+                cart.delete()
+            except Cart.DoesNotExist:
+                pass
+            
+            messages.success(request, f"Payment successful! Order #{order.order_number} confirmed.")
+            return redirect('order_confirmation', order_id=order.id)
+            
+        except Order.DoesNotExist:
+            messages.error(request, "Order not found.")
+            return redirect('user_home')
+        except razorpay.errors.SignatureVerificationError:
+            messages.error(request, "Payment verification failed.")
+            return redirect('payment_failed')
+        except Exception as e:
+            print(f"Payment success error: {e}")
+            messages.error(request, "Payment processing error.")
+            return redirect('payment_failed')
+    
+    return redirect('user_home')
+
+def payment_failed(request):
+    """
+    4. Shows payment failed page
+    """
+    messages.error(request, "Payment failed. Please try again.")
+    return redirect('user_view_cart')
+
+def order_confirmation(request, order_id):
+    """
+    5. Shows order confirmation page
+    """
+    try:
+        order = Order.objects.get(id=order_id, customer=request.user)
+        order_items = OrderItem.objects.filter(order=order)
+        
+        context = {
+            'order': order,
+            'order_items': order_items,
+        }
+        
+        return render(request, 'user/order_confirmation.html', context)
+        
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('user_home')
