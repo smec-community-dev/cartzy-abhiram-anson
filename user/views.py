@@ -1189,12 +1189,12 @@ def initiate_razorpay_payment(request, order_id):
         
         order.razorpay_order_id = razorpay_order['id']
         order.save()
-        
+        amt=order.total_amount+50
         context = {
             'order': order,
             'razorpay_order_id': razorpay_order['id'],
             'razorpay_key_id': RAZORPAY_KEY_ID,
-            'amount': order.total_amount,
+            'amount': amt,
             'currency': 'INR',
             'user': {
                 'name': f"{request.user.first_name} {request.user.last_name}",
