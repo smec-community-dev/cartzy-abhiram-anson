@@ -572,6 +572,11 @@
             font-size: 0.875rem;
             color: #1d1d1f;
             transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
         }
 
         .dropdown-item:hover {
@@ -781,12 +786,12 @@
                     <div class="d-flex gap-2">
                         {% if notifications %}
                         <div class="dropdown">
-                            <button class="btn-outline-custom dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn-outline-custom dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-eraser me-2"></i>Clear
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <form method="post" class="d-inline">
+                                    <form method="post" action="{% url 'seller:all_notifications' %}" class="d-inline w-100">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="clear_read">
                                         <button type="submit" class="dropdown-item">
@@ -796,7 +801,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form method="post" class="d-inline">
+                                    <form method="post" action="{% url 'seller:all_notifications' %}" class="d-inline w-100">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="clear_all">
                                         <button type="submit" class="dropdown-item text-danger" 
@@ -921,9 +926,8 @@
         </div>
     </div>
 
-    <script>
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+   <script>
 // Utility functions
 function getCookie(name) {
     let cookieValue = null;
@@ -1119,30 +1123,135 @@ class NotificationManager {
     }
 
     updateClearButtons() {
-        const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
-        const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
-        
-        const totalCount = totalElement ? parseInt(totalElement.textContent) || 0 : 0;
-        const unreadCount = unreadElement ? parseInt(unreadElement.textContent) || 0 : 0;
-        const readCount = totalCount - unreadCount;
-        
-        const clearReadButton = document.querySelector('input[name="action"][value="clear_read"]')?.closest('button');
-        if (clearReadButton) {
-            clearReadButton.innerHTML = `<i class="fas fa-eye me-2"></i>Clear Read (${readCount})`;
-        }
-        
-        const clearAllButton = document.querySelector('input[name="action"][value="clear_all"]')?.closest('button');
-        if (clearAllButton) {
-            clearAllButton.innerHTML = `<i class="fas fa-trash me-2"></i>Clear All (${totalCount})`;
-        }
-        
-        const dropdown = document.querySelector('.dropdown');
-        if (totalCount === 0 && dropdown) {
-            dropdown.style.display = 'none';
-        } else if (dropdown) {
-            dropdown.style.display = '';
+    const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+    const unreadElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+    
+    const totalCount = totalElement ? parseInt(totalElement.textContent) || 0 : 0;
+    const unreadCount = unreadElement ? parseInt(unreadElement.textContent) || 0 : 0;
+    const readCount = totalCount - unreadCount;
+    
+    console.log('updateClearButtons called - Total:', totalCount, 'Unread:', unreadCount, 'Read:', readCount);
+    
+    // Find or create the dropdown container
+    let clearReadButton = document.querySelector('input[name="action"][value="clear_read"]')?.closest('button');
+    let clearAllButton = document.querySelector('input[name="action"][value="clear_all"]')?.closest('button');
+    
+    // If buttons don't exist and we have notifications, recreate them
+    if ((!clearReadButton || !clearAllButton) && totalCount > 0) {
+        console.log('Buttons not found, recreating dropdown...');
+        this.recreateDropdown(totalCount, readCount);
+        return;
+    }
+    
+    // If buttons exist, just update their text
+    if (clearReadButton) {
+        clearReadButton.innerHTML = `<i class="fas fa-eye me-2"></i>Clear Read (${readCount})`;
+    }
+    
+    if (clearAllButton) {
+        clearAllButton.innerHTML = `<i class="fas fa-trash me-2"></i>Clear All (${totalCount})`;
+    }
+    
+    // Try multiple possible selectors for the dropdown container
+    const possibleSelectors = [
+        '.dropdown',
+        '.bulk-actions', 
+        '.actions-dropdown',
+        '#notification-actions',
+        '.btn-group',
+        '[role="group"]'
+    ];
+    
+    let dropdownContainer = null;
+    for (const selector of possibleSelectors) {
+        const element = document.querySelector(selector);
+        if (element && (element.contains(clearReadButton) || element.contains(clearAllButton))) {
+            dropdownContainer = element;
+            console.log('Found dropdown container with selector:', selector);
+            break;
         }
     }
+    
+    if (dropdownContainer) {
+        if (totalCount > 0) {
+            dropdownContainer.style.display = '';
+            dropdownContainer.style.visibility = 'visible';
+            dropdownContainer.classList.remove('d-none');
+            console.log('Showing dropdown container');
+        } else {
+            dropdownContainer.style.display = 'none';
+            console.log('Hiding dropdown container');
+        }
+    } else {
+        console.warn('Could not find dropdown container. Available elements:', {
+            clearReadButton: !!clearReadButton,
+            clearAllButton: !!clearAllButton
+        });
+    }
+}
+
+recreateDropdown(totalCount, readCount) {
+    console.log('Recreating dropdown with Total:', totalCount, 'Read:', readCount);
+    
+    // Find the exact location - the d-flex gap-2 container in card-header-custom
+    const cardHeader = document.querySelector('.card-header-custom');
+    if (!cardHeader) {
+        console.error('Could not find card-header-custom');
+        return;
+    }
+    
+    const actionsContainer = cardHeader.querySelector('.d-flex.gap-2');
+    if (!actionsContainer) {
+        console.error('Could not find actions container (.d-flex.gap-2)');
+        return;
+    }
+    
+    // Create the dropdown HTML matching your exact structure
+    const dropdownHTML = `
+        <div class="dropdown">
+            <button class="btn-outline-custom dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-eraser me-2"></i>Clear
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form method="post" action="/seller/notifications/" class="d-inline w-100">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                        <input type="hidden" name="action" value="clear_read">
+                        <button type="submit" class="dropdown-item">
+                            <i class="fas fa-eye me-2"></i>Clear Read (${readCount})
+                        </button>
+                    </form>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="post" action="/seller/notifications/" class="d-inline w-100">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                        <input type="hidden" name="action" value="clear_all">
+                        <button type="submit" class="dropdown-item text-danger" 
+                                onclick="return confirm('Are you sure you want to clear ALL notifications? This action cannot be undone.')">
+                            <i class="fas fa-trash me-2"></i>Clear All (${totalCount})
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    `;
+    
+    // Check if dropdown already exists
+    let existingDropdown = actionsContainer.querySelector('.dropdown');
+    
+    if (existingDropdown) {
+        // Replace the existing dropdown
+        existingDropdown.outerHTML = dropdownHTML;
+        console.log('Replaced existing dropdown');
+    } else {
+        // Insert as first child (before the "Back to Dashboard" button)
+        actionsContainer.insertAdjacentHTML('afterbegin', dropdownHTML);
+        console.log('Inserted new dropdown');
+    }
+    
+    console.log('Dropdown recreated successfully');
+}
 
     updateTopBarBadge() {
         const badge = document.querySelector('.notification-badge');
@@ -1187,11 +1296,7 @@ class NotificationManager {
 
         this.updateFooterCount();
         
-        // Show the dropdown clear buttons if they were hidden
-        const dropdown = document.querySelector('.dropdown');
-        if (dropdown) {
-            dropdown.style.display = '';
-        }
+        // Dropdown is always available - no need to show/hide it
     }
 
     createNotificationsListItem(notification) {
