@@ -20,5 +20,7 @@ urlpatterns = [
     path('notifications/<int:notification_id>/mark-read/', views.mark_notification_read, name='mark_notification_read'),
     path('reviews/<int:review_id>/reply/', views.add_seller_reply, name='add_seller_reply'),
     path('orders/update-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    path('google/login/', views.seller_google_login, name='seller_google_login'),
+    path('google/callback/', views.seller_google_callback, name='seller_google_callback'),
   
 ]

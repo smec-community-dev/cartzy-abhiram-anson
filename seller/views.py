@@ -1243,3 +1243,15 @@ def update_order_status(request, order_id):
         messages.error(request, "Invalid status selected.")
     
     return redirect('seller:seller_orders')
+
+
+
+
+
+def seller_google_login(request):
+    
+    return redirect('/accounts/google/login/?process=login&next=/seller/dashboard/')
+
+def seller_google_callback(request):
+    
+    return redirect('/seller/dashboard/')
