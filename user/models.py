@@ -120,6 +120,8 @@ class CustomerProfile(models.Model):
         return self.user.username
 
 
+# In user/models.py
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -143,42 +145,20 @@ class Order(models.Model):
     def get_seller_subtotal(self, seller_user):
         """Calculate subtotal for a specific seller in this order"""
         from django.db.models import Sum
-        seller_items = self.items.filter(product_seller_user=seller_user)
+        seller_items = self.items.filter(product__seller__user=seller_user)
         return seller_items.aggregate(total=Sum('price'))['total'] or 0
+    
+    def get_seller_items(self, seller_user):
+        """Get all order items for a specific seller"""
+        return self.items.filter(product__seller__user=seller_user)
+    
+    def has_items_from_seller(self, seller_user):
+        """Check if this order has items from the given seller"""
+        return self.items.filter(product__seller__user=seller_user).exists()
     
     def __str__(self):
         return f"Order #{self.order_number}"
     
-    def save(self, *args, **kwargs):
-        if self.pk:
-            old_order = Order.objects.get(pk=self.pk)
-            old_status = old_order.status
-            
-            super().save(*args, **kwargs)
-            
-            # Trigger notification when order status changes
-            if self.status != old_status:
-                from .notification_service import CustomerNotificationTriggers
-                CustomerNotificationTriggers.notify_order_status_update(
-                    customer=self.customer,
-                    order=self,
-                    old_status=old_status,
-                    new_status=self.status
-                )
-                
-                # Specific notifications for shipped/delivered
-                if self.status == 'Shipped':
-                    CustomerNotificationTriggers.notify_order_shipped(
-                        customer=self.customer,
-                        order=self
-                    )
-                elif self.status == 'Delivered':
-                    CustomerNotificationTriggers.notify_order_delivered(
-                        customer=self.customer,
-                        order=self
-                    )
-        else:
-            super().save(*args, **kwargs)
 
 
 class OrderItem(models.Model):
