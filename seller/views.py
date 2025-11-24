@@ -719,22 +719,26 @@ def product_detail(request, product_id):
     return render(request, 'seller/product_detail.html', context)
 
 
+
 @login_required
 def seller_orders(request):
     seller = request.user.seller_profile
     print(f"Seller ID: {seller.id}, Seller: {seller}")
+    
     # Get all orders that contain products from this seller
     orders = Order.objects.filter(
         items__product__seller=seller
     ).distinct().select_related('customer', 'address').prefetch_related(
         'items__product__images'
     ).order_by('-created_at')
+    
     print(f"Total orders found: {orders.count()}")
     for order in orders:
         seller_items_count = order.items.filter(product__seller=seller).count()
         print(f"Order #{order.order_number}: {seller_items_count} items from this seller")
         if seller_items_count == 0:
             print(f"  WARNING: Order {order.order_number} has no items from this seller!")
+    
     # Apply filters
     status_filter = request.GET.get('status', '')
     search_query = request.GET.get('search', '')
@@ -790,7 +794,7 @@ def seller_orders(request):
         'total_revenue': revenue,
         'status_filter': status_filter,
         'search_query': search_query,
-        'status_choices': Order.STATUS_CHOICES,
+        'status_choices': Order.STATUS_CHOICES,  # Added status_choices for the template
     }
     
     return render(request, 'seller/orders.html', context)
@@ -1156,3 +1160,86 @@ def mark_notification_read(request, notification_id):
         })
     except Notification.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Notification not found'}, status=404)
+    
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from user.models import Order  # Import from user app
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from user.models import Order, CustomerNotification 
+
+@login_required
+@require_POST
+def update_order_status(request, order_id):
+    """Update order status from seller dashboard"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check if this seller has items in the order
+    if not order.has_items_from_seller(request.user):
+        messages.error(request, "You don't have permission to update this order.")
+        return redirect('seller:seller_orders')
+    
+    new_status = request.POST.get('status')
+    
+    # Validate the status against STATUS_CHOICES
+    valid_statuses = [status[0] for status in Order.STATUS_CHOICES]
+    
+    if new_status in valid_statuses:
+        order.status = new_status
+        order.save() 
+        
+        # --- Notification Logic ---
+        notification_config = {
+            'pending': {
+                'type': 'info',
+                'title': 'Order Pending',
+                'message': f'Your order #{order.id} is pending confirmation.'
+            },
+            'processing': {
+                'type': 'order_confirmed',
+                'title': 'Order Processing!',
+                'message': f'Great news! Your order #{order.id} is being processed.'
+            },
+            'shipped': {
+                'type': 'order_shipped',
+                'title': 'Order Shipped!',
+                'message': f'Your order #{order.id} has been shipped.'
+            },
+            'delivered': {
+                'type': 'order_delivered',
+                'title': 'Order Delivered!',
+                'message': f'Your order #{order.id} has been delivered.'
+            },
+            'cancelled': {
+                'type': 'order_cancelled',
+                'title': 'Order Cancelled',
+                'message': f'Your order #{order.id} has been cancelled.'
+            }
+        }
+        
+        config = notification_config.get(new_status.lower(), {
+            'type': 'info',
+            'title': 'Order Status Update',
+            'message': f'Your order #{order.id} status updated to: {new_status.title()}'
+        })
+        
+        # Create notification
+        CustomerNotification.objects.create(
+            user=order.customer,           # FIXED: Changed 'order.user' to 'order.customer'
+            title=config['title'],
+            message=config['message'],
+            notification_type=config['type'],
+            order=order,
+            is_read=False
+        )
+        
+        messages.success(request, f"Order #{order.order_number} status updated to {new_status}.")
+    else:
+        messages.error(request, "Invalid status selected.")
+    
+    return redirect('seller:seller_orders')
