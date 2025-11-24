@@ -130,6 +130,18 @@ class Order(models.Model):
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
     ]
+    
+    PAYMENT_METHOD_CHOICES = [
+        ('COD', 'Cash on Delivery'),
+        ('RAZORPAY', 'Pay Now (Razorpay)'),
+    ]
+    
+    PAYMENT_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PAID', 'Paid'),
+        ('FAILED', 'Failed'),
+        ('REFUNDED', 'Refunded'),
+    ]
 
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -140,7 +152,24 @@ class Order(models.Model):
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Payment Fields
+    payment_method = models.CharField(
+        max_length=20, 
+        choices=PAYMENT_METHOD_CHOICES, 
+        default='COD'
+    )
+    payment_status = models.CharField(
+        max_length=20, 
+        choices=PAYMENT_STATUS_CHOICES, 
+        default='PENDING'
+    )
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def get_seller_subtotal(self, seller_user):
         """Calculate subtotal for a specific seller in this order"""
@@ -155,6 +184,14 @@ class Order(models.Model):
     def has_items_from_seller(self, seller_user):
         """Check if this order has items from the given seller"""
         return self.items.filter(product__seller__user=seller_user).exists()
+    
+    def is_paid(self):
+        """Check if order is paid"""
+        return self.payment_status == 'PAID'
+    
+    def can_be_cancelled(self):
+        """Check if order can be cancelled"""
+        return self.status in ['Pending', 'Processing'] and self.payment_method == 'COD'
     
     def __str__(self):
         return f"Order #{self.order_number}"

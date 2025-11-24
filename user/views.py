@@ -758,6 +758,12 @@ def create_buy_now_order(request):
             product_id = request.POST.get('product_id')
             quantity = int(request.POST.get('quantity', 1))
             address_id = request.POST.get('selected_address')
+            payment_method = request.POST.get('payment_method', 'COD')
+            
+            # Validate inputs
+            if not address_id:
+                messages.error(request, "Please select a shipping address.")
+                return redirect('user_view_product_details', id=product_id)
             
             # Get product and validate
             product = Product.objects.get(id=product_id)
@@ -778,7 +784,9 @@ def create_buy_now_order(request):
                 status='Pending', 
                 total_amount=total_amount, 
                 address=address, 
-                customer_id=user_id
+                customer_id=user_id,
+                payment_method=payment_method,
+                payment_status='PENDING'
             )
             
             # Create order item
@@ -795,100 +803,141 @@ def create_buy_now_order(request):
             product.stock -= quantity
             product.save()
             
-            
-            try:
-                from seller.utils import create_order_notification
+            # Handle payment method
+            if payment_method == 'RAZORPAY':
+                return redirect('initiate_razorpay_payment', order_id=order.id)
+            else:
+                # For COD, create notification
+                try:
+                    from seller.utils import create_order_notification
+                    create_order_notification(order, [order_item])
+                    print(f"Buy Now notification created for order #{order.order_number}")
+                except Exception as e:
+                    print(f"Error creating Buy Now notification: {e}")
                 
-                create_order_notification(order, [order_item])
-                print(f"Buy Now notification created for order #{order.order_number}")
-            except Exception as e:
-                print(f"Error creating Buy Now notification: {e}")
-                import traceback
-                traceback.print_exc()
-            
-            messages.success(request, f"Order #{order_no} placed successfully!")
-            return redirect('user_home')
+                messages.success(request, f"Order #{order_no} placed successfully! You will pay on delivery.")
+                return redirect('order_confirmation', order_id=order.id)
             
         except (Product.DoesNotExist, Address.DoesNotExist) as e:
             messages.error(request, "Invalid product or address.")
             return redirect('user_home')
         except Exception as e:
+            print(f"Error in create_buy_now_order: {e}")
             messages.error(request, "An error occurred while processing your order.")
             return redirect('user_home')
 #--------------------------------------------------------------------------------------------
 
-
 @role_required("customer", login_url="/login/")
 def create_order(request, id):
-    user_id = request.user.id
-    address_id = request.POST.get('selected_address')
-    cart = Cart.objects.get(id=id, customer_id=user_id)
-    cartitems = CartItem.objects.filter(cart_id=cart)
-    order_no = generate_order_number()
-    tot = 0
+    if request.method == 'POST':
+        try:
+            user_id = request.user.id
+            address_id = request.POST.get('selected_address')
+            payment_method = request.POST.get('payment_method', 'COD')
+            
+            # Validate address
+            if not address_id:
+                messages.error(request, "Please select a shipping address.")
+                return redirect('user_view_cart')
+            
+            cart = Cart.objects.get(id=id, customer_id=user_id)
+            cartitems = CartItem.objects.filter(cart_id=cart)
+            order_no = generate_order_number()
+            tot = 0
+            
+            # Check stock and adjust quantities if needed
+            items_to_order = []
+            out_of_stock_items = []
+            
+            for item in cartitems:
+                available_quantity = min(item.quantity, item.product.stock)
+                if available_quantity > 0:
+                    items_to_order.append({
+                        'item': item,
+                        'quantity': available_quantity,
+                        'subtotal': item.product.price * available_quantity
+                    })
+                    tot += item.product.price * available_quantity
+                else:
+                    out_of_stock_items.append(item.product.name)
+            
+            if not items_to_order:
+                messages.error(request, "No items available for ordering.")
+                return redirect('user_view_cart')
+            
+            # Show warning for out-of-stock items
+            if out_of_stock_items:
+                messages.warning(request, f"Some items were out of stock: {', '.join(out_of_stock_items)}")
+            
+            # Create the order with payment method
+            order = Order.objects.create(
+                order_number=order_no, 
+                status='Pending',  # Consistent capitalization
+                total_amount=tot, 
+                address_id=address_id, 
+                customer_id=user_id,
+                payment_method=payment_method,
+                payment_status='PENDING'  # All orders start as pending
+            )
+            
+            # Create order items and update product stock
+            order_items = []
+            for order_item in items_to_order:
+                item = order_item['item']
+                quantity = order_item['quantity']
+                
+                # Create order item
+                order_item_obj = OrderItem.objects.create(
+                    product_name=item.product.name, 
+                    product_sku=item.product.sku, 
+                    quantity=quantity, 
+                    price=item.product.price, 
+                    order_id=order.id, 
+                    product_id=item.product.id
+                )
+                order_items.append(order_item_obj)
+                
+                # Reduce the product stock
+                product = item.product
+                product.stock -= quantity
+                product.save()
+            
+            # Handle payment method
+            if payment_method == 'RAZORPAY':
+                # For Razorpay, don't delete cart yet (in case payment fails)
+                # Redirect to Razorpay payment page
+                return redirect('initiate_razorpay_payment', order_id=order.id)
+            else:
+                # For COD, payment is considered pending until delivery
+                # Create notification and complete the order process
+                try:
+                    from seller.utils import create_order_notification
+                    create_order_notification(order, order_items)
+                    print(f"WebSocket notifications created for order #{order.order_number}")
+                except Exception as e:
+                    print(f"Error creating notifications: {e}")
+                    import traceback
+                    traceback.print_exc()
+                
+                # Delete the cart after successful COD order creation
+                cart.delete()
+                
+                messages.success(request, f"Order #{order_no} placed successfully! You will pay on delivery.")
+                return redirect('order_confirmation', order_id=order.id)
+                
+        except Cart.DoesNotExist:
+            messages.error(request, "Cart not found.")
+            return redirect('user_view_cart')
+        except Address.DoesNotExist:
+            messages.error(request, "Invalid shipping address.")
+            return redirect('user_view_cart')
+        except Exception as e:
+            print(f"Error creating order: {e}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, "An error occurred while processing your order.")
+            return redirect('user_view_cart')
     
-    # Check stock and adjust quantities if needed
-    items_to_order = []
-    for item in cartitems:
-        available_quantity = min(item.quantity, item.product.stock)
-        if available_quantity > 0:
-            items_to_order.append({
-                'item': item,
-                'quantity': available_quantity,
-                'subtotal': item.product.price * available_quantity
-            })
-            tot += item.product.price * available_quantity
-    
-    if not items_to_order:
-        messages.error(request, "No items available for ordering.")
-        return redirect('user_view_cart')
-    
-    # Create the order
-    order = Order.objects.create(
-        order_number=order_no, 
-        status='pending', 
-        total_amount=tot, 
-        address_id=address_id, 
-        customer_id=user_id
-    )
-    
-    # Create order items and update product stock
-    order_items = []  # Store created order items
-    for order_item in items_to_order:
-        item = order_item['item']
-        quantity = order_item['quantity']
-        
-        # Create order item and store it
-        order_item_obj = OrderItem.objects.create(
-            product_name=item.product.name, 
-            product_sku=item.product.sku, 
-            quantity=quantity, 
-            price=item.product.price, 
-            order_id=order.id, 
-            product_id=item.product.id
-        )
-        order_items.append(order_item_obj)
-        
-        # Reduce the product stock
-        product = item.product
-        product.stock -= quantity
-        product.save()
-    
-
-    try:
-        from seller.utils import create_order_notification
-        # Pass the order_items list to avoid the empty items issue
-        create_order_notification(order, order_items)
-        print(f"WebSocket notifications created for order #{order.order_number}")
-    except Exception as e:
-        print(f" Error creating notifications: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    # Delete the cart after order is created
-    cart.delete()
-    
-    messages.success(request, f"Order #{order_no} placed successfully!")
     return redirect('user_home')
 
 @role_required("customer", login_url="/login/")

@@ -70,4 +70,10 @@ urlpatterns=[
     path('notifications/page/', views.user_all_notifications, name='user_all_notifications'),
     
     
+    path('payment/initiate/<int:order_id>/', views.initiate_razorpay_payment, name='initiate_razorpay_payment'),
+    path('payment/success/', views.razorpay_payment_success, name='razorpay_payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),
+    path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    
+    
 ]
