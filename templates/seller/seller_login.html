@@ -225,6 +225,43 @@
             transform: translateY(0);
         }
 
+        /* Google Sign In Button */
+        .btn-google {
+            width: 100%;
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1.0625rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 24px 0;
+            text-decoration: none;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #86868b;
+        }
+
+        .btn-google:active {
+            transform: translateY(0);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            background: conic-gradient(from -45deg, #ea4335 110deg, #4285f4 90deg 180deg, #34a853 180deg 270deg, #fbbc05 270deg) 73% 55%/150% 150% no-repeat;
+            border-radius: 2px;
+        }
+
         /* Divider */
         .divider {
             display: flex;
@@ -428,16 +465,20 @@
                             <i class="fas fa-sign-in-alt"></i>
                             Sign In
                         </button>
-
-                        <div class="divider">or</div>
-
-                        <div class="card-footer">
-                            <p class="footer-text">
-                                Don't have an account? 
-                                <a href="/seller/register/" class="footer-link">Register Now</a>
-                            </p>
-                        </div>
                     </form>
+
+                    <!-- Google Sign In Button - Moved below the form -->
+                    <a href="{% url 'seller:seller_google_login' %}" class="btn-google">
+                        <div class="google-icon"></div>
+                        Continue with Google
+                    </a>
+
+                    <div class="card-footer">
+                        <p class="footer-text">
+                            Don't have an account? 
+                            <a href="/seller/register/" class="footer-link">Register Now</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -462,10 +503,17 @@
             // Form submission loading state
             const form = document.querySelector('form');
             const submitBtn = document.querySelector('.btn-login');
+            const googleBtn = document.querySelector('.btn-google');
             
             form.addEventListener('submit', function() {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
                 submitBtn.disabled = true;
+            });
+
+            // Google button loading state
+            googleBtn.addEventListener('click', function() {
+                this.innerHTML = '<div class="google-icon"></div><i class="fas fa-spinner fa-spin"></i> Redirecting...';
+                this.style.pointerEvents = 'none';
             });
         });
     </script>
