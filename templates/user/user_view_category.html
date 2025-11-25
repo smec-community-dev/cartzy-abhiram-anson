@@ -23,7 +23,6 @@
     <link href="/static/lib/animate/animate.min.css" rel="stylesheet">
     <link href="/static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
-
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -31,22 +30,217 @@
     <link href="/static/css/style.css" rel="stylesheet">
 </head>
 <style>
+    /* Remove container padding and margins to utilize full width */
+    .container-fluid.shop {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .rounded.mb-4.position-relative img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover; /* This prevents stretching and maintains aspect ratio */
+    object-position: center; /* Centers the image */
+}
+    .container-fluid.shop .container {
+        max-width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
     .pagination a {
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s;
-}
+        text-decoration: none;
+        color: #333;
+        transition: all 0.3s;
+    }
 
-.pagination a:hover {
-    background-color: #f8f9fa;
-}
+    .pagination a:hover {
+        background-color: #f8f9fa;
+    }
 
-.pagination a.active {
-    background-color: #F92400;
-    color: white;
-    border-color: #F92400;
-}
+    .pagination a.active {
+        background-color: #F92400;
+        color: white;
+        border-color: #F92400;
+    }
+
+    /* Professional Category Card Styling */
+    .category-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .category-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .category-image {
+        height: 200px;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+    }
+    
+    .category-image img {
+        width: auto;
+        height: auto;
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+    
+    .category-info {
+        padding: 20px;
+        flex-grow: 1;
+    }
+    
+    .category-name {
+        color: #2d3748;
+        font-weight: 600;
+        font-size: 1.2rem;
+        line-height: 1.3;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .category-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        text-align: center;
+    }
+    
+    .category-actions {
+        padding: 15px 20px 20px;
+        background: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .category-btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    /* Mini View Styling */
+    .category-mini-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .category-mini-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .category-mini-image {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border-right: 1px solid #e9ecef;
+    }
+    
+    .category-mini-image img {
+        width: auto;
+        height: auto;
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+    
+    .category-mini-info {
+        padding: 15px;
+    }
+    
+    .category-mini-name {
+        color: #2d3748;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+    
+    .category-mini-description {
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .category-mini-actions {
+        padding: 15px;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+
+    /* Sidebar Styling */
+    .categories-list .list-group-item {
+        border: 1px solid #e9ecef;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+    
+    .categories-list .list-group-item:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+
+    /* Full width adjustments */
+    .page-header {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 1200px) {
+        .container-fluid.shop .container {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+        
+        .page-header {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .container-fluid.shop .container {
+            padding-left: 60px;
+            padding-right: 60px;
+        }
+        
+        .page-header {
+            padding-left: 60px;
+            padding-right: 60px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid.shop .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        .page-header {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
 </style>
+
 <body>
 
     <!-- Spinner Start -->
@@ -77,14 +271,6 @@
     </div>
     <!-- Single Page Header End -->
 
-    <!-- Searvices Start -->
-    
-    <!-- Searvices End -->
-
-
-    
-
-
     <!-- Shop Page Start -->
     <div class="container-fluid shop py-5">
         <div class="container py-5">
@@ -92,167 +278,65 @@
                 <div class="col-lg-3 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="product-categories mb-4">
                         <h4>Products Categories</h4>
-                        <ul class="list-unstyled">
+                        <div class="categories-list">
                             {% for c in categories %}
-                            <li>
-                                <div class="categories-item">
-                                    <a href="{% url 'user_view_products' c.id %}" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        {{ c.name }}</a>
-                                    <span></span>
-                                </div>
-                            </li>
+                            <div class="list-group-item">
+                                <a href="{% url 'user_view_products' c.id %}" class="text-dark d-flex align-items-center">
+                                    <i class="fas fa-folder text-secondary me-2"></i>
+                                    {{ c.name }}
+                                </a>
+                            </div>
                             {% endfor %}
-                           
-                           
-                            
-                        </ul>
+                        </div>
                     </div>
-                    <div class="price mb-4">
-                        <h4 class="mb-2">Price</h4>
-                        <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500"
-                            value="0" oninput="amount.value=rangeInput.value">
-                        <output id="amount" name="amount" min-velue="0" max-value="500" for="rangeInput">0</output>
-                        <div class=""></div>
-                    </div>
-                    <div class="product-color mb-3">
-                        <h4>Select By Color</h4>
-                        <ul class="list-unstyled">
-                            <li>
-                                <div class="product-color-item">
-                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        Gold</a>
-                                    <span>(1)</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="product-color-item">
-                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        Green</a>
-                                    <span>(1)</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="product-color-item">
-                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        White</a>
-                                    <span>(1)</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div> 
-                     <div class="additional-product mb-4">
-                        <h4>Additional Products</h4>
-                        <div class="additional-product-item">
-                            <input type="radio" class="me-2" id="Categories-1" name="Categories-1" value="Beverages">
-                            <label for="Categories-1" class="text-dark"> Accessories</label>
-                        </div>
-                        <div class="additional-product-item">
-                            <input type="radio" class="me-2" id="Categories-2" name="Categories-1" value="Beverages">
-                            <label for="Categories-2" class="text-dark"> Electronics & Computer</label>
-                        </div>
-                        <div class="additional-product-item">
-                            <input type="radio" class="me-2" id="Categories-3" name="Categories-1" value="Beverages">
-                            <label for="Categories-3" class="text-dark"> Laptops & Desktops</label>
-                        </div>
-                        <div class="additional-product-item">
-                            <input type="radio" class="me-2" id="Categories-4" name="Categories-1" value="Beverages">
-                            <label for="Categories-4" class="text-dark"> Mobiles & Tablets</label>
-                        </div>
-                        <div class="additional-product-item">
-                            <input type="radio" class="me-2" id="Categories-5" name="Categories-1" value="Beverages">
-                            <label for="Categories-5" class="text-dark"> SmartPhone & Smart TV</label>
-                        </div>
-                    </div> 
+                    
+                    <!-- Featured Products -->
                     <div class="featured-product mb-4">
-                        <h4 class="mb-3">Featured products</h4>
-                        <div class="featured-product-item">
-                            <div class="rounded me-4" style="width: 100px; height: 100px;">
+                        <h4 class="mb-3">Featured Products</h4>
+                        <div class="featured-product-item mb-3">
+                            <div class="rounded me-3" style="width: 80px; height: 80px;">
                                 <img src="/static/img/product-3.png" class="img-fluid rounded" alt="Image">
                             </div>
                             <div>
-                                <h6 class="mb-2">SmartPhone</h6>
-                                <div class="d-flex mb-2">
+                                <h6 class="mb-1">SmartPhone</h6>
+                                <div class="d-flex mb-1">
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star"></i>
                                 </div>
-                                <div class="d-flex mb-2">
-                                    <h5 class="fw-bold me-2">2.99 $</h5>
-                                    <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
+                                <div class="d-flex">
+                                    <h6 class="fw-bold me-2">2.99 $</h6>
+                                    <h6 class="text-danger text-decoration-line-through">4.11 $</h6>
                                 </div>
                             </div>
                         </div>
-                        <div class="featured-product-item">
-                            <div class="rounded me-4" style="width: 100px; height: 100px;">
+                        <div class="featured-product-item mb-3">
+                            <div class="rounded me-3" style="width: 80px; height: 80px;">
                                 <img src="/static/img/product-4.png" class="img-fluid rounded" alt="Image">
                             </div>
                             <div>
-                                <h6 class="mb-2">Smart Camera</h6>
-                                <div class="d-flex mb-2">
+                                <h6 class="mb-1">Smart Camera</h6>
+                                <div class="d-flex mb-1">
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star"></i>
                                 </div>
-                                <div class="d-flex mb-2">
-                                    <h5 class="fw-bold me-2">2.99 $</h5>
-                                    <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
+                                <div class="d-flex">
+                                    <h6 class="fw-bold me-2">2.99 $</h6>
+                                    <h6 class="text-danger text-decoration-line-through">4.11 $</h6>
                                 </div>
                             </div>
                         </div>
-                        <div class="featured-product-item">
-                            <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                <img src="/static/img/product-5.png" class="img-fluid rounded" alt="Image">
-                            </div>
-                            <div>
-                                <h6 class="mb-2">Camera Leance</h6>
-                                <div class="d-flex mb-2">
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star text-secondary"></i>
-                                    <i class="fa fa-star"></i>
-                                </div>
-                                <div class="d-flex mb-2">
-                                    <h5 class="fw-bold me-2">2.99 $</h5>
-                                    <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-center my-3">
+                            <a href="#" class="btn btn-primary px-3 py-2 rounded-pill w-100">View More</a>
                         </div>
-                        <div class="d-flex justify-content-center my-4">
-                            <a href="#" class="btn btn-primary px-4 py-3 rounded-pill w-100">Vew More</a>
-                        </div>
-                    </div> 
-                    <!-- <a href="#">
-                        <div class="position-relative">
-                            <img src="/static/img/product-banner-2.jpg" class="img-fluid w-100 rounded" alt="Image">
-                            <div class="text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4"
-                                style="width: 100%; height: 100%; top: 0; right: 0; background: rgba(242, 139, 0, 0.3);">
-                                <h5 class="display-6 text-primary">SALE</h5>
-                                <h4 class="text-secondary">Get UP To 50% Off</h4>
-                                <a href="#" class="btn btn-primary rounded-pill px-4">Shop Now</a>
-                            </div>
-                        </div>
-                    </a> -->
-                    <!-- <div class="product-tags py-4">
-                        <h4 class="mb-3">PRODUCT TAGS</h4>
-                        <div class="product-tags-items bg-light rounded p-3">
-                            <a href="#" class="border rounded py-1 px-2 mb-2">New</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">brand</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">black</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">white</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">tablats</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">phone</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">camera</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">drone</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">talevision</a>
-                            <a href="#" class="border rounded py-1 px-2 mb-2">slaes</a>
-                        </div>
-                    </div> -->
+                    </div>
                 </div>
+
                 <div class="col-lg-9 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="rounded mb-4 position-relative">
                         <img src="/static/img/product-8.png" class="img-fluid rounded w-100" style="height: 250px;"
@@ -264,189 +348,98 @@
                             <a href="#" class="btn btn-primary rounded-pill">Shop Now</a>
                         </div>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-xl-7">
-                            <div class="input-group w-100 mx-auto d-flex">
-                                <input type="search" class="form-control p-3" placeholder="keywords"
-                                    aria-describedby="search-icon-1">
-                                <span id="search-icon-1" class="input-group-text p-3"><i
-                                        class="fa fa-search"></i></span>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 text-end">
-                            <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between">
-                                <label for="electronics">Sort By:</label>
-                                <select id="electronics" name="electronicslist"
-                                    class="border-0 form-select-sm bg-light me-3" form="electronicsform">
-                                    <option value="volvo">Default Sorting</option>
-                                    <option value="volv">Nothing</option>
-                                    <option value="sab">Popularity</option>
-                                    <option value="saab">Newness</option>
-                                    <option value="opel">Average Rating</option>
-                                    <option value="audio">Low to high</option>
-                                    <option value="audi">High to low</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-xl-2">
-                            <ul class="nav nav-pills d-inline-flex text-center py-2 px-2 rounded bg-light mb-4">
-                                <li class="nav-item me-4">
-                                    <a class="bg-light" data-bs-toggle="pill" href="#tab-5">
-                                        <i class="fas fa-th fa-3x text-primary"></i>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="bg-light" data-bs-toggle="pill" href="#tab-6">
-                                        <i class="fas fa-bars fa-3x text-primary"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    
+                    <!-- View Toggle -->
+                    
+
                     <div class="tab-content">
+                        <!-- Grid View -->
                         <div id="tab-5" class="tab-pane fade show p-0 active">
-                            
-                            <div class="row g-4 product">
+                            <div class="row g-4">
                                 {% for c in categories %}
-                                <div class="col-lg-4 category-shadow">
-                                    
-                                    <div class="product-item rounded wow fadeInUp" data-wow-delay="0.1s">
-                                        <div class="product-item-inner border rounded" >
-                                            <div class="product-item-inner-item" >
-                                                <img src="{{ c.image.url }}" class="img-fluid w-100 rounded-top" alt="">
-                                                
-                                                <!-- <div class="product-details">
-                                                    <a href="#"><i class="fa fa-eye fa-1x"></i></a>
-                                                </div> -->
-                                            </div>
-                                            <div class="text-center rounded-bottom p-4">
-                                                
-                                                <a href="#" class="d-block h4">{{c.name}}<br></a>
-                                                <!-- <del class="me-2 fs-5">$1,250.00</del> -->
-                                                <span class="text-primary fs-5">{{c.description}}</span>
-                                            </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="category-card wow fadeInUp" data-wow-delay="0.1s">
+                                        <div class="category-image">
+                                            <img src="{{ c.image.url }}" alt="{{ c.name }}">
                                         </div>
-                                        <div class="product-item-add border border-top-0 rounded-bottom  text-center p-4 pt-0">
-                                            <a href="{% url 'user_view_products' c.id %}"
-                                                class="btn btn-primary border-secondary rounded-pill py-2 px-4 mb-4"><i
-                                                    class="fas fa-shopping-cart me-2"></i> View Products</a>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <!-- <div class="d-flex">
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star text-primary"></i>
-                                                    <i class="fas fa-star"></i>
-                                                </div> -->
-                                                <!-- <div class="d-flex">
-                                                    <a href="#"
-                                                        class="text-primary d-flex align-items-center justify-content-center me-3"><span
-                                                            class="rounded-circle btn-sm-square border"><i
-                                                                class="fas fa-random"></i></i></a>
-                                                    <a href="#"
-                                                        class="text-primary d-flex align-items-center justify-content-center me-0"><span
-                                                            class="rounded-circle btn-sm-square border"><i
-                                                                class="fas fa-heart"></i></a>
-                                                </div> -->                  
-                                            </div>
+                                        <div class="category-info">
+                                            <h3 class="category-name">{{ c.name }}</h3>
+                                            <p class="category-description">{{ c.description }}</p>
                                         </div>
-                                    </div>
-                                    
-                                </div>
-                               {% endfor %}
-                                <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-    {% if categories.paginator.num_pages > 1 %}
-    <div class="pagination d-flex justify-content-center mt-5">
-        {% if categories.has_previous %}
-            <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
-            <a href="?page={{ categories.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
-        {% endif %}
-
-        {% for num in categories.paginator.page_range %}
-            {% if categories.number == num %}
-                <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border bg-primary text-white">{{ num }}</a>
-            {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
-                <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if categories.has_next %}
-            <a href="?page={{ categories.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
-            <a href="?page={{ categories.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
-        {% endif %}
-    </div>
-    
-    <div class="text-center mt-3">
-        <span class="text-muted">
-            Page {{ categories.number }} of {{ categories.paginator.num_pages }} ({{ categories.paginator.count }} total categories)
-        </span>
-    </div>
-    {% endif %}
-</div>
-                            </div>
-                        </div>
-                        <div id="tab-6" class="products tab-pane fade show p-0">
-                            <div class="row g-4 products-mini">
-                                {% for c in categories %}
-                                <div class="col-lg-6">
-                                    <div class="products-mini-item ">
-                                        <div class="row g-0">
-                                            <div class="col-5">
-                                                <div class="products-mini-img border-end h-100">
-                                                    <img src="{{c.image.url}}" class="img-fluid w-100 h-100"
-                                                        alt="Image">
-                                                    
-                                                </div>
-                                            </div>
-                                            <div class="col-7">
-                                                <div class="products-mini-content p-3">
-                                                    
-                                                    <a href="#" class="d-block h4">{{c.name}}<br> </a>
-                                                    <a href="#" class="d-block mb-2">{{c.description}}</a>
-                                                    
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="products-mini-add border p-3">
-                                            <a href="{% url 'user_view_products' c.id %}"
-                                                class="btn btn-primary border-secondary rounded-pill py-2 px-4"><i
-                                                    class="fas fa-shopping-cart me-2"></i>View Products</a>
-                                            
+                                        <div class="category-actions">
+                                            <a href="{% url 'user_view_products' c.id %}" 
+                                               class="btn btn-primary category-btn">
+                                                <i class="fas fa-eye me-1"></i> View Products
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                                 {% endfor %}
-                                
-                               <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
-    {% if categories.paginator.num_pages > 1 %}
-    <div class="pagination d-flex justify-content-center mt-5">
-        {% if categories.has_previous %}
-            <a href="?page=1" class="rounded">&laquo; First</a>
-            <a href="?page={{ categories.previous_page_number }}" class="rounded">Previous</a>
-        {% endif %}
-
-        {% for num in categories.paginator.page_range %}
-            {% if categories.number == num %}
-                <a href="?page={{ num }}" class="active rounded">{{ num }}</a>
-            {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
-                <a href="?page={{ num }}" class="rounded">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if categories.has_next %}
-            <a href="?page={{ categories.next_page_number }}" class="rounded">Next</a>
-            <a href="?page={{ categories.paginator.num_pages }}" class="rounded">Last &raquo;</a>
-        {% endif %}
-    </div>
-    
-    <div class="text-center mt-3">
-        <span class="text-muted">
-            Page {{ categories.number }} of {{ categories.paginator.num_pages }}
-        </span>
-    </div>
-    {% endif %}
-</div>
                             </div>
+                        </div>
+
+                        <!-- List View -->
+                        <div id="tab-6" class="tab-pane fade show p-0">
+                            <div class="row g-4">
+                                {% for c in categories %}
+                                <div class="col-12">
+                                    <div class="category-mini-card wow fadeInUp" data-wow-delay="0.1s">
+                                        <div class="row g-0">
+                                            <div class="col-md-3">
+                                                <div class="category-mini-image">
+                                                    <img src="{{ c.image.url }}" alt="{{ c.name }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="category-mini-info">
+                                                    <h4 class="category-mini-name">{{ c.name }}</h4>
+                                                    <p class="category-mini-description">{{ c.description }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="category-mini-actions h-100 d-flex align-items-center justify-content-center">
+                                                    <a href="{% url 'user_view_products' c.id %}" 
+                                                       class="btn btn-primary category-btn">
+                                                        <i class="fas fa-eye me-1"></i> View Products
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            {% if categories.paginator.num_pages > 1 %}
+                            <div class="pagination d-flex justify-content-center mt-5">
+                                {% if categories.has_previous %}
+                                    <a href="?page=1" class="rounded text-decoration-none px-3 py-2 mx-1 border">&laquo; First</a>
+                                    <a href="?page={{ categories.previous_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Previous</a>
+                                {% endif %}
+
+                                {% for num in categories.paginator.page_range %}
+                                    {% if categories.number == num %}
+                                        <a href="?page={{ num }}" class="active rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+                                    {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                                        <a href="?page={{ num }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">{{ num }}</a>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if categories.has_next %}
+                                    <a href="?page={{ categories.next_page_number }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Next</a>
+                                    <a href="?page={{ categories.paginator.num_pages }}" class="rounded text-decoration-none px-3 py-2 mx-1 border">Last &raquo;</a>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <span class="text-muted">
+                                    Page {{ categories.number }} of {{ categories.paginator.num_pages }} ({{ categories.paginator.count }} total categories)
+                                </span>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -454,41 +447,6 @@
         </div>
     </div>
     <!-- Shop Page End -->
-
-    <!-- Product Banner Start -->
-    <div class="container-fluid py-5">
-        <div class="container pb-5">
-            <div class="row g-4">
-                <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.1s">
-                    <a href="#">
-                        <div class="bg-primary rounded position-relative">
-                            <img src="img/product-banner.jpg" class="img-fluid w-100 rounded" alt="">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
-                                style="background: rgba(255, 255, 255, 0.5);">
-                                <h3 class="display-5 text-primary">EOS Rebel <br> <span>T7i Kit</span></h3>
-                                <p class="fs-4 text-muted">$899.99</p>
-                                <a href="#" class="btn btn-primary rounded-pill align-self-start py-2 px-4">Shop Now</a>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.2s">
-                    <a href="#">
-                        <div class="text-center bg-primary rounded position-relative">
-                            <img src="img/product-banner-2.jpg" class="img-fluid w-100" alt="">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center rounded p-4"
-                                style="background: rgba(242, 139, 0, 0.5);">
-                                <h2 class="display-2 text-secondary">SALE</h2>
-                                <h4 class="display-5 text-white mb-4">Get UP To 50% Off</h4>
-                                <a href="#" class="btn btn-secondary rounded-pill align-self-center py-2 px-4">Shop Now</a>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Product Banner End -->
 
     {% include 'user/footer.html' %}
 
@@ -501,9 +459,7 @@
     <script src="/static/lib/wow/wow.min.js"></script>
     <script src="/static/lib/owlcarousel/owl.carousel.min.js"></script>
 
-
     <!-- Template Javascript -->
     <script src="/static/js/main.js"></script>
 </body>
-
 </html>

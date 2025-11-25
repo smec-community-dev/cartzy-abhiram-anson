@@ -15,6 +15,8 @@ from seller.models import Notification
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.db.models import Avg
 
 class OAuthCancelView(View):
     def get(self, request):
@@ -73,29 +75,80 @@ def home_view(request):
 def about_view(request):
     return render(request, 'user/about.html')
 
-def user_reg_view(request):
-    if request.method=='POST':
-        firstname=request.POST['firstname']
-        lastname=request.POST['lastname']
-        email=request.POST['email']
-        username=request.POST['username']
-        phone=request.POST['phone']
-        password=request.POST['password']
-        confirm_password=request.POST['confirm-password']            
 
-        if confirm_password!=password:
-            return HttpResponse('<script>alert("Passwords  doesnt match!!!");window.location.href="/UserReg/";</script>')
-        
-        if User.objects.filter(username = username).exists():
-            return HttpResponse('<script>alert("User already exists!!!");window.location.href="/UserReg/";</script>')
-        if User.objects.filter(email = email).exists():
-            return HttpResponse('<script>alert("Email already exists!!!");window.location.href="/UserReg/";</script>')
-        
-        user=User.objects.create_user(first_name=firstname, last_name=lastname, email=email, username=username,password=password, role='customer')
-        CustomerProfile.objects.create(user=user, phone=phone)
-        return redirect('/login/')
-        
-    return render(request ,'user/user_reg.html')
+def user_reg_view(request):
+    if request.method == 'POST':
+        firstname = request.POST['firstname']
+        lastname = request.POST['lastname']
+        email = request.POST['email']
+        username = request.POST['username']
+        phone = request.POST['phone']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm-password']
+
+        # Password validation
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long!')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'username': username,
+                'phone': phone
+            })
+
+        # Username existence check
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists! Please choose a different one.')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'phone': phone
+            })
+
+        # Password match validation
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match!')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'username': username,
+                'phone': phone
+            })
+
+
+
+        # Email existence check
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists! Please use a different email.')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'username': username,
+                'phone': phone
+            })
+
+        # Create user if all validations pass
+        try:
+            user = User.objects.create(
+                first_name=firstname, 
+                last_name=lastname, 
+                email=email, 
+                username=username,
+                password=make_password(password), 
+                role='customer'
+            )
+            CustomerProfile.objects.create(user=user, phone=phone)
+            messages.success(request, 'Registration successful! Please login to continue.')
+            return redirect('/login/')
+            
+        except Exception as e:
+            messages.error(request, 'An error occurred during registration. Please try again.')
+            return render(request, 'user/user_reg.html')
+
+    return render(request, 'user/user_reg.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -107,7 +160,7 @@ def login_view(request):
             login(request, user)
             return redirect('/userhome/')
         else:
-            return HttpResponse('<scripts>alert("Invalid!!!");</scripts>')
+             messages.error(request, 'Invalid username or password!')
     return render(request, 'user/login.html')
 
 def logout_view(request):
@@ -122,7 +175,7 @@ def user_home_view(request):
 
 def user_category_view(request):
     categories_list = Category.objects.all()
-    paginator = Paginator(categories_list, 3)
+    paginator = Paginator(categories_list, 6)
     page = request.GET.get('page')
     
     try:
@@ -162,7 +215,7 @@ def user_view_all_products(request):
         products = products.order_by('-id')  # Assuming newer products have higher IDs
     
     # Pagination
-    paginator = Paginator(products, 2)
+    paginator = Paginator(products, 6)
     page = request.GET.get('page')
     
     try:
@@ -197,6 +250,12 @@ def user_view_product_details(request, id):
     product_details = get_object_or_404(Product, id=id, is_active=True)
     images = ProductImage.objects.filter(product=product_details)
     
+    # Get related products from the same category (excluding current product)
+    related_products = Product.objects.filter(
+        category=product_details.category,
+        is_active=True
+    ).exclude(id=product_details.id)[:6]  # Limit to 6 related products
+    
     # Check if the current user has already reviewed this product
     user_has_reviewed = False
     if request.user.is_authenticated:
@@ -204,11 +263,17 @@ def user_view_product_details(request, id):
             customer=request.user, 
             product=product_details
         ).exists()
-    
+    average_rating = 0
+    reviews = Review.objects.filter(product=product_details)
+    if reviews.exists():
+        average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
     context = {
         'product_details': product_details,
         'images': images,
         'user_has_reviewed': user_has_reviewed,
+        'related_products': related_products,  # Add related products to context
+        'average_rating': average_rating,  # Add average rating to context
+        'total_reviews': reviews.count(),
     }
     
     return render(request, 'user/user_view_single_products.html', context)
@@ -621,12 +686,15 @@ def user_update_order_address(request):
 
 @role_required("customer", login_url="/login/")
 def user_add_new_address(request):
-    
     if request.method == 'POST':
-       
         user_id = request.user.id
+        
+        # Get the cart_id or product_id from the form data
         cart_id = request.POST.get('cart_id')
-
+        product_id = request.POST.get('product_id')
+        quantity = request.POST.get('quantity')
+        is_buy_now = request.POST.get('is_buy_now') == 'true'
+        
         try:
             # Checkbox handling
             is_default = 'is_default' in request.POST
@@ -648,14 +716,62 @@ def user_add_new_address(request):
                 is_default=is_default
             )
 
-            return redirect('user_confirm_order', id=cart_id)
+            # Redirect based on the flow
+            if is_buy_now and product_id:
+                # For buy now flow, redirect to buy now confirmation
+                return redirect('user_buy_now_confirm', product_id=product_id, quantity=quantity)
+            elif cart_id:
+                # For cart flow, redirect back to order confirmation with cart id
+                return redirect('user_confirm_order', id=cart_id)
+            else:
+                # Fallback - redirect to cart
+                return redirect('user_view_cart')
 
         except Exception as e:
-            print("Hkkki")
             print("ERROR:", e)
-            return redirect('user_confirm_order', id=cart_id)
+            # Fallback redirect
+            if cart_id:
+                return redirect('user_confirm_order', id=cart_id)
+            else:
+                return redirect('user_view_cart')
 
-    return redirect('user_confirm_order', id=cart_id)
+    return redirect('user_view_cart')
+
+
+@role_required("customer", login_url="/login/")
+def user_buy_now_confirm(request, product_id, quantity):
+    user_id = request.user.id
+    user = User.objects.get(id=user_id)
+    customer_profile = CustomerProfile.objects.get(user_id=user_id)
+    all_addresses = Address.objects.filter(customer_id=user_id)
+    
+    try:
+        address = Address.objects.get(customer_id=user_id, is_default=True)   
+    except Address.DoesNotExist:
+        address = Address.objects.filter(customer_id=user_id).first()
+    
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    
+    subtotal = product.price * int(quantity)
+    shipping = 50
+    grand_total = subtotal + shipping
+    
+    context = {
+        'product': product,
+        'quantity': quantity,
+        'address': address,
+        'all_addresses': all_addresses,
+        'customer_profile': customer_profile,
+        'user': user,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'grand_total': grand_total,
+        'is_buy_now': True
+    }
+    
+    return render(request, 'user/user_confirm_oder.html', context)
+
+
 
 @role_required("customer", login_url="/login/")
 
@@ -758,6 +874,12 @@ def create_buy_now_order(request):
             product_id = request.POST.get('product_id')
             quantity = int(request.POST.get('quantity', 1))
             address_id = request.POST.get('selected_address')
+            payment_method = request.POST.get('payment_method', 'COD')
+            
+            # Validate inputs
+            if not address_id:
+                messages.error(request, "Please select a shipping address.")
+                return redirect('user_view_product_details', id=product_id)
             
             # Get product and validate
             product = Product.objects.get(id=product_id)
@@ -778,7 +900,9 @@ def create_buy_now_order(request):
                 status='Pending', 
                 total_amount=total_amount, 
                 address=address, 
-                customer_id=user_id
+                customer_id=user_id,
+                payment_method=payment_method,
+                payment_status='PENDING'
             )
             
             # Create order item
@@ -795,100 +919,141 @@ def create_buy_now_order(request):
             product.stock -= quantity
             product.save()
             
-            
-            try:
-                from seller.utils import create_order_notification
+            # Handle payment method
+            if payment_method == 'RAZORPAY':
+                return redirect('initiate_razorpay_payment', order_id=order.id)
+            else:
+                # For COD, create notification
+                try:
+                    from seller.utils import create_order_notification
+                    create_order_notification(order, [order_item])
+                    print(f"Buy Now notification created for order #{order.order_number}")
+                except Exception as e:
+                    print(f"Error creating Buy Now notification: {e}")
                 
-                create_order_notification(order, [order_item])
-                print(f"Buy Now notification created for order #{order.order_number}")
-            except Exception as e:
-                print(f"Error creating Buy Now notification: {e}")
-                import traceback
-                traceback.print_exc()
-            
-            messages.success(request, f"Order #{order_no} placed successfully!")
-            return redirect('user_home')
+                messages.success(request, f"Order #{order_no} placed successfully! You will pay on delivery.")
+                return redirect('order_confirmation', order_id=order.id)
             
         except (Product.DoesNotExist, Address.DoesNotExist) as e:
             messages.error(request, "Invalid product or address.")
             return redirect('user_home')
         except Exception as e:
+            print(f"Error in create_buy_now_order: {e}")
             messages.error(request, "An error occurred while processing your order.")
             return redirect('user_home')
 #--------------------------------------------------------------------------------------------
 
-
 @role_required("customer", login_url="/login/")
 def create_order(request, id):
-    user_id = request.user.id
-    address_id = request.POST.get('selected_address')
-    cart = Cart.objects.get(id=id, customer_id=user_id)
-    cartitems = CartItem.objects.filter(cart_id=cart)
-    order_no = generate_order_number()
-    tot = 0
+    if request.method == 'POST':
+        try:
+            user_id = request.user.id
+            address_id = request.POST.get('selected_address')
+            payment_method = request.POST.get('payment_method', 'COD')
+            
+            # Validate address
+            if not address_id:
+                messages.error(request, "Please select a shipping address.")
+                return redirect('user_view_cart')
+            
+            cart = Cart.objects.get(id=id, customer_id=user_id)
+            cartitems = CartItem.objects.filter(cart_id=cart)
+            order_no = generate_order_number()
+            tot = 0
+            
+            # Check stock and adjust quantities if needed
+            items_to_order = []
+            out_of_stock_items = []
+            
+            for item in cartitems:
+                available_quantity = min(item.quantity, item.product.stock)
+                if available_quantity > 0:
+                    items_to_order.append({
+                        'item': item,
+                        'quantity': available_quantity,
+                        'subtotal': item.product.price * available_quantity
+                    })
+                    tot += item.product.price * available_quantity
+                else:
+                    out_of_stock_items.append(item.product.name)
+            
+            if not items_to_order:
+                messages.error(request, "No items available for ordering.")
+                return redirect('user_view_cart')
+            
+            # Show warning for out-of-stock items
+            if out_of_stock_items:
+                messages.warning(request, f"Some items were out of stock: {', '.join(out_of_stock_items)}")
+            
+            # Create the order with payment method
+            order = Order.objects.create(
+                order_number=order_no, 
+                status='Pending',  # Consistent capitalization
+                total_amount=tot, 
+                address_id=address_id, 
+                customer_id=user_id,
+                payment_method=payment_method,
+                payment_status='PENDING'  # All orders start as pending
+            )
+            
+            # Create order items and update product stock
+            order_items = []
+            for order_item in items_to_order:
+                item = order_item['item']
+                quantity = order_item['quantity']
+                
+                # Create order item
+                order_item_obj = OrderItem.objects.create(
+                    product_name=item.product.name, 
+                    product_sku=item.product.sku, 
+                    quantity=quantity, 
+                    price=item.product.price, 
+                    order_id=order.id, 
+                    product_id=item.product.id
+                )
+                order_items.append(order_item_obj)
+                
+                # Reduce the product stock
+                product = item.product
+                product.stock -= quantity
+                product.save()
+            
+            # Handle payment method
+            if payment_method == 'RAZORPAY':
+                # For Razorpay, don't delete cart yet (in case payment fails)
+                # Redirect to Razorpay payment page
+                return redirect('initiate_razorpay_payment', order_id=order.id)
+            else:
+                # For COD, payment is considered pending until delivery
+                # Create notification and complete the order process
+                try:
+                    from seller.utils import create_order_notification
+                    create_order_notification(order, order_items)
+                    print(f"WebSocket notifications created for order #{order.order_number}")
+                except Exception as e:
+                    print(f"Error creating notifications: {e}")
+                    import traceback
+                    traceback.print_exc()
+                
+                # Delete the cart after successful COD order creation
+                cart.delete()
+                
+                messages.success(request, f"Order #{order_no} placed successfully! You will pay on delivery.")
+                return redirect('order_confirmation', order_id=order.id)
+                
+        except Cart.DoesNotExist:
+            messages.error(request, "Cart not found.")
+            return redirect('user_view_cart')
+        except Address.DoesNotExist:
+            messages.error(request, "Invalid shipping address.")
+            return redirect('user_view_cart')
+        except Exception as e:
+            print(f"Error creating order: {e}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, "An error occurred while processing your order.")
+            return redirect('user_view_cart')
     
-    # Check stock and adjust quantities if needed
-    items_to_order = []
-    for item in cartitems:
-        available_quantity = min(item.quantity, item.product.stock)
-        if available_quantity > 0:
-            items_to_order.append({
-                'item': item,
-                'quantity': available_quantity,
-                'subtotal': item.product.price * available_quantity
-            })
-            tot += item.product.price * available_quantity
-    
-    if not items_to_order:
-        messages.error(request, "No items available for ordering.")
-        return redirect('user_view_cart')
-    
-    # Create the order
-    order = Order.objects.create(
-        order_number=order_no, 
-        status='pending', 
-        total_amount=tot, 
-        address_id=address_id, 
-        customer_id=user_id
-    )
-    
-    # Create order items and update product stock
-    order_items = []  # Store created order items
-    for order_item in items_to_order:
-        item = order_item['item']
-        quantity = order_item['quantity']
-        
-        # Create order item and store it
-        order_item_obj = OrderItem.objects.create(
-            product_name=item.product.name, 
-            product_sku=item.product.sku, 
-            quantity=quantity, 
-            price=item.product.price, 
-            order_id=order.id, 
-            product_id=item.product.id
-        )
-        order_items.append(order_item_obj)
-        
-        # Reduce the product stock
-        product = item.product
-        product.stock -= quantity
-        product.save()
-    
-
-    try:
-        from seller.utils import create_order_notification
-        # Pass the order_items list to avoid the empty items issue
-        create_order_notification(order, order_items)
-        print(f"WebSocket notifications created for order #{order.order_number}")
-    except Exception as e:
-        print(f" Error creating notifications: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    # Delete the cart after order is created
-    cart.delete()
-    
-    messages.success(request, f"Order #{order_no} placed successfully!")
     return redirect('user_home')
 
 @role_required("customer", login_url="/login/")
@@ -1102,3 +1267,149 @@ def clear_single_notification(request, notification_id):
         return JsonResponse({'success': True})
     except CustomerNotification.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Notification not found'})
+
+import razorpay
+import os
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Order, OrderItem, Cart
+from decorators.decorators import role_required
+
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
+# Get Razorpay keys from environment
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
+# Initialize Razorpay client
+client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+@role_required("customer", login_url="/login/")
+def initiate_razorpay_payment(request, order_id):
+    """
+    1. Creates Razorpay order
+    2. Shows payment page
+    """
+    try:
+        order = Order.objects.get(id=order_id, customer=request.user)
+        
+        razorpay_order = client.order.create({
+             'amount': int((order.total_amount + 50) * 100),
+            'currency': 'INR',
+            'payment_capture': 1,
+        })
+        
+        order.razorpay_order_id = razorpay_order['id']
+        order.save()
+        amt=order.total_amount+50
+        context = {
+            'order': order,
+            'razorpay_order_id': razorpay_order['id'],
+            'razorpay_key_id': RAZORPAY_KEY_ID,
+            'amount': order.total_amount+50,
+            'currency': 'INR',
+            'user': {
+                'name': f"{request.user.first_name} {request.user.last_name}",
+                'email': request.user.email,
+                'phone': getattr(request.user.customer_profile, 'phone', '')
+            }
+        }
+        
+        return render(request, 'user/payment.html', context)
+        
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('user_home')
+    except Exception as e:
+        print(f"Error initiating Razorpay payment: {e}")
+        messages.error(request, "Error initiating payment. Please try again.")
+        return redirect('user_home')
+
+@csrf_exempt
+def razorpay_payment_success(request):
+    """
+    3. Handles successful payment callback
+    """
+    if request.method == "POST":
+        try:
+            razorpay_payment_id = request.POST.get('razorpay_payment_id')
+            razorpay_order_id = request.POST.get('razorpay_order_id')
+            razorpay_signature = request.POST.get('razorpay_signature')
+            
+            # Verify payment signature
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_signature': razorpay_signature
+            }
+            
+            client.utility.verify_payment_signature(params_dict)
+            
+            # Update order status
+            order = Order.objects.get(razorpay_order_id=razorpay_order_id)
+            order.razorpay_payment_id = razorpay_payment_id
+            order.razorpay_signature = razorpay_signature
+            order.payment_status = 'PAID'
+            order.save()
+            
+            # Create notification
+            order_items = OrderItem.objects.filter(order=order)
+            try:
+                from seller.utils import create_order_notification
+                create_order_notification(order, list(order_items))
+            except Exception as e:
+                print(f"Error creating notification: {e}")
+            
+            # Delete cart
+            try:
+                cart = Cart.objects.get(customer=request.user)
+                cart.delete()
+            except Cart.DoesNotExist:
+                pass
+            
+            messages.success(request, f"Payment successful! Order #{order.order_number} confirmed.")
+            return redirect('order_confirmation', order_id=order.id)
+            
+        except Order.DoesNotExist:
+            messages.error(request, "Order not found.")
+            return redirect('user_home')
+        except razorpay.errors.SignatureVerificationError:
+            messages.error(request, "Payment verification failed.")
+            return redirect('payment_failed')
+        except Exception as e:
+            print(f"Payment success error: {e}")
+            messages.error(request, "Payment processing error.")
+            return redirect('payment_failed')
+    
+    return redirect('user_home')
+
+def payment_failed(request):
+    """
+    4. Shows payment failed page
+    """
+    messages.error(request, "Payment failed. Please try again.")
+    return redirect('user_view_cart')
+
+def order_confirmation(request, order_id):
+    """
+    5. Shows order confirmation page
+    """
+    try:
+        order = Order.objects.get(id=order_id, customer=request.user)
+        order_items = OrderItem.objects.filter(order=order)
+        total_with_shipping = order.total_amount + 50
+        context = {
+            'order': order,
+            'order_items': order_items,
+             'amount': total_with_shipping, 
+        }
+        
+        return render(request, 'user/order_confirmation.html', context)
+        
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('user_home')

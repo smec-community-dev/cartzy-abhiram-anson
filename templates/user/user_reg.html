@@ -196,6 +196,23 @@
         <div class="register-box">
             <h2>Create Your Account</h2>
 
+        <!-- Error Messages -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-danger{% endif %}" 
+                         style="color: {% if message.tags == 'success' %}#155724{% else %}#721c24{% endif %}; 
+                                background-color: {% if message.tags == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; 
+                                border: 1px solid {% if message.tags == 'success' %}#c3e6cb{% else %}#f5c6cb{% endif %}; 
+                                padding: 12px; 
+                                border-radius: 3px; 
+                                margin-bottom: 20px; 
+                                text-align: center;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
             <form action="" method="POST">
                 {% csrf_token %}
 

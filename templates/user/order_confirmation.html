@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Electro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .confirmation-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .confirmation-container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            border: 1px solid #e1e5e9;
+        }
+        
+        .confirmation-header {
+            background: #28a745;
+            color: white;
+            padding: 30px 40px;
+            border-bottom: 1px solid #218838;
+        }
+        
+        .confirmation-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .success-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+        }
+        
+        .header-text h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .header-text p {
+            margin: 8px 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .order-badge {
+            background: white;
+            color: #28a745;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .confirmation-content {
+            padding: 0;
+        }
+        
+        .confirmation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .order-details-section {
+            background: #fafbfc;
+            padding: 35px 40px;
+            border-right: 1px solid #e1e5e9;
+        }
+        
+        .section-title {
+            color: #2d3748;
+            margin: 0 0 25px 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .details-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .detail-card {
+            background: white;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .amount-card {
+            background: white;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+            margin-top: 25px;
+        }
+        
+        .total-amount {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #28a745;
+            margin: 8px 0;
+            text-align: center;
+        }
+        
+        .total-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .customer-section {
+            background: white;
+            padding: 35px 40px;
+        }
+        
+        .address-card {
+            background: #f8fafc;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            margin-top: 20px;
+        }
+        
+        .address-card h4 {
+            margin: 0 0 15px 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+        
+        .address-lines {
+            color: #475569;
+            line-height: 1.6;
+        }
+        
+        .items-section {
+            grid-column: 1 / span 2;
+            background: #fafbfc;
+            padding: 35px 40px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .items-table th {
+            background: #f8fafc;
+            padding: 15px 20px;
+            text-align: left;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .items-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+        }
+        
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .action-section {
+            grid-column: 1 / span 2;
+            background: white;
+            padding: 30px 40px;
+            border-top: 1px solid #e1e5e9;
+            text-align: center;
+        }
+        
+        .btn-continue {
+            background: #F92400;
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            transition: all 0.2s;
+            border: 1px solid #ce2305;
+        }
+        
+        .btn-continue:hover {
+            background: #ce2305;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-orders {
+            background: white;
+            color: #2d5baf;
+            padding: 15px 35px;
+            border: 1px solid #2d5baf;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-orders:hover {
+            background: #2d5baf;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid;
+        }
+        
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .confirmation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-details-section {
+                border-right: none;
+                border-bottom: 1px solid #e1e5e9;
+            }
+            
+            .items-section,
+            .action-section {
+                grid-column: 1;
+            }
+            
+            .confirmation-header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .success-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .confirmation-header,
+            .order-details-section,
+            .customer-section,
+            .items-section,
+            .action-section {
+                padding: 25px 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .confirmation-header,
+            .order-details-section,
+            .customer-section,
+            .items-section,
+            .action-section {
+                padding: 20px 25px;
+            }
+            
+            .items-table {
+                font-size: 0.9rem;
+            }
+            
+            .items-table th,
+            .items-table td {
+                padding: 10px 15px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-continue,
+            .btn-orders {
+                margin-right: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="confirmation-main">
+        <div class="confirmation-container">
+            <div class="confirmation-header">
+                <div class="confirmation-header-content">
+                    <div class="header-left">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1>Order Confirmed!</h1>
+                            <p>Thank you for your purchase. Your order has been successfully placed.</p>
+                        </div>
+                    </div>
+                    <div class="order-badge">
+                        CONFIRMED
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirmation-content">
+                <div class="confirmation-grid">
+                    <!-- Order Details Column -->
+                    <div class="order-details-section">
+                        <h3 class="section-title">Order Details</h3>
+                        
+                        <div class="details-grid">
+                            <div class="detail-card">
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Number</span>
+                                    <span class="detail-value">#{{ order.order_number }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Date</span>
+                                    <span class="detail-value">{{ order.created_at|date:"M d, Y" }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">Payment Method</span>
+                                    <span class="detail-value">{{ order.get_payment_method_display }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">Payment Status</span>
+                                    <span class="detail-value">
+                                        <span class="status-badge {% if order.payment_status == 'PAID' %}status-paid{% else %}status-pending{% endif %}">
+                                            {{ order.get_payment_status_display }}
+                                        </span>
+                                    </span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Status</span>
+                                    <span class="detail-value">{{ order.status }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="amount-card">
+                            <div class="total-label">Total Amount</div>
+                            <div class="total-amount">₹{{ amount }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer Information Column -->
+                    <div class="customer-section">
+                        <h3 class="section-title">Customer Information</h3>
+                        
+                        <div class="detail-card">
+                            <div class="detail-row">
+                                <span class="detail-label">Customer Name</span>
+                                <span class="detail-value">{{ user.get_full_name }}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">{{ user.email }}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">Phone</span>
+                                <span class="detail-value">{{ user.customer_profile.phone }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if order.address %}
+                        <div class="address-card">
+                            <h4>Shipping Address</h4>
+                            <div class="address-lines">
+                                {{ order.address.full_name }}<br>
+                                {{ order.address.street }}<br>
+                                {{ order.address.city }}, {{ order.address.state }} - {{ order.address.postal_code }}<br>
+                                {{ order.address.country }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Order Items Section -->
+                    <div class="items-section">
+                        <h3 class="section-title">Order Items</h3>
+                        
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Shipping</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td>
+                                        <div class="product-name">{{ item.product_name }}</div>
+                                    </td>
+                                    <td>₹{{ item.price }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₹50</td>
+                                    <td>₹{{ amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Action Buttons Section -->
+                    <div class="action-section">
+                        <div class="action-buttons">
+                            <a href="{% url 'user_home' %}" class="btn-continue">
+                               Continue Shopping
+                            </a>
+                            <a href="{% url 'user_view_order' %}" class="btn-orders">
+                                View All Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+</html>
