@@ -16,6 +16,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.db.models import Avg
 
 class OAuthCancelView(View):
     def get(self, request):
@@ -262,12 +263,17 @@ def user_view_product_details(request, id):
             customer=request.user, 
             product=product_details
         ).exists()
-    
+    average_rating = 0
+    reviews = Review.objects.filter(product=product_details)
+    if reviews.exists():
+        average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
     context = {
         'product_details': product_details,
         'images': images,
         'user_has_reviewed': user_has_reviewed,
         'related_products': related_products,  # Add related products to context
+        'average_rating': average_rating,  # Add average rating to context
+        'total_reviews': reviews.count(),
     }
     
     return render(request, 'user/user_view_single_products.html', context)
@@ -1292,7 +1298,7 @@ def initiate_razorpay_payment(request, order_id):
         order = Order.objects.get(id=order_id, customer=request.user)
         
         razorpay_order = client.order.create({
-            'amount': int(order.total_amount * 100),
+             'amount': int((order.total_amount + 50) * 100),
             'currency': 'INR',
             'payment_capture': 1,
         })
@@ -1304,7 +1310,7 @@ def initiate_razorpay_payment(request, order_id):
             'order': order,
             'razorpay_order_id': razorpay_order['id'],
             'razorpay_key_id': RAZORPAY_KEY_ID,
-            'amount': amt,
+            'amount': order.total_amount+50,
             'currency': 'INR',
             'user': {
                 'name': f"{request.user.first_name} {request.user.last_name}",
@@ -1395,10 +1401,11 @@ def order_confirmation(request, order_id):
     try:
         order = Order.objects.get(id=order_id, customer=request.user)
         order_items = OrderItem.objects.filter(order=order)
-        
+        total_with_shipping = order.total_amount + 50
         context = {
             'order': order,
             'order_items': order_items,
+             'amount': total_with_shipping, 
         }
         
         return render(request, 'user/order_confirmation.html', context)

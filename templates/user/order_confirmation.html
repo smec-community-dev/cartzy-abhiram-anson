@@ -426,7 +426,7 @@
                         
                         <div class="amount-card">
                             <div class="total-label">Total Amount</div>
-                            <div class="total-amount">₹{{ order.total_amount }}</div>
+                            <div class="total-amount">₹{{ amount }}</div>
                         </div>
                     </div>
                     
@@ -447,7 +447,7 @@
                             
                             <div class="detail-row">
                                 <span class="detail-label">Phone</span>
-                                <span class="detail-value">{{ user.phone }}</span>
+                                <span class="detail-value">{{ user.customer_profile.phone }}</span>
                             </div>
                         </div>
                         
@@ -474,6 +474,7 @@
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
+                                    <th>Shipping</th>
                                     <th>Subtotal</th>
                                 </tr>
                             </thead>
@@ -485,7 +486,8 @@
                                     </td>
                                     <td>₹{{ item.price }}</td>
                                     <td>{{ item.quantity }}</td>
-                                    <td>₹{{ item.subtotal }}</td>
+                                    <td>₹50</td>
+                                    <td>₹{{ amount }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

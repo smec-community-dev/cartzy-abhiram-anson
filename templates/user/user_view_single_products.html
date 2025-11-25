@@ -202,13 +202,16 @@
                             <h4 class="fw-bold mb-3">{{product_details.name}}</h4>
                             <p class="mb-3">Category: {{product_details.category.name}}</p>
                             <h5 class="fw-bold mb-3">₹{{product_details.price}}</h5>
-                            <div class="d-flex mb-4">
-                                <i class="fa fa-star text-secondary"></i>
-                                <i class="fa fa-star text-secondary"></i>
-                                <i class="fa fa-star text-secondary"></i>
-                                <i class="fa fa-star text-secondary"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
+                           <div class="d-flex mb-4">
+    {% for i in "12345" %}
+        {% if forloop.counter <= average_rating %}
+            <i class="fa fa-star text-secondary"></i>
+        {% else %}
+            <i class="fa fa-star"></i>
+        {% endif %}
+    {% endfor %}
+    <span class="ms-2">({{ total_reviews }} reviews)</span>
+</div>
                             <div class="mb-3">
                                 <div class="btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2"><i
                                         class="fab fa-facebook-f me-1"></i> Share</div>

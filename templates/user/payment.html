@@ -336,7 +336,7 @@
                         
                         <div class="amount-section">
                             <div class="total-label">Total Amount</div>
-                            <div class="total-amount">₹{{ order.total_amount }}</div>
+                            <div class="total-amount">₹{{ amount }}</div>
                         </div>
                     </div>
                     
@@ -356,7 +356,7 @@
                         </div>
                         
                         <button id="pay-btn" class="btn-pay">
-                            Pay Now ₹{{ order.total_amount }}
+                             Pay Now ₹{{ amount|add:"50" }}
                         </button>
                         
                         <div id="loading" class="loading">
@@ -387,9 +387,9 @@
             
             const options = {
                 key: "{{ razorpay_key_id }}",
-                amount: "{{ amount|floatformat:0 }}00", // Convert to paise
+               amount: ("{{ amount }}" * 100 + 50).toString(),
                 currency: "{{ currency }}",
-                name: "Electro Store",
+                name: "CARTZY",
                 description: "Order #{{ order.order_number }}",
                 order_id: "{{ razorpay_order_id }}",
                 handler: function(response) {
