@@ -249,7 +249,7 @@ def user_view_products(request, id):
 def user_view_product_details(request, id):
     product_details = get_object_or_404(Product, id=id, is_active=True)
     images = ProductImage.objects.filter(product=product_details)
-    
+    products = Product.objects.filter(is_active=True)
     # Get related products from the same category (excluding current product)
     related_products = Product.objects.filter(
         category=product_details.category,
@@ -268,6 +268,7 @@ def user_view_product_details(request, id):
     if reviews.exists():
         average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
     context = {
+        'products':products,
         'product_details': product_details,
         'images': images,
         'user_has_reviewed': user_has_reviewed,
