@@ -192,7 +192,13 @@
     <div class="login-wrapper">
         <div class="login-box">
             <h2>Welcome Back !!!</h2>
-
+ {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger" style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; border-radius: 3px; margin-bottom: 20px; text-align: center;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group">

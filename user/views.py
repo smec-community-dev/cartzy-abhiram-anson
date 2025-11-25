@@ -15,6 +15,7 @@ from seller.models import Notification
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 
 class OAuthCancelView(View):
     def get(self, request):
@@ -73,29 +74,80 @@ def home_view(request):
 def about_view(request):
     return render(request, 'user/about.html')
 
-def user_reg_view(request):
-    if request.method=='POST':
-        firstname=request.POST['firstname']
-        lastname=request.POST['lastname']
-        email=request.POST['email']
-        username=request.POST['username']
-        phone=request.POST['phone']
-        password=request.POST['password']
-        confirm_password=request.POST['confirm-password']            
 
-        if confirm_password!=password:
-            return HttpResponse('<script>alert("Passwords  doesnt match!!!");window.location.href="/UserReg/";</script>')
-        
-        if User.objects.filter(username = username).exists():
-            return HttpResponse('<script>alert("User already exists!!!");window.location.href="/UserReg/";</script>')
-        if User.objects.filter(email = email).exists():
-            return HttpResponse('<script>alert("Email already exists!!!");window.location.href="/UserReg/";</script>')
-        
-        user=User.objects.create_user(first_name=firstname, last_name=lastname, email=email, username=username,password=password, role='customer')
-        CustomerProfile.objects.create(user=user, phone=phone)
-        return redirect('/login/')
-        
-    return render(request ,'user/user_reg.html')
+def user_reg_view(request):
+    if request.method == 'POST':
+        firstname = request.POST['firstname']
+        lastname = request.POST['lastname']
+        email = request.POST['email']
+        username = request.POST['username']
+        phone = request.POST['phone']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm-password']
+
+        # Password validation
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long!')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'username': username,
+                'phone': phone
+            })
+
+        # Username existence check
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists! Please choose a different one.')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'phone': phone
+            })
+
+        # Password match validation
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match!')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'email': email,
+                'username': username,
+                'phone': phone
+            })
+
+
+
+        # Email existence check
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists! Please use a different email.')
+            return render(request, 'user/user_reg.html', {
+                'firstname': firstname,
+                'lastname': lastname,
+                'username': username,
+                'phone': phone
+            })
+
+        # Create user if all validations pass
+        try:
+            user = User.objects.create(
+                first_name=firstname, 
+                last_name=lastname, 
+                email=email, 
+                username=username,
+                password=make_password(password), 
+                role='customer'
+            )
+            CustomerProfile.objects.create(user=user, phone=phone)
+            messages.success(request, 'Registration successful! Please login to continue.')
+            return redirect('/login/')
+            
+        except Exception as e:
+            messages.error(request, 'An error occurred during registration. Please try again.')
+            return render(request, 'user/user_reg.html')
+
+    return render(request, 'user/user_reg.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -107,7 +159,7 @@ def login_view(request):
             login(request, user)
             return redirect('/userhome/')
         else:
-            return HttpResponse('<scripts>alert("Invalid!!!");</scripts>')
+             messages.error(request, 'Invalid username or password!')
     return render(request, 'user/login.html')
 
 def logout_view(request):
@@ -122,7 +174,7 @@ def user_home_view(request):
 
 def user_category_view(request):
     categories_list = Category.objects.all()
-    paginator = Paginator(categories_list, 3)
+    paginator = Paginator(categories_list, 6)
     page = request.GET.get('page')
     
     try:
@@ -162,7 +214,7 @@ def user_view_all_products(request):
         products = products.order_by('-id')  # Assuming newer products have higher IDs
     
     # Pagination
-    paginator = Paginator(products, 2)
+    paginator = Paginator(products, 6)
     page = request.GET.get('page')
     
     try:
@@ -197,6 +249,12 @@ def user_view_product_details(request, id):
     product_details = get_object_or_404(Product, id=id, is_active=True)
     images = ProductImage.objects.filter(product=product_details)
     
+    # Get related products from the same category (excluding current product)
+    related_products = Product.objects.filter(
+        category=product_details.category,
+        is_active=True
+    ).exclude(id=product_details.id)[:6]  # Limit to 6 related products
+    
     # Check if the current user has already reviewed this product
     user_has_reviewed = False
     if request.user.is_authenticated:
@@ -209,6 +267,7 @@ def user_view_product_details(request, id):
         'product_details': product_details,
         'images': images,
         'user_has_reviewed': user_has_reviewed,
+        'related_products': related_products,  # Add related products to context
     }
     
     return render(request, 'user/user_view_single_products.html', context)
@@ -621,12 +680,15 @@ def user_update_order_address(request):
 
 @role_required("customer", login_url="/login/")
 def user_add_new_address(request):
-    
     if request.method == 'POST':
-       
         user_id = request.user.id
+        
+        # Get the cart_id or product_id from the form data
         cart_id = request.POST.get('cart_id')
-
+        product_id = request.POST.get('product_id')
+        quantity = request.POST.get('quantity')
+        is_buy_now = request.POST.get('is_buy_now') == 'true'
+        
         try:
             # Checkbox handling
             is_default = 'is_default' in request.POST
@@ -648,14 +710,62 @@ def user_add_new_address(request):
                 is_default=is_default
             )
 
-            return redirect('user_confirm_order', id=cart_id)
+            # Redirect based on the flow
+            if is_buy_now and product_id:
+                # For buy now flow, redirect to buy now confirmation
+                return redirect('user_buy_now_confirm', product_id=product_id, quantity=quantity)
+            elif cart_id:
+                # For cart flow, redirect back to order confirmation with cart id
+                return redirect('user_confirm_order', id=cart_id)
+            else:
+                # Fallback - redirect to cart
+                return redirect('user_view_cart')
 
         except Exception as e:
-            print("Hkkki")
             print("ERROR:", e)
-            return redirect('user_confirm_order', id=cart_id)
+            # Fallback redirect
+            if cart_id:
+                return redirect('user_confirm_order', id=cart_id)
+            else:
+                return redirect('user_view_cart')
 
-    return redirect('user_confirm_order', id=cart_id)
+    return redirect('user_view_cart')
+
+
+@role_required("customer", login_url="/login/")
+def user_buy_now_confirm(request, product_id, quantity):
+    user_id = request.user.id
+    user = User.objects.get(id=user_id)
+    customer_profile = CustomerProfile.objects.get(user_id=user_id)
+    all_addresses = Address.objects.filter(customer_id=user_id)
+    
+    try:
+        address = Address.objects.get(customer_id=user_id, is_default=True)   
+    except Address.DoesNotExist:
+        address = Address.objects.filter(customer_id=user_id).first()
+    
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    
+    subtotal = product.price * int(quantity)
+    shipping = 50
+    grand_total = subtotal + shipping
+    
+    context = {
+        'product': product,
+        'quantity': quantity,
+        'address': address,
+        'all_addresses': all_addresses,
+        'customer_profile': customer_profile,
+        'user': user,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'grand_total': grand_total,
+        'is_buy_now': True
+    }
+    
+    return render(request, 'user/user_confirm_oder.html', context)
+
+
 
 @role_required("customer", login_url="/login/")
 

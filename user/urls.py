@@ -51,7 +51,7 @@ urlpatterns=[
     path('uupdateaddress', views.user_update_order_address, name='user_update_order_address'),
       path('addresses/set-default/', views.user_set_default_address, name='user_set_default_address'),
     path('addresses/delete/', views.user_delete_address, name='user_delete_address'),
-    
+    path('userbuynowconfirm/<int:product_id>/<int:quantity>/', views.user_buy_now_confirm, name='user_buy_now_confirm'),
     path('userorder/<int:id>/', views.create_order, name='user_create_order'),
     path('buy-now/<int:product_id>/', views.buy_now_direct, name='user_buy_now_direct'),
    path('create-buy-now-order/', views.create_buy_now_order, name='user_create_buy_now_order'), 

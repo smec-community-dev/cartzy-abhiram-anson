@@ -29,6 +29,72 @@
 
     <!-- Template Stylesheet -->
     <link href="/static/css/style.css" rel="stylesheet">
+    <style>
+        /* Related Products Styling */
+        .related-product-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .related-product-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .related-product-image {
+            height: 150px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 10px;
+        }
+        .related-product-image img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .related-product-info {
+            padding: 15px;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .related-product-name {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            height: 2.6em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .related-product-price {
+            color: #F92400;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .related-product-actions {
+            padding: 12px 15px 15px;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #e9ecef;
+        }
+        .related-product-btn {
+            width: 100%;
+            font-size: 0.8rem;
+            padding: 6px 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -64,64 +130,70 @@
     <div class="container-fluid shop py-5">
         <div class="container py-5">
             <div class="row g-4">
-                <div class="col-lg-5 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="input-group w-100 mx-auto d-flex mb-4">
-                        <input type="search" class="form-control p-3" placeholder="keywords"
-                            aria-describedby="search-icon-1">
-                        <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                    </div>
-                    <div class="product-categories mb-4">
-                        <h4>Products Categories</h4>
-                        <ul class="list-unstyled">
-                            <li>
-                                <div class="categories-item">
-                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        Accessories</a>
-                                    <span>(3)</span>
+                <!-- Related Products Sidebar -->
+                <div class="col-lg-3 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="related-products mb-4">
+                        <h4 class="mb-4">Related Products</h4>
+                        <div class="row g-3">
+                            {% for related_product in related_products %}
+                            <div class="col-12">
+                                <div class="related-product-card">
+                                    <div class="related-product-image">
+                                        {% for image in related_product.images.all %}
+                                            {% if image.is_main %}
+                                                <img src="{{ image.image.url }}" alt="{{ related_product.name }}">
+                                            {% endif %}
+                                        {% empty %}
+                                            <img src="{{ related_product.images.first.image.url }}" alt="{{ related_product.name }}">
+                                        {% endfor %}
+                                    </div>
+                                    <div class="related-product-info">
+                                        <h5 class="related-product-name">{{ related_product.name }}</h5>
+                                        <div class="related-product-price">₹{{ related_product.price }}</div>
+                                    </div>
+                                    <div class="related-product-actions">
+                                        <a href="{% url 'user_view_product_details' related_product.id %}" 
+                                           class="btn btn-primary related-product-btn">
+                                            <i class="fas fa-eye me-1"></i> View Details
+                                        </a>
+                                    </div>
                                 </div>
-                            </li>
-                            <li>
-                                <div class="categories-item">
-                                    <a href="#" class="text-dark"><i class="fas fa-apple-alt text-secondary me-2"></i>
-                                        Electronics & Computer</a>
-                                    <span>(5)</span>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="text-center py-3">
+                                    <p class="text-muted mb-0">No related products found</p>
                                 </div>
-                            </li>
-                            <li>
-                                <div class="categories-item">
-                                    <a href="#" class="text-dark"><i
-                                            class="fas fa-apple-alt text-secondary me-2"></i>Laptops & Desktops</a>
-                                    <span>(2)</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="categories-item">
-                                    <a href="#" class="text-dark"><i
-                                            class="fas fa-apple-alt text-secondary me-2"></i>Mobiles & Tablets</a>
-                                    <span>(8)</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="categories-item">
-                                    <a href="#" class="text-dark"><i
-                                            class="fas fa-apple-alt text-secondary me-2"></i>SmartPhone & Smart TV</a>
-                                    <span>(5)</span>
-                                </div>
-                            </li>
-                        </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-7 col-xl-9 wow fadeInUp" data-wow-delay="0.1s">
+
+                <!-- Main Product Content -->
+                <div class="col-lg-9 col-xl-9 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="row g-4 single-product">
                         <div class="col-xl-6">
                             <div class="single-carousel owl-carousel">
+                                 {% for img in images %}
+            {% if img.is_main %}
+        <div class="single-item"
+            data-dot="<img class='img-fluid' src='{{img.image.url}}' alt=''>">
+            <div class="single-inner bg-light rounded">
+                <img src="{{img.image.url}}" class="img-fluid rounded" alt="Product Image">
+            </div>
+        </div>
+            {% endif %}
+        {% endfor %}
                                 {% for img in images %}
+                                {% if not img.is_main %}
                                 <div class="single-item"
                                     data-dot="<img class='img-fluid' src='{{img.image.url}}' alt=''>">
                                     <div class="single-inner bg-light rounded">
                                         <img src="{{img.image.url}}" class="img-fluid rounded" alt="Product Image">
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -306,15 +378,6 @@
                                             </a>
                                             {% endif %}
                                         </div>
-                                    {% endif %}
-                                    
-                                    <!-- Add Review Button for logged-in users who haven't reviewed yet -->
-                                    {% if request.user.is_authenticated and not user_has_reviewed %}
-                                    <div class="text-center mt-4">
-                                        <a href="{% url 'user_add_review' product_details.id %}" class="btn btn-outline-primary">
-                                            <i class="fas fa-plus me-2"></i>Add Your Review
-                                        </a>
-                                    </div>
                                     {% endif %}
                                 </div>
                             </div>

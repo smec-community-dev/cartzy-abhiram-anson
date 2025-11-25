@@ -548,7 +548,39 @@
         background: #F92400;
         color: white;
     }
+/* Address Required Modal Styles */
+#addressRequiredModal .modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+}
 
+#addressRequiredModal .modal-body {
+    padding: 2rem;
+}
+
+#addressRequiredModal .fa-map-marker-alt {
+    color: #F92400;
+}
+
+#addressRequiredModal .btn-primary {
+    background: #F92400;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 500;
+}
+
+#addressRequiredModal .btn-primary:hover {
+    background: #ce2305;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 36, 0, 0.3);
+}
+
+#addressRequiredModal .btn-outline-secondary {
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 500;
+}
     .payment-info {
         flex: 1;
     }
@@ -1060,82 +1092,132 @@
     <script src="/static/js/main.js"></script>
     
     <script>
-        // Handle payment method selection and form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-            const confirmOrderBtn = document.getElementById('confirm-order-btn');
-            const orderForm = document.getElementById('order-form');
+    // Handle payment method selection and form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+        const confirmOrderBtn = document.getElementById('confirm-order-btn');
+        const orderForm = document.getElementById('order-form');
+        
+        // Create Address Selection Modal dynamically
+        const addressModalHTML = `
+            <div class="modal fade" id="addressRequiredModal" tabindex="-1" aria-labelledby="addressRequiredModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #F92400;">
+                            <h5 class="modal-title" style="color: white;" id="addressRequiredModalLabel">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address Required
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <div class="mb-4">
+                                <i class="fas fa-map-marker-alt fa-3x text-warning mb-3"></i>
+                                <h4 class="text-dark mb-3">Shipping Address Required</h4>
+                                <p class="text-muted">Please select a shipping address to continue with your order.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#addressSelectionModal">
+                                <i class="fas fa-address-book me-2"></i>Choose Address
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add the modal to the body
+        document.body.insertAdjacentHTML('beforeend', addressModalHTML);
+        
+        // Update button text and behavior based on payment method
+        function updatePaymentUI() {
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
             
-            // Update button text and behavior based on payment method
-            function updatePaymentUI() {
-                const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
-                
-                if (selectedMethod === 'RAZORPAY') {
-                    confirmOrderBtn.innerHTML = `Proceed to Secure Payment <i class="fas fa-lock ms-2"></i>`;
-                    confirmOrderBtn.style.background = '#2d5baf';
-                } else {
-                    confirmOrderBtn.innerHTML = `Confirm Order & Pay on Delivery <i class="fas fa-truck ms-2"></i>`;
-                    confirmOrderBtn.style.background = '#F92400';
-                }
+            if (selectedMethod === 'RAZORPAY') {
+                confirmOrderBtn.innerHTML = `Proceed to Secure Payment <i class="fas fa-lock ms-2"></i>`;
+                confirmOrderBtn.style.background = '#2d5baf';
+            } else {
+                confirmOrderBtn.innerHTML = `Confirm Order & Pay on Delivery <i class="fas fa-truck ms-2"></i>`;
+                confirmOrderBtn.style.background = '#F92400';
+            }
+        }
+        
+        // Handle form submission
+        confirmOrderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            const selectedAddress = document.querySelector('input[name="selected_address"]').value;
+            
+            // Validate address selection - Show modal instead of alert
+            if (!selectedAddress) {
+                // Show the address required modal
+                const addressRequiredModal = new bootstrap.Modal(document.getElementById('addressRequiredModal'));
+                addressRequiredModal.show();
+                return;
             }
             
-            // Handle form submission
-            confirmOrderBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-                const selectedAddress = document.querySelector('input[name="selected_address"]').value;
-                
-                // Validate address selection
-                if (!selectedAddress) {
-                    alert('Please select a shipping address');
-                    return;
-                }
-                
-                // Create hidden input for payment method
-                let paymentMethodInput = document.createElement('input');
-                paymentMethodInput.type = 'hidden';
-                paymentMethodInput.name = 'payment_method';
-                paymentMethodInput.value = paymentMethod;
-                orderForm.appendChild(paymentMethodInput);
-                
-                if (paymentMethod === 'RAZORPAY') {
-                    // For Razorpay, show loading state
-                    confirmOrderBtn.innerHTML = `Processing... <i class="fas fa-spinner fa-spin ms-2"></i>`;
-                    confirmOrderBtn.disabled = true;
-                }
-                
-                // Submit the form
-                orderForm.submit();
-            });
+            // Create hidden input for payment method
+            let paymentMethodInput = document.createElement('input');
+            paymentMethodInput.type = 'hidden';
+            paymentMethodInput.name = 'payment_method';
+            paymentMethodInput.value = paymentMethod;
+            orderForm.appendChild(paymentMethodInput);
             
-            // Add event listeners to payment radio buttons
-            paymentRadios.forEach(radio => {
-                radio.addEventListener('change', updatePaymentUI);
-            });
+            if (paymentMethod === 'RAZORPAY') {
+                // For Razorpay, show loading state
+                confirmOrderBtn.innerHTML = `Processing... <i class="fas fa-spinner fa-spin ms-2"></i>`;
+                confirmOrderBtn.disabled = true;
+            }
             
-            // Initialize UI
-            updatePaymentUI();
-
-            // Add some animation to the page
-            // Animate progress steps
-            const steps = document.querySelectorAll('.step');
-            steps.forEach((step, index) => {
-                setTimeout(() => {
-                    step.style.opacity = '1';
-                    step.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-            
-            // Animate content cards
-            const cards = document.querySelectorAll('.content-card');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 600 + (index * 150));
-            });
+            // Submit the form
+            orderForm.submit();
         });
-    </script>
+        
+        // Add event listeners to payment radio buttons
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', updatePaymentUI);
+        });
+        
+        // Initialize UI
+        updatePaymentUI();
+
+        // Add some animation to the page
+        // Animate progress steps
+        const steps = document.querySelectorAll('.step');
+        steps.forEach((step, index) => {
+            setTimeout(() => {
+                step.style.opacity = '1';
+                step.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+        
+        // Animate content cards
+        const cards = document.querySelectorAll('.content-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 600 + (index * 150));
+        });
+
+        // Handle modal transitions
+        document.getElementById('addressRequiredModal').addEventListener('hidden.bs.modal', function () {
+            // When the address required modal is closed, focus on the confirm order button
+            confirmOrderBtn.focus();
+        });
+
+        // When user clicks "Choose Address" in the modal, it automatically opens the address selection modal
+        document.getElementById('addressRequiredModal').addEventListener('hidden.bs.modal', function (event) {
+            // Check if the modal was closed by clicking the "Choose Address" button
+            if (event.target.getAttribute('data-bs-toggle') === 'modal') {
+                // The address selection modal will open automatically due to Bootstrap's data attributes
+            }
+        });
+    });
+</script>
 </body>
 </html>
