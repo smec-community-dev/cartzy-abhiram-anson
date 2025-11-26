@@ -249,7 +249,7 @@ def user_view_products(request, id):
 def user_view_product_details(request, id):
     product_details = get_object_or_404(Product, id=id, is_active=True)
     images = ProductImage.objects.filter(product=product_details)
-    products = Product.objects.filter(is_active=True)
+    products = Product.objects.filter(is_active=True).exclude(id=id)[:3]
     # Get related products from the same category (excluding current product)
     related_products = Product.objects.filter(
         category=product_details.category,
@@ -1263,11 +1263,34 @@ def user_all_notifications(request):
 def clear_single_notification(request, notification_id):
     """Clear a single notification"""
     try:
+        # Use CustomerNotification consistently
         notification = CustomerNotification.objects.get(id=notification_id, user=request.user)
         notification.delete()
         return JsonResponse({'success': True})
     except CustomerNotification.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Notification not found'})
+
+@login_required
+def clear_all_notifications(request):
+    try:
+        # Use CustomerNotification consistently
+        notifications = CustomerNotification.objects.filter(user=request.user)
+        count = notifications.count()
+        notifications.delete()
+        return JsonResponse({'success': True, 'message': f'Cleared {count} notifications'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def clear_read_notifications(request):
+    try:
+        # Use CustomerNotification consistently
+        notifications = CustomerNotification.objects.filter(user=request.user, is_read=True)
+        count = notifications.count()
+        notifications.delete()
+        return JsonResponse({'success': True, 'message': f'Cleared {count} read notifications'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 import razorpay
 import os

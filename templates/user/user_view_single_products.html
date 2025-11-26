@@ -499,6 +499,15 @@
                             </div>
                         </div>
                         {% endfor %}
+                                <!-- View More Button - Same Category -->
+        {% if product_details.category %}
+        <div class="text-center mt-4">
+            <a href="{% url 'user_view_products' product_details.category.id %}" class="btn btn-outline-primary view-more-btn">
+                <i class="fas fa-arrow-right me-2"></i>View More in {{ product_details.category.name }}
+            </a>
+        </div>
+        {% endif %}
+
                     </div>
                 </div>
             </div>

@@ -280,9 +280,9 @@
                         <h4>Products Categories</h4>
                         <div class="categories-list">
                             {% for c in categories %}
-                            <div class="list-group-item">
+                            <div class="list-group-item" style="border:0px">
                                 <a href="{% url 'user_view_products' c.id %}" class="text-dark d-flex align-items-center">
-                                    <i class="fas fa-folder text-secondary me-2"></i>
+                                    <i class="fas fa-tag text-success me-2"></i>
                                     {{ c.name }}
                                 </a>
                             </div>
