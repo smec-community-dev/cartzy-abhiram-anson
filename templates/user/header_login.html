@@ -61,8 +61,8 @@
 </div>
             </div>
             <div class="col-md-4 col-lg-3 text-center text-lg-end">
-                <div class="d-inline-flex align-items-center">
-                    <!-- Notification Bell -->
+    <div class="d-inline-flex align-items-center">
+        <!-- Notification Bell -->
         {% if customer_notifications %}
         <div class="relative me-3">
             <a href="{% url 'customer_all_notifications' %}" class="text-muted d-flex align-items-center justify-content-center position-relative">
@@ -77,13 +77,19 @@
             </a>
         </div>
         {% endif %}
-                    <a href="{% url 'user_view_wishlist' %}" class="text-muted d-flex align-items-center justify-content-center me-3"><span
-                            class="rounded-circle btn-md-square border"><i class="fas fa-heart"></i></a>
-                    <a href="{% url 'user_view_cart' %}" class="text-muted d-flex align-items-center justify-content-center"><span
-                            class="rounded-circle btn-md-square border"><i class="fas fa-shopping-cart"></i></span>
-                       
-                </div>
-            </div>
+        <!-- FIX THIS LINE - Add closing </a> tag -->
+        <a href="{% url 'user_view_wishlist' %}" class="text-muted d-flex align-items-center justify-content-center me-3">
+            <span class="rounded-circle btn-md-square border">
+                <i class="fas fa-heart"></i>
+            </span>
+        </a> <!-- THIS WAS MISSING -->
+        <a href="{% url 'user_view_cart' %}" class="text-muted d-flex align-items-center justify-content-center">
+            <span class="rounded-circle btn-md-square border">
+                <i class="fas fa-shopping-cart"></i>
+            </span>
+        </a>
+    </div>
+</div>
         </div>
     </div>
     <!-- Topbar End -->
@@ -125,109 +131,249 @@
         </div>
     </div>
     <!-- Navbar & Hero End -->
-     <style>
+<style>
+    /* Your existing search styles remain exactly the same */
+    .search-container {
+        position: relative;
+    }
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 0.375rem 0.375rem;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    .search-result-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    .search-result-item:hover {
+        background-color: #f8f9fa;
+    }
+    .search-result-item img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        margin-right: 10px;
+        border-radius: 4px;
+    }
+    .search-result-item .product-info {
+        flex: 1;
+    }
+    .search-result-item .product-name {
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .search-result-item .product-price {
+        color: #28a745;
+        font-size: 0.9rem;
+    }
+    .no-results {
+        padding: 10px 15px;
+        color: #6c757d;
+        text-align: center;
+    }
+
+    /* Responsive Media Queries - FIXED with background color */
+    
+    /* Tablet and Mobile adjustments for Topbar */
+    @media (max-width: 991px) {
+        .container-fluid.px-5.d-none.d-lg-block {
+            display: none !important;
+        }
+    }
+    
+    /* Mobile adjustments for Main Header */
+    @media (max-width: 991px) {
+        .container-fluid.px-5.py-4.d-none.d-lg-block {
+            display: block !important;
+            padding: 1rem !important;
+        }
+        
+        .container-fluid.px-5.py-4 .row.gx-0 {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .container-fluid.px-5.py-4 .col-md-4.col-lg-3,
+        .container-fluid.px-5.py-4 .col-md-4.col-lg-6,
+        .container-fluid.px-5.py-4 .col-md-4.col-lg-3 {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .container-fluid.px-5.py-4 .col-md-4.col-lg-6 {
+            order: 3;
+            margin-top: 1rem;
+        }
+        
         .search-container {
-    position: relative;
-}
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 0.375rem 0.375rem;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-}
-.search-result-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-.search-result-item:hover {
-    background-color: #f8f9fa;
-}
-.search-result-item img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    margin-right: 10px;
-    border-radius: 4px;
-}
-.search-result-item .product-info {
-    flex: 1;
-}
-.search-result-item .product-name {
-    font-weight: 500;
-    margin-bottom: 2px;
-}
-.search-result-item .product-price {
-    color: #28a745;
-    font-size: 0.9rem;
-}
-.no-results {
-    padding: 10px 15px;
-    color: #6c757d;
-    text-align: center;
-}
-.search-container {
-    position: relative;
-}
-.search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 0.375rem 0.375rem;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-}
-.search-result-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-.search-result-item:hover {
-    background-color: #f8f9fa;
-}
-.search-result-item img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    margin-right: 10px;
-    border-radius: 4px;
-}
-.search-result-item .product-info {
-    flex: 1;
-}
-.search-result-item .product-name {
-    font-weight: 500;
-    margin-bottom: 2px;
-}
-.search-result-item .product-price {
-    color: #28a745;
-    font-size: 0.9rem;
-}
-.no-results {
-    padding: 10px 15px;
-    color: #6c757d;
-    text-align: center;
-}
-     </style>
-     <script>
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .display-5 {
+            font-size: 1.8rem !important;
+        }
+    }
+    
+    /* Small Mobile adjustments */
+    @media (max-width: 576px) {
+        .container-fluid.px-5.py-4 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        
+        .display-5 {
+            font-size: 1.5rem !important;
+        }
+        
+        .d-inline-flex.align-items-center {
+            justify-content: center;
+        }
+        
+        .rounded-circle.btn-md-square {
+            width: 35px;
+            height: 35px;
+        }
+    }
+    
+    /* Navbar Mobile adjustments - FIXED with blue background */
+    @media (max-width: 991px) {
+        .container-fluid.nav-bar .row.gx-0 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            background: #f92400!important; /* Ensure blue background */
+        }
+        
+        .container-fluid.nav-bar .col-lg-3 {
+            display: none;
+        }
+        
+        .container-fluid.nav-bar .col-12.col-lg-9 {
+            width: 100%;
+            background: #f92400!important; /* Ensure blue background */
+        }
+        
+        .navbar.navbar-expand-lg.navbar-light.bg-primary {
+            background: #f92400!important; /* Ensure blue background */
+        }
+        
+        /* Fix navbar toggler only */
+        .navbar-toggler {
+            position: absolute;
+            right: 1rem;
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+        }
+        
+        .navbar-toggler .fa-bars {
+            color: f92400 !important;
+        }
+        
+        .navbar-collapse {
+            margin-top: 10px;
+            background: #f92400!important; /* Ensure blue background for collapsed menu */
+        }
+        
+        .navbar-nav.ms-auto.py-0 {
+            text-align: center;
+            background: #f92400!important; /* Ensure blue background */
+        }
+        
+        .navbar-nav .nav-item {
+            margin: 0.25rem 0;
+            width: 100%;
+            background: #f92400!important; /* Ensure blue background */
+        }
+        
+        .nav-link {
+            padding: 0.75rem 1rem !important;
+            display: block;
+            color: white !important; /* Ensure white text */
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1) !important; /* Light hover effect */
+        }
+        
+        .btn.btn-secondary.rounded-pill {
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            background: #6c757d !important; /* Keep secondary button color */
+            border-color: #6c757d !important;
+        }
+    }
+    
+    /* Ensure navbar maintains blue background on all states */
+    .bg-primary {
+        background-color: #f92400!important;
+    }
+    
+    /* Prevent navbar toggle button conflicts */
+    .navbar-toggler {
+       background-color: #f92400!important;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: none !important;
+    }
+    
+    /* Ensure proper spacing on all devices */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
+    
+    /* Search bar mobile optimization */
+    @media (max-width: 576px) {
+        #searchInput {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.9rem;
+        }
+        
+        .search-results {
+            max-height: 250px;
+        }
+        
+        .search-result-item {
+            padding: 8px 12px;
+        }
+        
+        .search-result-item img {
+            width: 35px;
+            height: 35px;
+        }
+    }
+    
+    /* Notification bell mobile adjustment */
+    @media (max-width: 576px) {
+        .absolute.-top-1.-right-1 {
+            top: -2px !important;
+            right: -2px !important;
+        }
+    }
+    
+    /* Improve button responsiveness */
+    .btn {
+        white-space: nowrap;
+    }
+</style>
+    <script>
 // Get products from hidden field
 const products = JSON.parse(document.getElementById('header-products-data').textContent);
 console.log('Products loaded:', products);
