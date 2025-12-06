@@ -489,6 +489,8 @@
 </style>
 
 <body data-user-id="{{ request.user.id }}">
+    <!-- Add CSRF Token -->
+    {% csrf_token %}
 
     <!-- Spinner Start -->
     <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -560,7 +562,7 @@
                         <div class="notification-list">
                             {% if notifications %}
                                 {% for notification in notifications %}
-                                <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                                <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-notification-id="{{ notification.id }}">
                                     <div class="notification-icon">
                                         <i class="{{ notification.icon }}"></i>
                                     </div>
@@ -582,12 +584,12 @@
                                         </div>
                                         <div class="notification-actions">
                                             {% if not notification.is_read %}
-                                            <button onclick="markAsRead({{ notification.id }})" class="btn-primary-custom">
+                                            <button class="btn-primary-custom mark-as-read-btn" data-notification-id="{{ notification.id }}">
                                                 <i class="fas fa-check me-1"></i>
                                                 Mark as Read
                                             </button>
                                             {% endif %}
-                                            <button type="button" class="btn-secondary-custom" data-bs-toggle="modal" data-bs-target="#clearSingleModal" data-notification-id="{{ notification.id }}">
+                                            <button type="button" class="btn-secondary-custom clear-notification-btn" data-notification-id="{{ notification.id }}">
                                                 <i class="fas fa-times me-1"></i>
                                                 Clear
                                             </button>
@@ -685,7 +687,6 @@
     <!-- Notifications Content End -->
 
     <!-- Confirmation Modals -->
-    
     <!-- Clear Single Notification Modal -->
     <div class="modal fade confirmation-modal" id="clearSingleModal" tabindex="-1" aria-labelledby="clearSingleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -728,11 +729,7 @@
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="modal-btn modal-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                        <form method="POST" id="clearReadForm" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="clear_read">
-                            <button type="submit" class="modal-btn modal-btn-confirm">Yes, Clear Read</button>
-                        </form>
+                        <button type="button" class="modal-btn modal-btn-confirm" onclick="clearReadNotifications()">Yes, Clear Read</button>
                     </div>
                 </div>
             </div>
@@ -757,11 +754,7 @@
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="modal-btn modal-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                        <form method="POST" id="clearAllForm" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="clear_all">
-                            <button type="submit" class="modal-btn modal-btn-confirm">Yes, Clear All</button>
-                        </form>
+                        <button type="button" class="modal-btn modal-btn-confirm" onclick="clearAllNotifications()">Yes, Clear All</button>
                     </div>
                 </div>
             </div>
@@ -784,8 +777,14 @@
     <script src="/static/js/main.js"></script>
 
 <script>
-// Global variable for current notification ID
+/// Global variable for current notification ID
 let currentNotificationId = null;
+
+// Get CSRF Token
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
 
 // Connect to WebSocket for real-time notifications
 function connectWebSocket(userId) {
@@ -900,7 +899,7 @@ function attachEventListeners(notificationElement) {
 function markAsRead(notificationId) {
     console.log('Marking as read:', notificationId);
     
-    fetch(`/user/notifications/${notificationId}/read/`, {
+    fetch(`/notifications/${notificationId}/read/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCSRFToken(),
@@ -959,7 +958,7 @@ function clearSingleNotification() {
     
     console.log('Clearing notification:', currentNotificationId);
     
-    fetch(`/user/notifications/${currentNotificationId}/clear/`, {
+    fetch(`/notifications/${currentNotificationId}/clear/`, {
         method: 'DELETE',
         headers: {
             'X-CSRFToken': getCSRFToken(),
@@ -984,12 +983,125 @@ function clearSingleNotification() {
             if (modal) {
                 modal.hide();
             }
+            
+            // Show success message
+            showToast('Notification deleted successfully!', 'success');
         } else {
             console.error('Failed to clear notification:', data.error);
+            showToast('Failed to delete notification. Please try again.', 'error');
         }
     })
     .catch(error => {
         console.error('Error clearing notification:', error);
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
+
+// Clear All Notifications
+function clearAllNotifications() {
+    console.log('Clearing all notifications...');
+    
+    fetch('/notifications/clear-all/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Clear All response:', data);
+        if (data.success) {
+            // Remove all notifications from UI
+            const notificationList = document.querySelector('.notification-list');
+            if (notificationList) {
+                notificationList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No notifications yet</h3>
+                        <p>You'll see important updates here when sellers reply to your reviews<br>or when your order status changes.</p>
+                    </div>
+                `;
+            }
+            
+            // Update counts
+            updateCountsAfterClearAll();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('clearAllModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Show success message
+            showToast('All notifications cleared successfully!', 'success');
+        } else {
+            console.error('Failed to clear all notifications:', data.error);
+            showToast('Failed to clear notifications. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing all notifications:', error);
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
+
+// Clear Read Notifications
+function clearReadNotifications() {
+    console.log('Clearing read notifications...');
+    
+    fetch('/notifications/clear-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Clear Read response:', data);
+        if (data.success) {
+            // Remove read notifications from UI
+            const readNotifications = document.querySelectorAll('.notification-item:not(.unread)');
+            readNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            // Check if no notifications left
+            const notificationList = document.querySelector('.notification-list');
+            const remainingNotifications = notificationList.querySelectorAll('.notification-item');
+            
+            if (remainingNotifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No notifications yet</h3>
+                        <p>You'll see important updates here when sellers reply to your reviews<br>or when your order status changes.</p>
+                    </div>
+                `;
+            }
+            
+            // Update counts
+            updateCountsAfterClearRead();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('clearReadModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Show success message
+            showToast('Read notifications cleared successfully!', 'success');
+        } else {
+            console.error('Failed to clear read notifications:', data.error);
+            showToast('Failed to clear read notifications. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing read notifications:', error);
+        showToast('An error occurred. Please try again.', 'error');
     });
 }
 
@@ -1012,7 +1124,7 @@ function updateCountsImmediately() {
 
 // Update notification counts in real-time
 function updateNotificationCounts() {
-    fetch('/user/notifications/unread-count/')
+    fetch('/notifications/unread-count/')
         .then(response => response.json())
         .then(data => {
             const totalCountElement = document.querySelector('.stat-card.total .stat-number');
@@ -1032,6 +1144,49 @@ function updateNotificationCounts() {
         });
 }
 
+// Update counts after clearing all notifications
+function updateCountsAfterClearAll() {
+    const totalCountElement = document.querySelector('.stat-card.total .stat-number');
+    const unreadCountElement = document.querySelector('.stat-card.unread .stat-number');
+    const readCountElement = document.querySelector('.stat-card.read .stat-number');
+    
+    if (totalCountElement) totalCountElement.textContent = '0';
+    if (unreadCountElement) unreadCountElement.textContent = '0';
+    if (readCountElement) readCountElement.textContent = '0';
+    
+    // Update header badge
+    const headerBadge = document.querySelector('.notification-badge');
+    if (headerBadge) {
+        headerBadge.style.display = 'none';
+    }
+    
+    // Hide action buttons
+    const actionButtons = document.querySelector('.action-buttons');
+    if (actionButtons) {
+        actionButtons.style.display = 'none';
+    }
+}
+
+// Update counts after clearing read notifications
+function updateCountsAfterClearRead() {
+    const totalCountElement = document.querySelector('.stat-card.total .stat-number');
+    const unreadCountElement = document.querySelector('.stat-card.unread .stat-number');
+    const readCountElement = document.querySelector('.stat-card.read .stat-number');
+    
+    if (totalCountElement && unreadCountElement) {
+        const unreadCount = parseInt(unreadCountElement.textContent);
+        const totalCount = unreadCount; // Only unread remain
+        totalCountElement.textContent = totalCount;
+        readCountElement.textContent = '0';
+    }
+    
+    // Hide clear read button if no read notifications left
+    const clearReadButton = document.querySelector('[data-bs-target="#clearReadModal"]');
+    if (clearReadButton) {
+        clearReadButton.style.display = 'none';
+    }
+}
+
 // Get icon based on notification type
 function getNotificationIcon(type) {
     const iconMap = {
@@ -1047,10 +1202,44 @@ function getNotificationIcon(type) {
     return iconMap[type] || 'fas fa-bell';
 }
 
-// Get CSRF Token
-function getCSRFToken() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-    return csrfToken ? csrfToken.value : '';
+// Show toast message
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    // Add to page
+    const toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        const container = document.createElement('div');
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        container.appendChild(toast);
+    } else {
+        toastContainer.appendChild(toast);
+    }
+    
+    // Show toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove from DOM after hide
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
 }
 
 // Connect WebSocket when page loads
@@ -1065,6 +1254,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Attach event listeners to existing notifications
     document.querySelectorAll('.notification-item').forEach(item => {
         attachEventListeners(item);
+    });
+    
+    // Add event listener for clear buttons to set currentNotificationId
+    document.querySelectorAll('.clear-notification-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            currentNotificationId = this.getAttribute('data-notification-id');
+            console.log('Current notification ID set to:', currentNotificationId);
+        });
     });
 });
 </script>

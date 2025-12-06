@@ -68,7 +68,13 @@ urlpatterns=[
     path('notifications/unread-count/', views.get_unread_notification_count, name='unread_notification_count'),
     
     path('notifications/page/', views.user_all_notifications, name='user_all_notifications'),
-    
+# Keep only these:
+path('notifications/<int:notification_id>/clear/', views.clear_single_notification, name='clear_single_notification'),
+path('notifications/clear-all/', views.clear_all_notifications, name='clear_all_notifications'),
+path('notifications/clear-read/', views.clear_read_notifications, name='clear_read_notifications'),
+
+    path('notifications/<int:notification_id>/clear/', views.clear_single_notification, name='clear_single_notification'),
+
     
     path('payment/initiate/<int:order_id>/', views.initiate_razorpay_payment, name='initiate_razorpay_payment'),
     path('payment/success/', views.razorpay_payment_success, name='razorpay_payment_success'),

@@ -30,7 +30,175 @@
     <!-- Template Stylesheet -->
     <link href="/static/css/style.css" rel="stylesheet">
 </head>
+<style>
+    /* Add these responsive styles to your existing style.css file */
 
+/* Mobile-first responsive adjustments */
+@media (max-width: 768px) {
+    /* Carousel adjustments for mobile */
+    .carousel .row.g-0 {
+        flex-direction: column;
+    }
+    
+    .carousel .col-12.col-lg-7.col-xl-9,
+    .carousel .col-12.col-lg-5.col-xl-3 {
+        width: 100%;
+    }
+    
+    .header-carousel-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .carousel-img,
+    .carousel-content {
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .carousel-content h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .carousel-content h4 {
+        font-size: 1.2rem !important;
+    }
+    
+    /* Services section mobile adjustments */
+    .container-fluid .row.g-0 > div {
+        width: 50%;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .container-fluid .row.g-0 .p-4 {
+        padding: 1rem !important;
+        text-align: center;
+    }
+    
+    .container-fluid .row.g-0 .d-flex {
+        flex-direction: column;
+    }
+    
+    .container-fluid .row.g-0 .ms-4 {
+        margin-left: 0 !important;
+        margin-top: 0.5rem;
+    }
+    
+    /* Products offer mobile adjustments */
+    .bg-light .row.g-4 > div {
+        margin-bottom: 1rem;
+    }
+    
+    .bg-white.rounded.p-4 {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .bg-white.rounded.p-4 img {
+        margin-top: 1rem;
+        max-width: 150px;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Tablet adjustments */
+@media (max-width: 992px) and (min-width: 769px) {
+    .carousel-content h1 {
+        font-size: 2rem !important;
+    }
+    
+    .container-fluid .row.g-0 > div {
+        width: 33.333%;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+    .container-fluid .row.g-0 > div {
+        width: 100%;
+    }
+    
+    .carousel-content h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .btn-primary.rounded-pill {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.9rem;
+    }
+    
+    .display-3 {
+        font-size: 2rem;
+    }
+}
+
+/* Ensure images are responsive */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Improve carousel banner responsiveness */
+.carousel-header-banner {
+    position: relative;
+    min-height: 300px;
+}
+
+.carousel-banner-offer,
+.carousel-banner {
+    position: absolute;
+    width: 100%;
+}
+
+/* Fix for header inclusion */
+.header-included {
+    width: 100%;
+}
+
+/* Ensure proper spacing on all devices */
+.container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Improve button responsiveness */
+.btn {
+    white-space: nowrap;
+}
+
+/* Services icons adjustment for mobile */
+@media (max-width: 768px) {
+    .fa-2x {
+        font-size: 1.5em !important;
+    }
+    
+    .container-fluid .row.g-0 h6 {
+        font-size: 0.9rem;
+    }
+    
+    .container-fluid .row.g-0 p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Carousel banner content mobile fix */
+@media (max-width: 768px) {
+    .carousel-header-banner {
+        min-height: 250px;
+    }
+    
+    .carousel-banner-content {
+        padding: 1rem !important;
+    }
+    
+    .carousel-banner-content .fs-3 {
+        font-size: 1.5rem !important;
+    }
+}
+</style>
 <body>
 
     <!-- Spinner Start -->
